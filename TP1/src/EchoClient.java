@@ -9,7 +9,7 @@ public class EchoClient {
 			return;
 		}
 		int port = Integer.parseInt(args[1]);
-		
+
 		// send request	
 		DatagramSocket socket = new DatagramSocket();
 		byte[] sbuf = args[2].getBytes();						// string to echo
