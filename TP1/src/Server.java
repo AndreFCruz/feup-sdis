@@ -21,22 +21,23 @@ public class Server {
 
         System.out.println("Server initialized!");
 
-        Map<String , String> database = new HashMap(); //plate number -> owner name
+        Map<String , String> database = new HashMap<>(); //plate number -> owner name
 
         int i = 0;
         while (i++ < 20) {
             socket.receive(packet);
             String msg = new String(packet.getData(), 0, packet.getLength());
-            System.out.println("Received: " + msg.trim() +
-                               " from " + packet.getAddress() + ":"+ packet.getPort());
+            System.out.println("Received: " + msg.trim() + " from " +
+                               packet.getAddress() + ":" + packet.getPort());
 
             String[] request = msg.split("\\s+");
             String response = new String();
 
             switch (request[0]){
                 case "REGISTER":
-                    //to register the association of a plate number to the owners
-                    //Returns -1 if the plate number has already been registered; otherwise, returns the number of vehicles in the database.
+                    // to register the association of a plate number to the owners
+                    // Returns -1 if the plate number has already been registered;
+                    //  otherwise, returns the number of vehicles in the database.
 
                     if(database.containsKey(request[1])){
                         System.out.println("The plate number has already been registered");
@@ -48,8 +49,9 @@ public class Server {
                     }
                     break;
                 case "LOOKUP":
-                    //    to get the owner of a given plate number.
-                    // Returns the owner's name or the string NOT_FOUND if the plate number was never registered.
+                    // to get the owner of a given plate number.
+                    // Returns the owner's name or the string NOT_FOUND if the plate
+                    //  number was never registered.
                     if(database.containsKey(request[1])){
                         System.out.println("The plate number exist in database");
                         response = database.get(request[1]);
@@ -63,7 +65,9 @@ public class Server {
                     break;
             }
             byte[] sbuf = response.getBytes();
-            DatagramPacket responsePkt = new DatagramPacket(sbuf, sbuf.length, packet.getAddress(), packet.getPort());
+            DatagramPacket responsePkt = new DatagramPacket(sbuf, sbuf.length,
+                                                            packet.getAddress(),
+                                                            packet.getPort());
             socket.send(responsePkt);
 
         }

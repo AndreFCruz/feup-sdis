@@ -2,8 +2,10 @@ import java.io.IOException;
 import java.net.*;
 
 public class Client {
+    
+    private static final int MESSAGE_LEN = 256;
 
-	public static void main(String[] args) throws IOException{
+	public static void main(String[] args) throws IOException {
 		if (args.length < 4) {
 			System.out.println("Usage: java Client <hostname> <port> <oper> <opnd>*");
 			return;
@@ -14,14 +16,14 @@ public class Client {
 		String request = args[2]; //register or lookup
 		String plate = args[3]; //plate number
 
-		if(!plate.matches("\\w{2}-\\w{2}-\\w{2}")){
+		if(!plate.matches("\\w{2}-\\w{2}-\\w{2}")) {
 			System.out.println("The plate format is incorrect. Please insert with format XX-XX-XX");
 			return;
 		}
 
 		String message = new String();
 
-		switch (request){
+		switch (request) {
 			case "register":
 				if(args[4].length() > 256) {
 					System.out.println("The vehicle owner's name must have less than 256 characters.");
@@ -37,24 +39,35 @@ public class Client {
 				return;
 		}
 
-		// send request
-		System.out.println(message);
-		DatagramSocket socket = new DatagramSocket();
-		byte[] sbuf = message.getBytes(); // string to echo
+        DatagramSocket socket = sendMessage(message, address, port);
+        String response = receiveMessage(socket, address, port);
 
-		DatagramPacket packet = new DatagramPacket(sbuf, sbuf.length, address, port);
-		socket.send(packet);
-
-
-		// get response
-		byte[] rbuf	= new byte[sbuf.length];
-		packet = new DatagramPacket(rbuf, rbuf.length);
-		socket.receive(packet);
-		// display response
-		String received	= new String(packet.getData());
-		System.out.println("Echoed	Message:" + received);
+		System.out.println("Echoed Message:" + response);
 		socket.close();
 
 		System.out.println("Client terminated!");
 	}
+    
+    private static DatagramSocket sendMessage(String message, InetAddress address, int port) throws IOException {
+        System.out.println(message);
+        DatagramSocket socket = new DatagramSocket();
+        byte[] sbuf = message.getBytes(); // send buffer
+        
+        DatagramPacket packet = new DatagramPacket(sbuf, sbuf.length, address, port);
+        socket.send(packet);
+        
+        return socket;
+    }
+    
+    private static String receiveMessage(DatagramSocket socket, InetAddress address, int port) throws IOException {
+        // get response
+        byte[] rbuf = new byte[MESSAGE_LEN];
+        DatagramPacket packet = new DatagramPacket(rbuf, rbuf.length);
+        socket.receive(packet);
+        // display response
+        String received = new String(packet.getData());
+        
+        return received;
+    }
+    
 }
