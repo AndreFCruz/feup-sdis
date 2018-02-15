@@ -3,7 +3,7 @@ import java.net.*;
 
 public class Client {
     
-    private static final int MESSAGE_LEN = 256;
+    private static final int MAX_MESSAGE_LEN = 256;
 
 	public static void main(String[] args) throws IOException {
 		if (args.length < 4) {
@@ -25,8 +25,9 @@ public class Client {
 
 		switch (request) {
 			case "register":
-				if(args[4].length() > 256) {
-					System.out.println("The vehicle owner's name must have less than 256 characters.");
+				if(args[4].length() > MAX_MESSAGE_LEN) {
+					System.out.println("The vehicle owner's name must have less than "
+                                       + MAX_MESSAGE_LEN + " characters.");
 					return;
 				}
 				message = "REGISTER " + args[3] + " " + args[4];
@@ -61,7 +62,7 @@ public class Client {
     
     private static String receiveMessage(DatagramSocket socket, InetAddress address, int port) throws IOException {
         // get response
-        byte[] rbuf = new byte[MESSAGE_LEN];
+        byte[] rbuf = new byte[MAX_MESSAGE_LEN];
         DatagramPacket packet = new DatagramPacket(rbuf, rbuf.length);
         socket.receive(packet);
         // display response
