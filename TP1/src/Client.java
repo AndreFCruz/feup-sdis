@@ -23,7 +23,7 @@ public class Client {
 
 		String message = new String();
 
-		switch (request) {
+		switch (request.toLowerCase()) {
 			case "register":
 				if(args[4].length() > MAX_MESSAGE_LEN) {
 					System.out.println("The vehicle owner's name must have less than "

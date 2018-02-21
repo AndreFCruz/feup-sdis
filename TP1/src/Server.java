@@ -14,7 +14,7 @@ public class Server {
         }
 
         int port = Integer.parseInt(args[0]);
-        int timeout = Integer.parseInt(args[1]);
+        int timeout = args.length > 1 ? Integer.parseInt(args[1]) : 0;
         DatagramSocket socket = new DatagramSocket(port);
         socket.setSoTimeout(timeout * 1000);
 
