@@ -128,7 +128,7 @@ class PlatesServer implements Runnable {
      * number was never registered.
      */
 	private String lookupPlate(String[] request) {
-		String response;
+		String response = new String();
         if (! isValidPlate(request[1]) || database.containsKey(request[1])) {
             System.out.println("The plate number exist in database");
             response = database.get(request[1]);
@@ -144,7 +144,7 @@ class PlatesServer implements Runnable {
      * otherwise, returns the number of vehicles in the database.
      */
 	private String registerPlate(String[] request) {
-		String response;
+		String response = new String();
         if (! isValidPlate(request[1]) || database.containsKey(request[1])) {
             System.out.println("The plate number has already been registered");
             response = "-1";
@@ -164,7 +164,7 @@ class PlatesServer implements Runnable {
 
         int serverPort = Integer.parseInt(args[0]);
         int mcastPort = Integer.parseInt(args[2]);        
-        InetAddress mcastAddr = InetAddress.getByAddress(args[1].getBytes());
+        InetAddress mcastAddr = InetAddress.getByName(args[1]);
 
         PlatesServer server = new PlatesServer(serverPort, mcastAddr, mcastPort);
         server.initialize();
