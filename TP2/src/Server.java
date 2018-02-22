@@ -4,39 +4,65 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.SocketTimeoutException;
+import java.nio.Buffer;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimerTask;
 
-public class Server {
+public class PlatesServer implements Runnable {
 
-    private static int DEFAULT_TIMEOUT = 3;
+    private static final int TIMEOUT = 10;
 
-    public static void main(String[] args) throws IOException {
-        if (args.length != 3) {
-            System.out.println("Usage: java Server <port_number> <mcast_addr> <mcast_port>");
-            return;
-        }
+    DatagramSocket socket;
+    InetAddress mcastAddr;
+    int mcastPort;
+    int serverPort;
 
-        int timeout = DEFAULT_TIMEOUT;
-        int serverPort = Integer.parseInt(args[0]);
-        int mcastPort = Integer.parseInt(args[2]);        
-        InetAddress mcastAddr = new InetAddress(args[1]);
+    TimerTask broadcastTask;
 
-        DatagramSocket mcastSocket = new DatagramSocket(mcastPort);
-        // TODO
+    Map<String, String> database;
 
-        DatagramSocket socket = new DatagramSocket(serverPort);
-        socket.setSoTimeout(timeout * 1000);
+    private TimerTask makeMsgTask(String msg) {
+        return new TimerTask() {
+            @Override
+            public void run() {
+                byte[] buf = msg.getBytes();
+                DatagramPacket packet = new DatagramPacket(buf, buf.length);
+                this.socket.send(packet);
+            }
+        };
+    }
 
-        byte[] rbuf = new byte[1024];
-        DatagramPacket packet = new DatagramPacket(rbuf, rbuf.length);
+    private PlatesServer(int serverPort, InetAddress mcastAddr, int mcastPort) {
+        this.serverPort = serverPort;
+        this.mcastAddr = mcastAddr;
+        this.mcastPort = mcastPort;
+    }
 
-        System.out.println("Server initialized!");
+    private void initialize() {
+        this.socket = new DatagramSocket(serverPort);
+        this.socket.setSoTimeout(TIMEOUT * 1000);
 
-        Map<String , String> database = new HashMap<>(); //plate number -> owner name
+        this.database = new HashMap<>();
+        this.broadcastTask = makeMsgTask(Integer.toString(serverPort));
 
-        int i = 0;
-        while (i++ < 20) {
+        System.out.println("Server initialized!");                
+    }
+
+    private void close() {
+		socket.close();
+        System.out.println("Server terminated");
+	}
+
+    @Override
+    public void run() {
+        // Send MultiCast Message
+        broadcastTask.run();
+        // TODO: send broadcast message in separate method,
+        // to be called independently of this thread.
+
+        // Loop waiting for messages
+        while (true) {
             try {
                 socket.receive(packet);
             } catch (SocketTimeoutException e) {
@@ -88,8 +114,24 @@ public class Server {
             socket.send(responsePkt);
 
         }
-        socket.close();
-        System.out.println("Server terminated");
+
+        close();
+    }
+
+    public static void main(String[] args) throws IOException {
+        if (args.length != 3) {
+            System.out.println("Usage: java Server <port_number> <mcast_addr> <mcast_port>");
+            return;
+        }
+
+        int timeout = DEFAULT_TIMEOUT;
+        int serverPort = Integer.parseInt(args[0]);
+        int mcastPort = Integer.parseInt(args[2]);        
+        InetAddress mcastAddr = new InetAddress(args[1]);
+
+        PlatesServer server = new PlatesServer(serverPort, mcastAddr, mcastPort);
+        Thread serverThread = new Thread(server);
+        serverThread.start();
     }
     
     private static boolean isValidPlate(String plate) {
