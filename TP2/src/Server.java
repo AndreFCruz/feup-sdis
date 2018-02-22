@@ -1,19 +1,13 @@
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.MulticastSocket;
-import java.net.SocketTimeoutException;
-import java.nio.Buffer;
+import java.net.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimerTask;
 
-import jdk.nashorn.internal.ir.RuntimeNode.Request;
-
-public class PlatesServer implements Runnable {
+class PlatesServer implements Runnable {
 
     private static final int TIMEOUT = 10;
+    private static final int MAX_MESSAGE_SIZE = 256;
 
     DatagramSocket socket;
     InetAddress mcastAddr;
@@ -36,7 +30,12 @@ public class PlatesServer implements Runnable {
             public void run() {
                 byte[] buf = msg.getBytes();
                 DatagramPacket packet = new DatagramPacket(buf, buf.length);
-                this.socket.send(packet);
+
+                try {
+                    socket.send(packet);
+                } catch (IOException ex) {
+                    System.err.println("Failed to broadcast message.");
+                }
             }
         };
     }
@@ -49,20 +48,25 @@ public class PlatesServer implements Runnable {
         this.handlers.put("REGISTER", new RequestHandler() {
             @Override
             public String handleRequest(String[] request) {
-                return this.registerPlate(request);
+                return registerPlate(request);
             }
         });
         this.handlers.put("LOOKUP", new RequestHandler() {
             @Override
             public String handleRequest(String[] request) {
-                return this.lookupPlate(request);
+                return lookupPlate(request);
             }
         });
     }
 
     private void initialize() {
-        this.socket = new DatagramSocket(serverPort);
-        this.socket.setSoTimeout(TIMEOUT * 1000);
+        try {
+            this.socket = new DatagramSocket(serverPort);
+            this.socket.setSoTimeout(TIMEOUT * 1000);
+        } catch (IOException ex) {
+            System.err.println("Failed to create socket.");
+            System.exit(1);
+        }
 
         this.broadcastTask = makeMsgTask(Integer.toString(serverPort));
 
@@ -81,11 +85,14 @@ public class PlatesServer implements Runnable {
         // TODO: send broadcast message in separate method,
         // to be called independently of this thread.
 
+        byte[] rbuf = new byte[MAX_MESSAGE_SIZE];
+        DatagramPacket packet = new DatagramPacket(rbuf, rbuf.length);
+
         // Loop waiting for messages
         while (true) {
             try {
                 socket.receive(packet);
-            } catch (SocketTimeoutException e) {
+            } catch (IOException ex) {
                 System.out.println("Timeout!");
                 break;
             }
@@ -105,8 +112,12 @@ public class PlatesServer implements Runnable {
             DatagramPacket responsePkt = new DatagramPacket(sbuf, sbuf.length,
                                                             packet.getAddress(),
                                                             packet.getPort());
-            socket.send(responsePkt);
-
+            
+            try {
+                socket.send(responsePkt);
+            } catch (IOException ex) {
+                System.err.println("Failed to send message.");
+            }
         }
 
         this.close();
@@ -151,12 +162,12 @@ public class PlatesServer implements Runnable {
             return;
         }
 
-        int timeout = DEFAULT_TIMEOUT;
         int serverPort = Integer.parseInt(args[0]);
         int mcastPort = Integer.parseInt(args[2]);        
-        InetAddress mcastAddr = new InetAddress(args[1]);
+        InetAddress mcastAddr = InetAddress.getByAddress(args[1].getBytes());
 
         PlatesServer server = new PlatesServer(serverPort, mcastAddr, mcastPort);
+        server.initialize();
         Thread serverThread = new Thread(server);
         serverThread.start();
     }
