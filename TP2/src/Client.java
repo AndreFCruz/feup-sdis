@@ -1,9 +1,10 @@
 import java.io.IOException;
 import java.net.*;
+import java.util.Arrays;
 
 public class Client {
-    
-    private static final int MAX_MESSAGE_LEN = 256;
+
+	private static final int MAX_MESSAGE_LEN = 512;
 
 	public static void main(String[] args) throws IOException {
 		if (args.length < 4) {
@@ -26,13 +27,15 @@ public class Client {
 		mcastSocket.close();
 
 		String msg = new String(buf, 0, buf.length);
-		System.out.println(msg);
+//		System.out.println(msg);
 
 		InetAddress serverAddr = packet.getAddress();
-		if (! msg.matches("\\d{1,4}")) {
+
+		if (! msg.trim().matches("\\d{1,4}")) {
 			throw new RuntimeException("Invalid PORT received: " + msg);
 		}
-		int serverPort = Integer.parseInt(msg);
+
+		int serverPort = Integer.parseInt(msg.trim());
 
 		if(!plate.matches("\\w{2}-\\w{2}-\\w{2}")) {
 			System.out.println("The plate format is incorrect. Please insert with format XX-XX-XX");
@@ -40,12 +43,13 @@ public class Client {
 		}
 
 		String message = new String();
-		String operand = args[4];
+
 		switch (request.toLowerCase()) {
 			case "register":
+				String operand = args[4];
 				if(operand.length() > MAX_MESSAGE_LEN) {
 					System.out.println("The vehicle owner's name must have less than "
-                                       + MAX_MESSAGE_LEN + " characters.");
+							+ MAX_MESSAGE_LEN + " characters.");
 					return;
 				}
 				message = "REGISTER " + plate + " " + operand;
@@ -58,35 +62,35 @@ public class Client {
 				return;
 		}
 
-        DatagramSocket socket = sendMessage(message, serverAddr, serverPort);
-        String response = receiveMessage(socket, serverAddr, serverPort);
+		DatagramSocket socket = sendMessage(message, serverAddr, serverPort);
+		String response = receiveMessage(socket, serverAddr, serverPort);
 
 		System.out.println("Echoed Message:" + response);
 		socket.close();
 
 		System.out.println("Client terminated!");
 	}
-    
-    private static DatagramSocket sendMessage(String message, InetAddress address, int port) throws IOException {
-        System.out.println(message);
-        DatagramSocket socket = new DatagramSocket();
-        byte[] sbuf = message.getBytes(); // send buffer
-        
-        DatagramPacket packet = new DatagramPacket(sbuf, sbuf.length, address, port);
-        socket.send(packet);
-        
-        return socket;
-    }
-    
-    private static String receiveMessage(DatagramSocket socket, InetAddress address, int port) throws IOException {
-        // get response
-        byte[] rbuf = new byte[MAX_MESSAGE_LEN];
-        DatagramPacket packet = new DatagramPacket(rbuf, rbuf.length);
-        socket.receive(packet);
-        // display response
-        String received = new String(packet.getData());
-        
-        return received;
+
+	private static DatagramSocket sendMessage(String message, InetAddress address, int port) throws IOException {
+		System.out.println(message);
+		DatagramSocket socket = new DatagramSocket();
+		byte[] sbuf = message.getBytes(); // send buffer
+
+		DatagramPacket packet = new DatagramPacket(sbuf, sbuf.length, address, port);
+		socket.send(packet);
+
+		return socket;
 	}
-    
+
+	private static String receiveMessage(DatagramSocket socket, InetAddress address, int port) throws IOException {
+		// get response
+		byte[] rbuf = new byte[MAX_MESSAGE_LEN];
+		DatagramPacket packet = new DatagramPacket(rbuf, rbuf.length);
+		socket.receive(packet);
+		// display response
+		String received = new String(packet.getData());
+
+		return received;
+	}
+
 }

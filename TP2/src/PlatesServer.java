@@ -2,12 +2,13 @@ import java.io.IOException;
 import java.net.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
 import java.util.TimerTask;
 
 class PlatesServer implements Runnable {
 
     private static final int TIMEOUT = 10;
-    private static final int MAX_MESSAGE_SIZE = 256;
+    private static final int MAX_MESSAGE_SIZE = 512;
 
     DatagramSocket socket;
     InetAddress mcastAddr;
@@ -15,6 +16,7 @@ class PlatesServer implements Runnable {
     int serverPort;
 
     TimerTask broadcastTask;
+    Timer broadcastTimer;
 
     Map<String, String> database = new HashMap<>();
 
@@ -29,10 +31,11 @@ class PlatesServer implements Runnable {
             @Override
             public void run() {
                 byte[] buf = msg.getBytes();
-                DatagramPacket packet = new DatagramPacket(buf, buf.length);
+                DatagramPacket packet = new DatagramPacket(buf, buf.length, mcastAddr, mcastPort);
 
                 try {
                     socket.send(packet);
+//                    System.out.println("multicast:<" + mcastAddr + "><" + mcastPort + ">:<" + "localhost><" + serverPort + ">");
                 } catch (IOException ex) {
                     System.err.println("Failed to broadcast message.");
                 }
@@ -61,29 +64,31 @@ class PlatesServer implements Runnable {
 
     private void initialize() {
         try {
-            this.socket = new DatagramSocket(serverPort);
+            this.socket = new DatagramSocket(this.serverPort);
             this.socket.setSoTimeout(TIMEOUT * 1000);
         } catch (IOException ex) {
             System.err.println("Failed to create socket.");
             System.exit(1);
         }
 
-        this.broadcastTask = makeMsgTask(Integer.toString(serverPort));
 
-        System.out.println("Server initialized!");                
+        this.broadcastTask = makeMsgTask(Integer.toString(this.serverPort));
+
+        this.broadcastTimer = new Timer("BTimer");
+        this.broadcastTimer.scheduleAtFixedRate(this.broadcastTask,1000,1000);
+
+        System.out.println("Server initialized!");
     }
 
     private void close() {
-		socket.close();
-        System.out.println("Server terminated");
-	}
+        socket.close();
+        broadcastTimer.cancel();
+        broadcastTask.cancel();
+        System.out.println("Server terminated!");
+    }
 
     @Override
     public void run() {
-        // Send MultiCast Message
-        broadcastTask.run();
-        // TODO: send broadcast message in separate method,
-        // to be called independently of this thread.
 
         byte[] rbuf = new byte[MAX_MESSAGE_SIZE];
         DatagramPacket packet = new DatagramPacket(rbuf, rbuf.length);
@@ -91,14 +96,14 @@ class PlatesServer implements Runnable {
         // Loop waiting for messages
         while (true) {
             try {
-                socket.receive(packet);
+                this.socket.receive(packet);
             } catch (IOException ex) {
                 System.out.println("Timeout!");
                 break;
             }
             String msg = new String(packet.getData(), 0, packet.getLength());
             System.out.println("Received: " + msg.trim() + " from " +
-                               packet.getAddress() + ":" + packet.getPort());
+                    packet.getAddress() + ":" + packet.getPort());
 
             String[] request = msg.split("\\s+");
             String response = new String();
@@ -110,9 +115,9 @@ class PlatesServer implements Runnable {
 
             byte[] sbuf = response.getBytes();
             DatagramPacket responsePkt = new DatagramPacket(sbuf, sbuf.length,
-                                                            packet.getAddress(),
-                                                            packet.getPort());
-            
+                    packet.getAddress(),
+                    packet.getPort());
+
             try {
                 socket.send(responsePkt);
             } catch (IOException ex) {
@@ -127,8 +132,8 @@ class PlatesServer implements Runnable {
      * Returns the owner's name or the string NOT_FOUND if the plate
      * number was never registered.
      */
-	private String lookupPlate(String[] request) {
-		String response = new String();
+    private String lookupPlate(String[] request) {
+        String response = new String();
         if (! isValidPlate(request[1]) || database.containsKey(request[1])) {
             System.out.println("The plate number exist in database");
             response = database.get(request[1]);
@@ -136,15 +141,15 @@ class PlatesServer implements Runnable {
             System.out.println("The plate number doesn't exist in database");
             response = "NOT_FOUND";
         }
-		return response;
-	}
+        return response;
+    }
 
     /**
      * Returns -1 if the plate number has already been registered;
      * otherwise, returns the number of vehicles in the database.
      */
-	private String registerPlate(String[] request) {
-		String response = new String();
+    private String registerPlate(String[] request) {
+        String response = new String();
         if (! isValidPlate(request[1]) || database.containsKey(request[1])) {
             System.out.println("The plate number has already been registered");
             response = "-1";
@@ -153,8 +158,8 @@ class PlatesServer implements Runnable {
             System.out.println("The plate was registed sucessfully");
             response = Integer.toString(database.size());
         }
-		return response;
-	}
+        return response;
+    }
 
     public static void main(String[] args) throws IOException {
         if (args.length != 3) {
@@ -163,15 +168,19 @@ class PlatesServer implements Runnable {
         }
 
         int serverPort = Integer.parseInt(args[0]);
-        int mcastPort = Integer.parseInt(args[2]);        
+        int mcastPort = Integer.parseInt(args[2]);
         InetAddress mcastAddr = InetAddress.getByName(args[1]);
 
         PlatesServer server = new PlatesServer(serverPort, mcastAddr, mcastPort);
         server.initialize();
+
+        // Send MultiCast Message
+        server.broadcastTask.run();
+
         Thread serverThread = new Thread(server);
         serverThread.start();
     }
-    
+
     private static boolean isValidPlate(String plate) {
         return plate.matches("\\w{2}-\\w{2}-\\w{2}");
     }
