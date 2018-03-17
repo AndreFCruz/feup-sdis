@@ -52,7 +52,7 @@ public abstract class Channel implements Runnable {
 
             String msg = new String(packet.getData(), 0, packet.getLength());
 
-            // trim + process message
+            // trim + process message (in a new thread called dispatcher)
 
         }
 
