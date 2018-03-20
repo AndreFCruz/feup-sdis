@@ -1,14 +1,15 @@
 package service;
 
 import java.rmi.Remote;
+import java.rmi.RemoteException;
 
 public interface IService extends Remote {
 
-    void backup(File file, int replicationDegree) throws RemoteException;
+    void backup(byte[] fileData, String pathname, int replicationDegree) throws RemoteException;
 
-    void restore(File file) throws RemoteException;
+    void restore(String pathname) throws RemoteException;
 
-    void delete(File file) throws RemoteException;
+    void delete(String pathname, int type) throws RemoteException;
 
     void reclaim(int space) throws RemoteException;
 
