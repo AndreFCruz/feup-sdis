@@ -4,9 +4,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class SystemManager {
 
-    private ConcurrentHashMap<String, File> storage;
+    private ConcurrentHashMap<String, FileManager> storage;
 
-    public SystemManager(ConcurrentHashMap<String, File> storage) {
+    public SystemManager(ConcurrentHashMap<String, FileManager> storage) {
         this.storage = storage;
     }
     
