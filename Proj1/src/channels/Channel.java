@@ -22,6 +22,8 @@ public abstract class Channel implements Runnable {
        }catch (IOException e) {
            e.printStackTrace();
        }
+       
+       initialize();
 
     }
 
@@ -31,27 +33,29 @@ public abstract class Channel implements Runnable {
             socket = new MulticastSocket(mcastPort);
             socket.setTimeToLive(1);
             socket.joinGroup(mcastAddr);
+            System.out.println("Channel Initializated");
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    @Override
     public void run() {
 //        this.initialize();
 
         byte[] rbuf = new byte[MAX_MESSAGE_SIZE];
         DatagramPacket packet = new DatagramPacket(rbuf, rbuf.length);
-
+        System.out.println("ola");
         // Loop waiting for messages
         while (true) {
+        	
             try {
                 this.socket.receive(packet);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
+            
             String msg = new String(packet.getData(), 0, packet.getLength());
-
             // trim + process message (in a new thread called dispatcher)
 
         }
@@ -59,7 +63,7 @@ public abstract class Channel implements Runnable {
 //        this.close();
     }
 
-    private void sendMessage(byte[] message){
+    public void sendMessage(byte[] message){
         DatagramPacket packet = new DatagramPacket(message, message.length, mcastAddr, mcastPort);
         try {
             socket.send(packet);

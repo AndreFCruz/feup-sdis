@@ -13,13 +13,13 @@ public class Handler implements Runnable {
 
     @Override
     public void run() {
-        try{
-            //Parse messages from channels
-            //Handle result
-
-        }catch (){
-
-        }
+//        try{
+//            //Parse messages from channels
+//            //Handle result
+//
+//        }catch (){
+//
+//        }
     }
 
     private void dispatchMessage(Message msg){
