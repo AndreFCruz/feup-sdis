@@ -20,8 +20,9 @@ public class Peer implements IService{
     }
 
     @Override
-    public void restore(String pathname) throws RemoteException {
-
+    public String restore(String pathname) throws RemoteException {
+    	System.out.println("ola");
+    	return "ola";
     }
 
     @Override

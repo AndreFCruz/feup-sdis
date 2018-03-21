@@ -7,7 +7,7 @@ public interface IService extends Remote {
 
     void backup(byte[] fileData, String pathname, int replicationDegree) throws RemoteException;
 
-    void restore(String pathname) throws RemoteException;
+    String restore(String pathname) throws RemoteException;
 
     void delete(String pathname, int type) throws RemoteException;
 
