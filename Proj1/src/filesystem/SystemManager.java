@@ -9,5 +9,5 @@ public class SystemManager {
     public SystemManager(ConcurrentHashMap<String, FileManager> storage) {
         this.storage = storage;
     }
-    
+
 }

@@ -6,7 +6,7 @@ import static utils.Utils.MessageType.PUTCHUNK;
 
 public class Message {
 
-//    Header
+    //    Header
     private Utils.MessageType type;
     private String version;
     private int senderId;
@@ -25,7 +25,7 @@ public class Message {
     private void parseMessage(String msg) {
         //Parse message
         fileId = msg;
-        type= PUTCHUNK;
+        type = PUTCHUNK;
     }
 
     public Utils.MessageType getType() {

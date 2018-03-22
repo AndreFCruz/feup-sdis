@@ -11,7 +11,7 @@ public class FileSplitter {
         fileSplit();
     }
 
-    public void fileSplit(){
+    public void fileSplit() {
 
     }
 }

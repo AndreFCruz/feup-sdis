@@ -9,7 +9,8 @@ import java.rmi.registry.Registry;
 
 public class TestApp {
 
-    public TestApp() {}
+    public TestApp() {
+    }
 
     public static void main(String[] args) {
 //        if(args.length < 2 || args.length > 4) {

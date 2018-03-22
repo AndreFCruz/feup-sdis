@@ -17,26 +17,24 @@ public abstract class Channel implements Runnable {
     private Peer parentPeer;
 
 
-    public Channel(Peer parentPeer, String mcastAddr, String mcastPort){
+    public Channel(Peer parentPeer, String mcastAddr, String mcastPort) {
         this.parentPeer = parentPeer;
-        try {
-           this.mcastAddr = InetAddress.getByName(mcastAddr);
-           this.mcastPort = Integer.parseInt(mcastPort);
-       }catch (IOException e) {
-           e.printStackTrace();
-       }
-       
-       initialize();
 
+        try {
+            this.mcastAddr = InetAddress.getByName(mcastAddr);
+            this.mcastPort = Integer.parseInt(mcastPort);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        initialize();
     }
 
-
-    private void initialize(){
+    private void initialize() {
         try {
             socket = new MulticastSocket(mcastPort);
             socket.setTimeToLive(1);
             socket.joinGroup(mcastAddr);
-            System.out.println("Channel Initializated");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -44,23 +42,25 @@ public abstract class Channel implements Runnable {
 
     @Override
     public void run() {
-//        this.initialize();
 
         byte[] rbuf = new byte[MAX_MESSAGE_SIZE];
         DatagramPacket packet = new DatagramPacket(rbuf, rbuf.length);
-        System.out.println("ola"); 	
+
+        System.out.println("Channel Run!");
+
         // Loop waiting for messages
         while (true) {
-        	
+
             try {
                 this.socket.receive(packet);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            
+
             String msg = new String(packet.getData(), 0, packet.getLength());
+
             System.out.println(msg);
-            // trim + process message (in a new thread called dispatcher)
+
             this.parentPeer.addMsgToHandler(msg.trim());
 
         }
@@ -68,8 +68,10 @@ public abstract class Channel implements Runnable {
 //        this.close();
     }
 
-    public void sendMessage(byte[] message){
+    public void sendMessage(byte[] message) {
+
         DatagramPacket packet = new DatagramPacket(message, message.length, mcastAddr, mcastPort);
+
         try {
             socket.send(packet);
         } catch (IOException e) {
@@ -77,8 +79,7 @@ public abstract class Channel implements Runnable {
         }
     }
 
-    private void close(){
+    private void close() {
         socket.close();
     }
-
 }
