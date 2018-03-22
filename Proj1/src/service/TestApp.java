@@ -26,7 +26,7 @@ public class TestApp {
 
         try {
             Registry registry = LocateRegistry.getRegistry(null);
-            IService stub = (IService) registry.lookup("Hello"); //change to peerID
+            IService stub = (IService) registry.lookup("1"); //change to peerID
             String response = stub.backup(file, 1); // change replication degree
             System.out.println("response: " + response);
         } catch (Exception e) {

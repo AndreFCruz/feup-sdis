@@ -36,11 +36,11 @@ public class Peer implements IService{
 
 		//        mc = new MChannel(mcAdress[0], mcAdress[1]);
 		//        mdb = new MDBChannel(mdbAdress[0], mdbAdress[1]);
-		mc = new MChannel("224.0.0.0", "8000");
-		mdb = new MDBChannel("224.0.0.0", "8001");
+		mc = new MChannel(this,"224.0.0.0", "8000");
+		mdb = new MDBChannel(this,"224.0.0.0", "8001");
 		System.out.println(mdb);
 
-		dispatcher = new Handler();
+		dispatcher = new Handler(this);
 
 		new Thread(mc).start();
 		new Thread(mdb).start();
@@ -63,12 +63,12 @@ public class Peer implements IService{
 
 
 		try {
-			Peer obj = new Peer(1, null, null);
+			Peer obj = new Peer(Integer.parseInt(args[0]), null, null);
 			IService stub = (IService) UnicastRemoteObject.exportObject(obj, 0);
 
 			// Bind the remote object's stub in the registry
 			Registry registry = LocateRegistry.getRegistry();
-			registry.bind("Hello", stub);
+			registry.bind(args[0], stub);
 
 			System.err.println("Server ready");
 		} catch (Exception e) {
@@ -76,9 +76,7 @@ public class Peer implements IService{
 			e.printStackTrace();
 		}
 		
-		while(true) {
-			
-		}
+
 	}
 
 	public void sendMessage(int channel , String message) {
@@ -124,4 +122,7 @@ public class Peer implements IService{
 	}
 
 
+	public void addMsgToHandler(String trim) {
+		dispatcher.pushMessage(trim);
+	}
 }

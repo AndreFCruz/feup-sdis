@@ -1,7 +1,9 @@
 package channels;
 
+import service.Peer;
+
 public class MChannel extends Channel {
-    public MChannel(String mcastAddr, String mcastPort) {
-        super(mcastAddr, mcastPort);
+    public MChannel(Peer parentPeer, String mcastAddr, String mcastPort) {
+        super(parentPeer, mcastAddr, mcastPort);
     }
 }

@@ -1,7 +1,9 @@
 package channels;
 
+import service.Peer;
+
 public class MDBChannel extends Channel {
-    public MDBChannel(String mcastAddr, String mcastPort) {
-        super(mcastAddr, mcastPort);
+    public MDBChannel(Peer parentPeer, String mcastAddr, String mcastPort) {
+        super(parentPeer, mcastAddr, mcastPort);
     }
 }

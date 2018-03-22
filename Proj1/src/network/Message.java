@@ -1,9 +1,13 @@
 package network;
 
+import utils.Utils;
+
+import static utils.Utils.MessageType.PUTCHUNK;
+
 public class Message {
 
 //    Header
-    private String type;
+    private Utils.MessageType type;
     private String version;
     private int senderId;
     private String fileId;
@@ -20,6 +24,11 @@ public class Message {
 
     private void parseMessage(String msg) {
         //Parse message
+        fileId = msg;
+        type= PUTCHUNK;
     }
 
+    public Utils.MessageType getType() {
+        return type;
+    }
 }

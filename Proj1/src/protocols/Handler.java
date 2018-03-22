@@ -1,10 +1,22 @@
 package protocols;
 
 import network.Message;
+import service.Peer;
+
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Handler implements Runnable {
+    private Peer parentPeer;
+    private ConcurrentLinkedQueue<Message> msgQueue;
+    private ExecutorService executor;
 
-    public Handler(){
+    public Handler(Peer parentPeer) {
+        this.parentPeer = parentPeer;
+        msgQueue = new ConcurrentLinkedQueue<>();
+        executor = Executors.newFixedThreadPool(3);
+
         //Executor Service aka threads(each for each protocol)
         //Queue
 
@@ -13,24 +25,57 @@ public class Handler implements Runnable {
 
     @Override
     public void run() {
-//        try{
-//            //Parse messages from channels
+        Message msg;
+
+        //probably will terminate when the queue is empty...
+        while(true) {
+            while ((msg = msgQueue.poll()) != null) {
+                dispatchMessage(msg);
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        //            //Parse messages from channels
 //            //Handle result
-//
-//        }catch (){
-//
-//        }
+
     }
 
-    private void dispatchMessage(Message msg){
+    private void dispatchMessage(Message msg) {
         //see type of message and
         //switch case
         //chunk backup, chunk restore, file deletion, space reclamming, putchunk, getchunk
+        System.out.println("tu 2");
+        System.out.println(msg);
+
+        switch (msg.getType()) {
+            case PUTCHUNK:
+                //      Backup backup = new Backup(parentPeer, msg);
+                //       executor.execute(backup);
+                break;
+            case STORED:
+                //           parentPeer.updateFileStorage(message);
+                break;
+            case CHUNK:
+                //         parentPeer.receiveChunk(message);
+                break;
+            default:
+                return;
+
+        }
+
     }
 
-    private void pushMessage(String msg){
+    public void pushMessage (String msg){
         Message msgParsed = new Message(msg); //create and parse the message
+        msgQueue.add(msgParsed);
+        System.out.println("eu 1");
+        System.out.println(msg);
         //add to queue
     }
+
 
 }

@@ -1,5 +1,7 @@
 package channels;
 
+import service.Peer;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
@@ -12,11 +14,12 @@ public abstract class Channel implements Runnable {
     private MulticastSocket socket;
     private InetAddress mcastAddr;
     private int mcastPort;
-//    private Peer parentPeer;
+    private Peer parentPeer;
 
 
-    public Channel(String mcastAddr, String mcastPort){
-       try {
+    public Channel(Peer parentPeer, String mcastAddr, String mcastPort){
+        this.parentPeer = parentPeer;
+        try {
            this.mcastAddr = InetAddress.getByName(mcastAddr);
            this.mcastPort = Integer.parseInt(mcastPort);
        }catch (IOException e) {
@@ -58,6 +61,7 @@ public abstract class Channel implements Runnable {
             String msg = new String(packet.getData(), 0, packet.getLength());
             System.out.println(msg);
             // trim + process message (in a new thread called dispatcher)
+            this.parentPeer.addMsgToHandler(msg.trim());
 
         }
 
