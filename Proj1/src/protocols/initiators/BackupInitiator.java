@@ -24,12 +24,14 @@ public class BackupInitiator implements Runnable{
 	@Override
 	public void run(){
 		try {
-		fileData = FileManager.loadFile(file);
+			fileData = FileManager.loadFile(file);
+			fileID = file.getName(); //temporary
+			System.out.println(parentPeer);
+			parentPeer.sendMessage(1, "vou dar upload");
 		}catch (Exception e) {
-            e.printStackTrace();
-        }
-		fileID = file.getName(); //temporary
-		this.parentPeer.sendMessage(1, "vou dar upload");
+			e.printStackTrace();
+		}
+
 	}
 
 	private void uploadFile() {

@@ -45,7 +45,7 @@ public abstract class Channel implements Runnable {
 
         byte[] rbuf = new byte[MAX_MESSAGE_SIZE];
         DatagramPacket packet = new DatagramPacket(rbuf, rbuf.length);
-        System.out.println("ola");
+        System.out.println("ola"); 	
         // Loop waiting for messages
         while (true) {
         	
@@ -56,6 +56,7 @@ public abstract class Channel implements Runnable {
             }
             
             String msg = new String(packet.getData(), 0, packet.getLength());
+            System.out.println(msg);
             // trim + process message (in a new thread called dispatcher)
 
         }

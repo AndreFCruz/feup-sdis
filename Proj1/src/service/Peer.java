@@ -38,12 +38,14 @@ public class Peer implements IService{
 		//        mdb = new MDBChannel(mdbAdress[0], mdbAdress[1]);
 		mc = new MChannel("224.0.0.0", "8000");
 		mdb = new MDBChannel("224.0.0.0", "8001");
+		System.out.println(mdb);
 
 		dispatcher = new Handler();
 
 		new Thread(mc).start();
 		new Thread(mdb).start();
 		new Thread(dispatcher).start();
+		System.out.println(mdb);
 
 
 		System.out.println("All channels online.");
@@ -60,10 +62,8 @@ public class Peer implements IService{
 //		String[] mdbAddress = args[1].split(":");
 
 
-		Peer peer = new Peer(1, null, null);
-
 		try {
-			Peer obj = new Peer();
+			Peer obj = new Peer(1, null, null);
 			IService stub = (IService) UnicastRemoteObject.exportObject(obj, 0);
 
 			// Bind the remote object's stub in the registry
@@ -75,6 +75,10 @@ public class Peer implements IService{
 			System.err.println("Server exception: " + e.toString());
 			e.printStackTrace();
 		}
+		
+		while(true) {
+			
+		}
 	}
 
 	public void sendMessage(int channel , String message) {
@@ -83,9 +87,6 @@ public class Peer implements IService{
 
 			break;
 		case 1:
-			if(mdb == null) {
-				System.out.println("ola");
-			}
 			mdb.sendMessage(message.getBytes());
 			break;
 		default:
@@ -98,9 +99,7 @@ public class Peer implements IService{
 	@Override
 	public String backup(File file, int replicationDegree) throws RemoteException {
 		new Thread(new BackupInitiator(file, replicationDegree, this) ).start();
-
-
-		return null;
+		return "ok";
 	}
 
 	@Override
