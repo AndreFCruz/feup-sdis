@@ -48,20 +48,19 @@ public class Handler implements Runnable {
         //see type of message and
         //switch case
         //chunk backup, chunk restore, file deletion, space reclamming, putchunk, getchunk
-        System.out.println("tu 2");
-        System.out.println(msg);
+//        System.out.println("tu 2");
+//        System.out.println(msg);
 
         switch (msg.getType()) {
             case PUTCHUNK:
-                //      Backup backup = new Backup(parentPeer, msg);
-                //       executor.execute(backup);
+                Backup backup = new Backup(parentPeer, msg);
+                executor.execute(backup);
                 break;
             case STORED:
+                System.out.println("Stored received");
                 //           parentPeer.updateFileStorage(message);
                 break;
-            case CHUNK:
-                //         parentPeer.receiveChunk(message);
-                break;
+
             default:
                 return;
 
@@ -72,8 +71,8 @@ public class Handler implements Runnable {
     public void pushMessage(String msg) {
         Message msgParsed = new Message(msg); //create and parse the message
         msgQueue.add(msgParsed);
-        System.out.println("eu 1");
-        System.out.println(msg);
+//        System.out.println("eu 1");
+//        System.out.println(msg);
         //add to queue
     }
 

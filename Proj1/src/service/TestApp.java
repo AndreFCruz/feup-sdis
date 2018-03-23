@@ -1,9 +1,6 @@
 package service;
 
-import filesystem.FileManager;
-
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
@@ -21,6 +18,7 @@ public class TestApp {
 //        String sub_protocol = args[1]; //protocol to execute
 //        String pathname = args[2];
 //        int replicationDegree = Integer.parseInt(args[3]);
+
         File file = new File("cenas.txt");
         System.out.println(file.getAbsolutePath());
 

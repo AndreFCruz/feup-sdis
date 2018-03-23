@@ -2,6 +2,7 @@ package service;
 
 import channels.MChannel;
 import channels.MDBChannel;
+import network.Message;
 import protocols.Handler;
 import protocols.initiators.BackupInitiator;
 
@@ -12,7 +13,6 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
-import java.util.concurrent.LinkedBlockingQueue;
 
 public class Peer implements IService {
 
@@ -22,11 +22,11 @@ public class Peer implements IService {
     private Handler dispatcher;
 
     private int id;
-    private String protocolVersion;
-    private String serverAccessPoint;
-    private IService stub;
-
-    private ArrayList<String> chunkBU = new ArrayList<>();
+//    private String protocolVersion;
+//    private String serverAccessPoint;
+//    private IService stub;
+//
+//    private ArrayList<String> chunkBU = new ArrayList<>();
 
     public Peer(int id, String[] mcAddress, String[] mdbAddress) throws IOException {
         this.id = id;
@@ -41,7 +41,7 @@ public class Peer implements IService {
 
         new Thread(dispatcher).start();
 
-        System.out.println("Peer" + id + "online!");
+        System.out.println("Peer " + id + " online!");
     }
 
     public static void main(String args[]) throws IOException {
@@ -51,8 +51,8 @@ public class Peer implements IService {
 //			return;
 //		}
 
-		String[] mcAddress = args[1].split(":");
-		String[] mdbAddress = args[2].split(":");
+        String[] mcAddress = args[1].split(":");
+        String[] mdbAddress = args[2].split(":");
 
 
         try {
@@ -61,7 +61,8 @@ public class Peer implements IService {
 
             // Bind the remote object's stub in the registry
             Registry registry = LocateRegistry.getRegistry();
-            registry.bind(args[0], stub);
+            registry.rebind(args[0], stub);
+            //registry.bind(args[0], stub);
 
             System.err.println("Server ready");
         } catch (Exception e) {
@@ -72,10 +73,10 @@ public class Peer implements IService {
 
     }
 
-    public void sendMessage(int channel, String message) {
+    public void sendMessage(int channel, Message message) throws IOException {
         switch (channel) {
             case 0:
-
+                mc.sendMessage(message.getBytes());
                 break;
             case 1:
                 mdb.sendMessage(message.getBytes());
@@ -88,8 +89,8 @@ public class Peer implements IService {
 
     @Override
     public String backup(File file, int replicationDegree) throws RemoteException {
-        new Thread(new BackupInitiator(file, replicationDegree, this)).start();
-        return "ok";
+        new Thread(new BackupInitiator("1.0", file, replicationDegree, this)).start();
+        return "backup command ok";
     }
 
     @Override
@@ -116,5 +117,9 @@ public class Peer implements IService {
 
     public void addMsgToHandler(String trim) {
         dispatcher.pushMessage(trim);
+    }
+
+    public int getID() {
+        return id;
     }
 }
