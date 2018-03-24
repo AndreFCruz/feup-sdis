@@ -3,6 +3,8 @@ package filesystem;
 import service.Peer;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SystemManager {
@@ -36,6 +38,7 @@ public class SystemManager {
 
     private void initializePeerFS() {
         createFolder(rootPath + CHUNKS);
+        createFolder(rootPath + RESTORES);
     }
 
     public String getRootPath() {
@@ -44,6 +47,10 @@ public class SystemManager {
 
     public String getChunksPath() {
         return rootPath + CHUNKS;
+    }
+
+    public String getRestoresPath() {
+        return rootPath + RESTORES;
     }
 
     public long getMaxMemory() {
@@ -70,5 +77,11 @@ public class SystemManager {
         File file = new File(name);
 
         file.mkdirs();
+    }
+
+    public static final void saveFile(String fileName, String pathname, byte[] data) throws IOException {
+        FileOutputStream out = new FileOutputStream(pathname + "/" + fileName);
+        out.write(data);
+        out.close();
     }
 }

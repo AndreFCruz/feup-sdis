@@ -23,7 +23,7 @@ public class Message {
         parseMessage(msg);
     }
 
-    public Message(Utils.MessageType type, String [] args) {
+    public Message(Utils.MessageType type, String[] args) {
         this.type = type;
         version = args[0];
         senderID = Integer.parseInt(args[1]);
@@ -33,6 +33,25 @@ public class Message {
         switch (this.type) {
             case PUTCHUNK:
                 replicationDegree = Integer.parseInt(args[4]);
+                break;
+            case STORED:
+                break;
+            default:
+                break;
+        }
+    }
+
+    public Message(Utils.MessageType type, String[] args, byte[] data) {
+        this.type = type;
+        version = args[0];
+        senderID = Integer.parseInt(args[1]);
+        fileID = args[2];
+        chunkNo = Integer.parseInt(args[3]);
+
+        switch (this.type) {
+            case PUTCHUNK:
+                replicationDegree = Integer.parseInt(args[4]);
+                body = data;
                 break;
             case STORED:
                 break;
@@ -107,7 +126,7 @@ public class Message {
             return getHeaderAsString();
     }
 
-    private String getHeaderAsString(){
+    public String getHeaderAsString(){
         String str = "";
 
         switch(type){

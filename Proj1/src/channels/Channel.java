@@ -59,7 +59,7 @@ public abstract class Channel implements Runnable {
 
             String msg = new String(packet.getData(), 0, packet.getLength());
 
-            System.out.println(msg);
+            //System.out.println(msg);
 
             this.parentPeer.addMsgToHandler(msg.trim());
 

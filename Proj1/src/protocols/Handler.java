@@ -71,6 +71,7 @@ public class Handler implements Runnable {
     public void pushMessage(String msg) {
         Message msgParsed = new Message(msg); //create and parse the message
         msgQueue.add(msgParsed);
+        System.out.println(msgParsed.getHeaderAsString());
 //        System.out.println("eu 1");
 //        System.out.println(msg);
         //add to queue

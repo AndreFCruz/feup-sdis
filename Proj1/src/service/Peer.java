@@ -126,4 +126,22 @@ public class Peer implements IService {
     public int getID() {
         return id;
     }
+
+    public String getPath(String path) {
+        String pathname;
+
+        switch (path){
+            case "chunks":
+                pathname=systemManager.getChunksPath();
+                break;
+            case "restores":
+                pathname=systemManager.getRestoresPath();
+                break;
+            default:
+                pathname="";
+                break;
+
+        }
+        return pathname;
+    }
 }
