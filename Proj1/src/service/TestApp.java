@@ -19,7 +19,7 @@ public class TestApp {
 //        String pathname = args[2];
 //        int replicationDegree = Integer.parseInt(args[3]);
 
-        File file = new File("cenas.txt");
+        File file = new File("files/cenas.txt");
         System.out.println(file.getAbsolutePath());
 
 

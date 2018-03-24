@@ -2,6 +2,7 @@ package service;
 
 import channels.MChannel;
 import channels.MDBChannel;
+import filesystem.SystemManager;
 import network.Message;
 import protocols.Handler;
 import protocols.initiators.BackupInitiator;
@@ -20,6 +21,7 @@ public class Peer implements IService {
     private MDBChannel mdb;
 
     private Handler dispatcher;
+    private SystemManager systemManager;
 
     private int id;
 //    private String protocolVersion;
@@ -30,6 +32,8 @@ public class Peer implements IService {
 
     public Peer(int id, String[] mcAddress, String[] mdbAddress) throws IOException {
         this.id = id;
+
+        systemManager = new SystemManager(this, 100000);
 
         mc = new MChannel(this, mcAddress[0], mcAddress[1]);
         mdb = new MDBChannel(this, mdbAddress[0], mdbAddress[1]);
