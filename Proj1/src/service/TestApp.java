@@ -67,7 +67,7 @@ public class TestApp {
 
     private void handleBackup() {
         File file = new File(this.opnd_1);
-        System.out.println("Backing up file at \"" + file.getAbsolutePath() + "\"");
+        System.out.println("BACKING UP file at \"" + file.getAbsolutePath() + "\"");
 
         String response = null;
         try {
@@ -78,20 +78,44 @@ public class TestApp {
     }
 
     private void handleDelete() {
-        // TODO
+        System.out.println("DELETING file \"" + opnd_1 + "\"");
+
+        try {
+            stub.delete(this.opnd_1);
+        } catch (RemoteException e) {
+            System.err.println("Client exception: " + e.toString());
+        }
     }
 
     private void handleRestore() {
-        // TODO
-    }
+        System.out.println("RESTORING file \"" + opnd_1 + "\"");
 
-
-    private void handleState() {
-        // TODO
+        String response = null;
+        try {
+            response = stub.restore(opnd_1);
+        } catch (RemoteException e) {
+            System.err.println("Client exception: " + e.toString());
+        }
     }
 
     private void handleReclaim() {
-        // TODO
+        System.out.println("RECLAIMING file \"" + opnd_1 + "\"");
+
+        String response = null;
+        try {
+            response = stub.restore(opnd_1);
+        } catch (RemoteException e) {
+            System.err.println("Client exception: " + e.toString());
+        }
+    }
+
+    private void handleState() {
+        System.out.println("This is my state :D");
+        try {
+            stub.state();
+        } catch (RemoteException e) {
+            System.err.println("Client exception: " + e.toString());
+        }
     }
 
 }

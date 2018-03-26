@@ -10,7 +10,7 @@ public interface IService extends Remote {
 
     String restore(String pathname) throws RemoteException;
 
-    void delete(String pathname, int type) throws RemoteException;
+    void delete(String pathname) throws RemoteException;
 
     void reclaim(int space) throws RemoteException;
 

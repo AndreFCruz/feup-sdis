@@ -109,7 +109,7 @@ public class Peer implements IService {
     }
 
     @Override
-    public void delete(String pathname, int type) throws RemoteException {
+    public void delete(String pathname) throws RemoteException {
 
     }
 

@@ -39,7 +39,7 @@ public class Chunk implements Comparable<Chunk> {
     @Override
     public int compareTo(Chunk otherCunk) {
         if (otherCunk == null)
-            return -1;
+            return 1;
         return Integer.compare(chunkNo, otherCunk.chunkNo);
     }
 }
