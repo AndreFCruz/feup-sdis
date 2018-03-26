@@ -21,6 +21,7 @@ public class TestApp {
 
        //File file = new File("files/cenas.txt");
        File file = new File("files/image1.png");
+        //File file = new File("files/lol.pdf");
         System.out.println(file.getAbsolutePath());
 
 

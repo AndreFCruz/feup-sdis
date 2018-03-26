@@ -1,8 +1,12 @@
 package channels;
 
+import filesystem.SystemManager;
 import service.Peer;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
@@ -43,7 +47,7 @@ public abstract class Channel implements Runnable {
     @Override
     public void run() {
 
-        byte[] rbuf = new byte[MAX_MESSAGE_SIZE];
+        byte[] rbuf = new byte[MAX_MESSAGE_SIZE*2];
         DatagramPacket packet = new DatagramPacket(rbuf, rbuf.length);
 
         System.out.println("Channel Run!");
@@ -57,16 +61,23 @@ public abstract class Channel implements Runnable {
                 e.printStackTrace();
             }
 
-            String msg = new String(packet.getData(), 0, packet.getLength());
+            System.out.println("packet length: " + packet.getLength());
 
+            //String msg = new String(packet.getData(), 0, packet.getLength());
+            //System.out.println("string length: " + msg.length());
             //System.out.println(msg);
 
-            this.parentPeer.addMsgToHandler(msg.trim());
-
+            //this.parentPeer.addMsgToHandler(msg.trim());
+            try {
+                this.parentPeer.addMsgToHandler(packet.getData(), packet.getLength());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
 //        this.close();
     }
+
 
     public void sendMessage(byte[] message) {
 

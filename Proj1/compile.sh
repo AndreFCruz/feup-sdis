@@ -5,5 +5,5 @@ mkdir -p bin
 javac -Xlint:unchecked -d bin -sourcepath src src/service/TestApp.java src/service/Peer.java
 
 cd bin/
-rmiregistry &
+#rmiregistry &
 cd ..

@@ -2,8 +2,8 @@ package network;
 
 import utils.Utils;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
+import java.net.DatagramPacket;
 
 public class Message {
 
@@ -21,6 +21,20 @@ public class Message {
 
     public Message(String msg) {
         parseMessage(msg);
+    }
+
+    public Message(byte[] data, int length) throws IOException {
+        String header = extractHeader(data);
+
+        String headerCleaned = header.trim().replaceAll("\\s+", " ");
+        String[] headerSplit = headerCleaned.split("\\s+");
+
+        parseHeader(headerSplit);
+
+        if(type == Utils.MessageType.PUTCHUNK){
+            this.body = extractBody(data, header.length(), length);
+        }
+
     }
 
     public Message(Utils.MessageType type, String[] args) {
@@ -60,10 +74,43 @@ public class Message {
         }
     }
 
+    private String extractHeader(byte[] data) {
+        ByteArrayInputStream stream = new ByteArrayInputStream(data);
+        BufferedReader reader = new BufferedReader(
+                new InputStreamReader(stream));
+
+        String header = "";
+
+        try {
+            header = reader.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+
+        }
+
+        System.out.println(header+"|");
+        return header;
+    }
+
+    private byte[] extractBody(byte[] data, int headerLength, int dataLength) throws IOException {
+        int length = dataLength;
+        int readBytes = length - headerLength - 4;
+        ByteArrayInputStream message = new ByteArrayInputStream(data, headerLength + 4, readBytes);
+
+
+        byte[] bodyContent = new byte[readBytes];
+
+        message.read(bodyContent,0, readBytes);
+        System.out.println("data:" + dataLength);
+        System.out.println("headerLength:" + headerLength);
+        System.out.println("readBytes: " + readBytes);
+        return bodyContent;
+    }
+
     private void parseMessage(String msg) {
         //Split header from body ( \R -> CRLF)
         String[] msgSplit = msg.split("\\R\\R", 2);
-
+        System.out.println("c3: " + msg.length());
         String header, body = null;
 
         if(msgSplit.length == 0 || msgSplit.length > 2)
@@ -73,13 +120,17 @@ public class Message {
 
         header = msgSplit[0];
 
+        System.out.println("header: " + header.length());
+
         String headerCleaned = header.trim().replaceAll("\\s+", " ");
         String[] headerSplit = headerCleaned.split("\\s+");
 
         parseHeader(headerSplit);
 
         if(body != null){
+            System.out.println("body: " + body.length());
             this.body = body.getBytes();
+            System.out.println("parser:" + this.body.length);
         }
     }
 

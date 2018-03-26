@@ -15,6 +15,10 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 
+import static filesystem.FileManager.fileMerge;
+import static filesystem.FileManager.loadChunks;
+import static filesystem.SystemManager.saveFile;
+
 public class Peer implements IService {
 
     private MChannel mc;
@@ -46,6 +50,12 @@ public class Peer implements IService {
         new Thread(dispatcher).start();
 
         System.out.println("Peer " + id + " online!");
+
+//        saveFile("peras.png", "files",
+//                fileMerge(
+//                        loadChunks(
+//                                systemManager.getChunksPath()+"/image1.png",
+//                                18)));
     }
 
     public static void main(String args[]) throws IOException {
@@ -143,5 +153,9 @@ public class Peer implements IService {
 
         }
         return pathname;
+    }
+
+    public void addMsgToHandler(byte[] data, int length) throws IOException {
+        dispatcher.pushMessage(data, length);
     }
 }

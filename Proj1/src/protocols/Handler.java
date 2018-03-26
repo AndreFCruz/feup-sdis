@@ -3,6 +3,7 @@ package protocols;
 import network.Message;
 import service.Peer;
 
+import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -78,4 +79,8 @@ public class Handler implements Runnable {
     }
 
 
+    public void pushMessage(byte[] data, int length) throws IOException {
+        Message msgParsed = new Message(data, length); //create and parse the message
+        msgQueue.add(msgParsed);
+    }
 }

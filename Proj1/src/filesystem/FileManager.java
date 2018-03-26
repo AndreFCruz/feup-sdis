@@ -35,6 +35,19 @@ public class FileManager {
         return data;
     }
 
+    public static ArrayList<Chunk> loadChunks(String pathname, int numberOfChunks) throws FileNotFoundException {
+        ArrayList<Chunk> chunks = new ArrayList<>();
+
+        for(int i=0; i <= numberOfChunks; i++){
+            byte [] data = loadFile(new File(pathname + "/" + i));
+            Chunk chunk = new Chunk("", i, 1, data);
+            chunks.add(chunk);
+        }
+
+        return chunks;
+
+    }
+
     public static ArrayList<Chunk> fileSplit(byte[] fileData, String fileID, int replicationDegree) {
         ArrayList<Chunk> chunks = new ArrayList<>();
 
@@ -46,7 +59,7 @@ public class FileManager {
             if (i == numChunks - 1 && fileData.length % MAXCHUNK == 0) {
                 chunkData = new byte[0];
             } else if(i == numChunks - 1){
-                int leftOverBytes = fileData.length - (i * 64000);
+                int leftOverBytes = fileData.length - (i * MAXCHUNK);
                 chunkData = copyOfRange(fileData, i*MAXCHUNK,i*MAXCHUNK + leftOverBytes);
             } else{
                 chunkData = copyOfRange(fileData, i*MAXCHUNK,i*MAXCHUNK + MAXCHUNK);

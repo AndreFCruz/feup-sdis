@@ -7,6 +7,9 @@ import utils.Utils;
 
 import java.io.IOException;
 
+import static filesystem.SystemManager.createFolder;
+import static filesystem.SystemManager.saveFile;
+
 public class Backup implements Runnable{
 
     private Peer parentPeer;
@@ -42,6 +45,16 @@ public class Backup implements Runnable{
         }
 
         chunkData = request.getBody();
+
+        String chunkPathname = parentPeer.getPath("chunks")+ "/" + fileID;
+
+        createFolder(parentPeer.getPath("chunks")+ "/" + fileID);
+
+        try {
+            saveFile(Integer.toString(chunkNo), chunkPathname, chunkData);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         try {
                 sendMessageToMC();

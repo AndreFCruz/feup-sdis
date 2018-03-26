@@ -61,19 +61,19 @@ public class SystemManager {
         return usedMemory;
     }
 
-    public boolean fileExists(String name) {
+    public static boolean fileExists(String name) {
         File file = new File(name);
 
         return file.exists() && file.isFile();
     }
 
-    public boolean folderExists(String name) {
+    public static boolean folderExists(String name) {
         File file = new File(name);
 
         return file.exists() && file.isDirectory();
     }
 
-    public void createFolder(String name) {
+    public static void createFolder(String name) {
         File file = new File(name);
 
         file.mkdirs();
