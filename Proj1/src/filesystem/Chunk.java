@@ -1,6 +1,8 @@
 package filesystem;
 
-public class Chunk {
+import org.jetbrains.annotations.NotNull;
+
+public class Chunk implements Comparable<Chunk> {
     private String fileID;
     private int chunkNo;
     private int replicationDegree;
@@ -34,5 +36,10 @@ public class Chunk {
 
     public byte[] getData() {
         return data;
+    }
+
+    @Override
+    public int compareTo(@NotNull Chunk o) {
+        return Integer.compare(chunkNo, o.chunkNo);
     }
 }
