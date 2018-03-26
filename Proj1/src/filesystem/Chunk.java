@@ -1,7 +1,5 @@
 package filesystem;
 
-import org.jetbrains.annotations.NotNull;
-
 public class Chunk implements Comparable<Chunk> {
     private String fileID;
     private int chunkNo;
@@ -39,7 +37,9 @@ public class Chunk implements Comparable<Chunk> {
     }
 
     @Override
-    public int compareTo(@NotNull Chunk o) {
-        return Integer.compare(chunkNo, o.chunkNo);
+    public int compareTo(Chunk otherCunk) {
+        if (otherCunk == null)
+            return -1;
+        return Integer.compare(chunkNo, otherCunk.chunkNo);
     }
 }

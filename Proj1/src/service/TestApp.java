@@ -51,8 +51,7 @@ public class TestApp {
     private void handleRequest() {
         initiateRMIStub();
 
-        String response = handlers.get(sub_protocol)
-        System.err.println("response: " + response);
+        handlers.get(sub_protocol).run();
         // Do something with response ?
     }
 
@@ -66,7 +65,7 @@ public class TestApp {
         }
     }
 
-    private String handleBackup() {
+    private void handleBackup() {
         File file = new File(this.opnd_1);
         System.out.println("Backing up file at \"" + file.getAbsolutePath() + "\"");
 
@@ -76,8 +75,6 @@ public class TestApp {
         } catch (RemoteException e) {
             System.err.println("Client exception: " + e.toString());
         }
-
-        return response;
     }
 
     private void handleDelete() {
