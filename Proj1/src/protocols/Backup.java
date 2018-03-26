@@ -1,6 +1,5 @@
 package protocols;
 
-import filesystem.FileManager;
 import network.Message;
 import service.Peer;
 import utils.Utils;
@@ -10,7 +9,7 @@ import java.io.IOException;
 import static filesystem.SystemManager.createFolder;
 import static filesystem.SystemManager.saveFile;
 
-public class Backup implements Runnable{
+public class Backup implements Runnable {
 
     private Peer parentPeer;
     private Message request;
@@ -39,16 +38,16 @@ public class Backup implements Runnable{
         chunkNo = request.getChunkNo();
         replicationDegree = request.getReplicationDegree();
 
-        if(senderID == parentPeer.getID()) { // a peer never stores the chunks of it own files
+        if (senderID == parentPeer.getID()) { // a peer never stores the chunks of it own files
             System.out.println("Ignore backup");
             return;
         }
 
         chunkData = request.getBody();
 
-        String chunkPathname = parentPeer.getPath("chunks")+ "/" + fileID;
+        String chunkPathname = parentPeer.getPath("chunks") + "/" + fileID;
 
-        createFolder(parentPeer.getPath("chunks")+ "/" + fileID);
+        createFolder(parentPeer.getPath("chunks") + "/" + fileID);
 
         try {
             saveFile(Integer.toString(chunkNo), chunkPathname, chunkData);
@@ -57,7 +56,7 @@ public class Backup implements Runnable{
         }
 
         try {
-                sendMessageToMC();
+            sendMessageToMC();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -67,7 +66,7 @@ public class Backup implements Runnable{
     private void sendMessageToMC() throws IOException {
         System.out.println(parentPeer);
 
-        String [] args = {
+        String[] args = {
                 version,
                 Integer.toString(parentPeer.getID()),
                 fileID,

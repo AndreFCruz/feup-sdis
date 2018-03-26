@@ -13,11 +13,6 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
-
-import static filesystem.FileManager.fileMerge;
-import static filesystem.FileManager.loadChunks;
-import static filesystem.SystemManager.saveFile;
 
 public class Peer implements IService {
 
@@ -140,15 +135,15 @@ public class Peer implements IService {
     public String getPath(String path) {
         String pathname;
 
-        switch (path){
+        switch (path) {
             case "chunks":
-                pathname=systemManager.getChunksPath();
+                pathname = systemManager.getChunksPath();
                 break;
             case "restores":
-                pathname=systemManager.getRestoresPath();
+                pathname = systemManager.getRestoresPath();
                 break;
             default:
-                pathname="";
+                pathname = "";
                 break;
 
         }

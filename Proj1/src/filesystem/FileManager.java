@@ -2,7 +2,6 @@ package filesystem;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import static java.util.Arrays.copyOfRange;
 import static utils.Utils.MAXCHUNK;
@@ -38,8 +37,8 @@ public class FileManager {
     public static ArrayList<Chunk> loadChunks(String pathname, int numberOfChunks) throws FileNotFoundException {
         ArrayList<Chunk> chunks = new ArrayList<>();
 
-        for(int i=0; i <= numberOfChunks; i++){
-            byte [] data = loadFile(new File(pathname + "/" + i));
+        for (int i = 0; i <= numberOfChunks; i++) {
+            byte[] data = loadFile(new File(pathname + "/" + i));
             Chunk chunk = new Chunk("", i, 1, data);
             chunks.add(chunk);
         }
@@ -58,11 +57,11 @@ public class FileManager {
 
             if (i == numChunks - 1 && fileData.length % MAXCHUNK == 0) {
                 chunkData = new byte[0];
-            } else if(i == numChunks - 1){
+            } else if (i == numChunks - 1) {
                 int leftOverBytes = fileData.length - (i * MAXCHUNK);
-                chunkData = copyOfRange(fileData, i*MAXCHUNK,i*MAXCHUNK + leftOverBytes);
-            } else{
-                chunkData = copyOfRange(fileData, i*MAXCHUNK,i*MAXCHUNK + MAXCHUNK);
+                chunkData = copyOfRange(fileData, i * MAXCHUNK, i * MAXCHUNK + leftOverBytes);
+            } else {
+                chunkData = copyOfRange(fileData, i * MAXCHUNK, i * MAXCHUNK + MAXCHUNK);
             }
 
             Chunk chunk = new Chunk(fileID, i, replicationDegree, chunkData);
@@ -72,7 +71,7 @@ public class FileManager {
         return chunks;
     }
 
-    public static byte[] fileMerge(ArrayList<Chunk> chunks){
+    public static byte[] fileMerge(ArrayList<Chunk> chunks) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         byte[] fileData;
 

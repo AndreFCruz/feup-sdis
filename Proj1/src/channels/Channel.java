@@ -1,12 +1,8 @@
 package channels;
 
-import filesystem.SystemManager;
 import service.Peer;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
@@ -47,7 +43,7 @@ public abstract class Channel implements Runnable {
     @Override
     public void run() {
 
-        byte[] rbuf = new byte[MAX_MESSAGE_SIZE*2];
+        byte[] rbuf = new byte[MAX_MESSAGE_SIZE * 2];
         DatagramPacket packet = new DatagramPacket(rbuf, rbuf.length);
 
         System.out.println("Channel Run!");

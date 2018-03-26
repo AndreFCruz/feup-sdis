@@ -1,20 +1,16 @@
 package protocols.initiators;
 
 import filesystem.Chunk;
+import filesystem.FileManager;
 import network.Message;
 import service.Peer;
-import filesystem.FileManager;
 import utils.Utils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
-import static filesystem.FileManager.fileMerge;
 import static filesystem.FileManager.fileSplit;
-import static filesystem.SystemManager.saveFile;
 
 
 public class BackupInitiator implements Runnable {
@@ -40,7 +36,7 @@ public class BackupInitiator implements Runnable {
             fileID = file.getName(); //temporary (need to be hashed)
             ArrayList<Chunk> chunks = fileSplit(fileData, fileID, replicationDegree);
 
-            for(Chunk chunk : chunks) {
+            for (Chunk chunk : chunks) {
                 sendMessageToMDB(chunk);
             }
 
@@ -58,7 +54,7 @@ public class BackupInitiator implements Runnable {
     private void sendMessageToMDB(Chunk chunk) throws IOException {
         System.out.println(parentPeer);
 
-        String [] args = {
+        String[] args = {
                 version,
                 Integer.toString(parentPeer.getID()),
                 fileID,

@@ -3,7 +3,6 @@ package network;
 import utils.Utils;
 
 import java.io.*;
-import java.net.DatagramPacket;
 
 public class Message {
 
@@ -31,7 +30,7 @@ public class Message {
 
         parseHeader(headerSplit);
 
-        if(type == Utils.MessageType.PUTCHUNK){
+        if (type == Utils.MessageType.PUTCHUNK) {
             this.body = extractBody(data, header.length(), length);
         }
 
@@ -88,7 +87,7 @@ public class Message {
 
         }
 
-        System.out.println(header+"|");
+        System.out.println(header + "|");
         return header;
     }
 
@@ -100,7 +99,7 @@ public class Message {
 
         byte[] bodyContent = new byte[readBytes];
 
-        message.read(bodyContent,0, readBytes);
+        message.read(bodyContent, 0, readBytes);
         System.out.println("data:" + dataLength);
         System.out.println("headerLength:" + headerLength);
         System.out.println("readBytes: " + readBytes);
@@ -113,7 +112,7 @@ public class Message {
         System.out.println("c3: " + msg.length());
         String header, body = null;
 
-        if(msgSplit.length == 0 || msgSplit.length > 2)
+        if (msgSplit.length == 0 || msgSplit.length > 2)
             return; //message discarded
         else if (msgSplit.length == 2)
             body = msgSplit[1];
@@ -127,7 +126,7 @@ public class Message {
 
         parseHeader(headerSplit);
 
-        if(body != null){
+        if (body != null) {
             System.out.println("body: " + body.length());
             this.body = body.getBytes();
             System.out.println("parser:" + this.body.length);
@@ -136,28 +135,32 @@ public class Message {
 
     private void parseHeader(String[] headerSplit) {
 
-        switch(headerSplit[0]){
+        switch (headerSplit[0]) {
             case "PUTCHUNK":
-                type = Utils.MessageType.PUTCHUNK; numberArgs = 6; break;
+                type = Utils.MessageType.PUTCHUNK;
+                numberArgs = 6;
+                break;
             case "STORED":
-                type = Utils.MessageType.STORED; numberArgs = 5; break;
+                type = Utils.MessageType.STORED;
+                numberArgs = 5;
+                break;
             default:
                 return;
         }
 
-        if(headerSplit.length != numberArgs)
+        if (headerSplit.length != numberArgs)
             return;
 
         version = headerSplit[1];
 
         senderID = Integer.parseInt(headerSplit[2]);
 
-        if(numberArgs >= 4)
+        if (numberArgs >= 4)
             fileID = headerSplit[3];
 
         chunkNo = Integer.parseInt(headerSplit[4]);
 
-        if(type == Utils.MessageType.PUTCHUNK){
+        if (type == Utils.MessageType.PUTCHUNK) {
             replicationDegree = Integer.parseInt(headerSplit[5]);
         }
 
@@ -168,19 +171,18 @@ public class Message {
         return type;
     }
 
-    private String getMsgAsString(){
-        if(body != null){
+    private String getMsgAsString() {
+        if (body != null) {
             String bodyStr = new String(body);
             return getHeaderAsString() + bodyStr;
-        }
-        else
+        } else
             return getHeaderAsString();
     }
 
-    public String getHeaderAsString(){
+    public String getHeaderAsString() {
         String str = "";
 
-        switch(type){
+        switch (type) {
             case PUTCHUNK:
                 str = type + " " + version + " " + senderID + " " + fileID + " " + chunkNo + " " + replicationDegree + " " + Utils.CRLF + Utils.CRLF;
                 break;
@@ -195,17 +197,16 @@ public class Message {
     }
 
 
-
     public byte[] getBytes() throws IOException {
 
         byte header[] = getHeaderAsString().getBytes();
 
-        if(body != null){
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
-            outputStream.write( header );
-            outputStream.write( body );
+        if (body != null) {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            outputStream.write(header);
+            outputStream.write(body);
 
-            return outputStream.toByteArray( );
+            return outputStream.toByteArray();
         } else
             return header;
     }
