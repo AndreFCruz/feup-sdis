@@ -1,14 +1,11 @@
 package service;
 
-import filesystem.File;
-
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 
-public class Peer implements IService{
-
+public class Peer implements IService {
 
 
     public Peer() {
@@ -21,8 +18,8 @@ public class Peer implements IService{
 
     @Override
     public String restore(String pathname) throws RemoteException {
-    	System.out.println("ola");
-    	return "ola";
+        System.out.println("ola");
+        return "ola";
     }
 
     @Override

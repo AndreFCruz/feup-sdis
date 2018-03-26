@@ -15,18 +15,18 @@ public abstract class Channel implements Runnable {
 //    private Peer parentPeer;
 
 
-    public Channel(String mcastAddr, String mcastPort){
-       try {
-           this.mcastAddr = InetAddress.getByName(mcastAddr);
-           this.mcastPort = Integer.parseInt(mcastPort);
-       }catch (IOException e) {
-           e.printStackTrace();
-       }
+    public Channel(String mcastAddr, String mcastPort) {
+        try {
+            this.mcastAddr = InetAddress.getByName(mcastAddr);
+            this.mcastPort = Integer.parseInt(mcastPort);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 
 
-    private void initialize(){
+    private void initialize() {
         try {
             socket = new MulticastSocket(mcastPort);
             socket.setTimeToLive(1);
@@ -59,7 +59,7 @@ public abstract class Channel implements Runnable {
 //        this.close();
     }
 
-    private void sendMessage(byte[] message){
+    private void sendMessage(byte[] message) {
         DatagramPacket packet = new DatagramPacket(message, message.length, mcastAddr, mcastPort);
         try {
             socket.send(packet);
@@ -68,7 +68,7 @@ public abstract class Channel implements Runnable {
         }
     }
 
-    private void close(){
+    private void close() {
         socket.close();
     }
 
