@@ -51,7 +51,7 @@ public abstract class Channel implements Runnable {
         // Loop waiting for messages
         while (true) {
 
-            try {
+            try { // blocking method
                 this.socket.receive(packet);
             } catch (IOException e) {
                 e.printStackTrace();

@@ -11,6 +11,12 @@ import utils.Utils;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Array;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 import static filesystem.SystemManager.fileSplit;
@@ -36,7 +42,7 @@ public class BackupInitiator implements Runnable {
     public void run() {
         try {
             fileData = SystemManager.loadFile(file);
-            fileID = file.getName(); //temporary (need to be hashed)
+            fileID = generateFileID(file);
             ArrayList<Chunk> chunks = fileSplit(fileData, fileID, replicationDegree);
             ArrayList<ChunkInfo> chunksInfo = new ArrayList<>();
 
@@ -58,7 +64,40 @@ public class BackupInitiator implements Runnable {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
 
+    private String generateFileID(File file) {
+        return hash(generateUnhashedFileID(file));
+    }
+
+    private String generateUnhashedFileID(File file) {
+        BasicFileAttributes attr;
+        try {
+            attr = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
+        } catch (IOException e) {
+            System.err.println("Couldn't read file's metadata: " + e.getMessage());
+            return null;
+        }
+
+        String fileID = file.getName() + attr.lastModifiedTime() + attr.size();
+        System.out.println("Unhashed fileID for " + file.getPath() + " is " + fileID);
+
+        return fileID;
+    }
+
+    private String hash(String msg) {
+        MessageDigest digest;
+        try {
+            digest = MessageDigest.getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException e) {
+            System.err.println("Hash algorithm not found: " + e.getMessage());
+            return null;
+        }
+
+        System.out.println("Message's pure hashcode: " + msg.hashCode());
+        byte[] hash = digest.digest(msg.getBytes(StandardCharsets.UTF_8));
+
+        return hash.toString();
     }
 
     private void sendMessageToMDB(Chunk chunk) throws IOException {
