@@ -69,9 +69,8 @@ public class TestApp {
         File file = new File(this.opnd_1);
         System.out.println("BACKING UP file at \"" + file.getAbsolutePath() + "\"");
 
-        String response = null;
         try {
-            response = stub.backup(file, Integer.parseInt(this.opnd_2));
+            stub.backup(file, Integer.parseInt(this.opnd_2));
         } catch (RemoteException e) {
             System.err.println("Client exception: " + e.toString());
         }
@@ -90,20 +89,18 @@ public class TestApp {
     private void handleRestore() {
         System.out.println("RESTORING file \"" + opnd_1 + "\"");
 
-        String response = null;
         try {
-            response = stub.restore(opnd_1);
+            stub.restore(opnd_1);
         } catch (RemoteException e) {
             System.err.println("Client exception: " + e.toString());
         }
     }
 
     private void handleReclaim() {
-        System.out.println("RECLAIMING file \"" + opnd_1 + "\"");
+        System.out.println("RECLAIMING disk space: \"" + opnd_1 + "\"");
 
-        String response = null;
         try {
-            response = stub.restore(opnd_1);
+            stub.reclaim(Integer.parseInt(opnd_1));
         } catch (RemoteException e) {
             System.err.println("Client exception: " + e.toString());
         }
