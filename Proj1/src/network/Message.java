@@ -31,7 +31,7 @@ public class Message {
 
         parseHeader(headerSplit);
 
-        if (type == Utils.MessageType.PUTCHUNK) {
+        if (type == Utils.MessageType.PUTCHUNK || type == Utils.MessageType.CHUNK) {
             this.body = extractBody(data, header.length(), length);
         }
 
@@ -133,9 +133,11 @@ public class Message {
             case "GETCHUNK":
                 type = Utils.MessageType.GETCHUNK;
                 numberArgs = 5;
+                break;
             case "CHUNK":
                 type = Utils.MessageType.CHUNK;
                 numberArgs = 5;
+                break;
             default:
                 return;
         }

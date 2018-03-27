@@ -53,7 +53,7 @@ public class BackupInitiator implements Runnable {
             //sendMessageToMDB();
 
 
-            parentPeer.addFileToDB(file.getName(), new FileInfo(file, fileID, replicationDegree, chunksInfo));
+            parentPeer.addFileToDB(file.getPath(), new FileInfo(file, fileID, replicationDegree, chunksInfo));
 
         } catch (Exception e) {
             e.printStackTrace();

@@ -1,18 +1,11 @@
 package protocols.initiators;
 
-import filesystem.Chunk;
-import filesystem.ChunkInfo;
 import filesystem.FileInfo;
-import filesystem.SystemManager;
 import network.Message;
 import service.Peer;
 import utils.Utils;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-
-import static filesystem.SystemManager.fileSplit;
 
 public class RestoreInitiator implements Runnable{
 
@@ -31,14 +24,17 @@ public class RestoreInitiator implements Runnable{
     @Override
     public void run() {
         try {
+            if(fileInfo == null)
+                return;
+
             //Send GETCHUNK to MC
             for(int i = 0; i < fileInfo.getNumChunks(); i++){
                 sendMessageToMC(i);
             }
 
-            //Receive Chunks
+            //TODO:Handle Received Chunks
 
-            //merge file and save
+            //TODO:merge file and save
 
             //        saveFile("peras.png", "files",
 //                fileMerge(

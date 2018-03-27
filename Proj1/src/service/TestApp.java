@@ -27,7 +27,7 @@ public class TestApp {
         String peer_ap = args[0]; // peer access point
         String sub_protocol = args[1];
         String operand1 = args[2];
-        String operand2 = args.length > 2 ? args[3] : null;
+        String operand2 = args.length > 3 ? args[3] : null;
 
         TestApp app = new TestApp(peer_ap, sub_protocol, operand1, operand2);
         app.handleRequest();

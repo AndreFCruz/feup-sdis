@@ -9,6 +9,7 @@ import filesystem.SystemManager;
 import network.Message;
 import protocols.Handler;
 import protocols.initiators.BackupInitiator;
+import protocols.initiators.RestoreInitiator;
 
 import java.io.File;
 import java.io.IOException;
@@ -110,8 +111,8 @@ public class Peer implements IService {
 
     @Override
     public String restore(String pathname) {
-        System.out.println("ola");
-        return "ola";
+        new Thread(new RestoreInitiator("1.0", pathname, this)).start();
+        return "restore command ok";
     }
 
     @Override
