@@ -77,7 +77,7 @@ public class Backup implements Runnable {
                 Integer.toString(chunkNo)
         };
 
-        Message msg = new Message(Utils.MessageType.STORED, args);
+        Message msg = new Message(Message.MessageType.STORED, args);
         parentPeer.sendMessage(0, msg);
     }
 }

@@ -67,7 +67,7 @@ public class BackupInitiator implements Runnable {
     }
 
     private String generateFileID(File file) {
-        return hash(generateUnhashedFileID(file));
+        return Utils.hash(generateUnhashedFileID(file));
     }
 
     private String generateUnhashedFileID(File file) {
@@ -85,21 +85,6 @@ public class BackupInitiator implements Runnable {
         return fileID;
     }
 
-    private String hash(String msg) {
-        MessageDigest digest;
-        try {
-            digest = MessageDigest.getInstance("SHA-256");
-        } catch (NoSuchAlgorithmException e) {
-            System.err.println("Hash algorithm not found: " + e.getMessage());
-            return null;
-        }
-
-        System.out.println("Message's pure hashcode: " + msg.hashCode());
-        byte[] hash = digest.digest(msg.getBytes(StandardCharsets.UTF_8));
-
-        return hash.toString();
-    }
-
     private void sendMessageToMDB(Chunk chunk) throws IOException {
         System.out.println(parentPeer);
 
@@ -111,7 +96,7 @@ public class BackupInitiator implements Runnable {
                 Integer.toString(replicationDegree)
         };
 
-        Message msg = new Message(Utils.MessageType.PUTCHUNK, args, chunk.getData());
+        Message msg = new Message(Message.MessageType.PUTCHUNK, args, chunk.getData());
 
         parentPeer.sendMessage(1, msg);
     }

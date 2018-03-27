@@ -66,7 +66,7 @@ public class Restore implements Runnable {
                 Integer.toString(chunkNo)
         };
 
-        Message msg = new Message(Utils.MessageType.CHUNK, args, chunkData);
+        Message msg = new Message(Message.MessageType.CHUNK, args, chunkData);
         parentPeer.sendMessage(2, msg);
     }
 }

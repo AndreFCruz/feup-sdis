@@ -56,7 +56,7 @@ public class RestoreInitiator implements Runnable{
                 Integer.toString(chunkNo),
         };
 
-        Message msg = new Message(Utils.MessageType.GETCHUNK, args);
+        Message msg = new Message(Message.MessageType.GETCHUNK, args);
 
         parentPeer.sendMessage(0, msg);
     }

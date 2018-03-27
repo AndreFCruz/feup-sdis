@@ -6,9 +6,16 @@ import java.io.*;
 
 public class Message {
 
+    public enum MessageType {
+        PUTCHUNK,
+        STORED,
+        GETCHUNK,
+        CHUNK
+    }
+
     private int numberArgs;
     //    Header
-    private Utils.MessageType type;
+    private MessageType type;
     private String version;
     private int senderID;
     private String fileID;
@@ -31,14 +38,14 @@ public class Message {
 
         parseHeader(headerSplit);
 
-        if (type == Utils.MessageType.PUTCHUNK || type == Utils.MessageType.CHUNK) {
+        if (type == MessageType.PUTCHUNK || type == MessageType.CHUNK) {
             this.body = extractBody(data, header.length(), length);
         }
 
     }
 
     //constructor that handle send messages without body
-    public Message(Utils.MessageType type, String[] args) {
+    public Message(MessageType type, String[] args) {
         this.type = type;
         version = args[0];
         senderID = Integer.parseInt(args[1]);
@@ -47,7 +54,7 @@ public class Message {
     }
 
     //constructor that handle send messages with body
-    public Message(Utils.MessageType type, String[] args, byte[] data) {
+    public Message(MessageType type, String[] args, byte[] data) {
         this.type = type;
         version = args[0];
         senderID = Integer.parseInt(args[1]);
@@ -55,7 +62,7 @@ public class Message {
         chunkNo = Integer.parseInt(args[3]);
         body=data;
 
-        if (type == Utils.MessageType.PUTCHUNK) {
+        if (type == MessageType.PUTCHUNK) {
             replicationDegree = Integer.parseInt(args[4]);
         }
     }
@@ -123,19 +130,19 @@ public class Message {
 
         switch (headerSplit[0]) {
             case "PUTCHUNK":
-                type = Utils.MessageType.PUTCHUNK;
+                type = MessageType.PUTCHUNK;
                 numberArgs = 6;
                 break;
             case "STORED":
-                type = Utils.MessageType.STORED;
+                type = MessageType.STORED;
                 numberArgs = 5;
                 break;
             case "GETCHUNK":
-                type = Utils.MessageType.GETCHUNK;
+                type = MessageType.GETCHUNK;
                 numberArgs = 5;
                 break;
             case "CHUNK":
-                type = Utils.MessageType.CHUNK;
+                type = MessageType.CHUNK;
                 numberArgs = 5;
                 break;
             default:
@@ -154,14 +161,14 @@ public class Message {
 
         chunkNo = Integer.parseInt(headerSplit[4]);
 
-        if (type == Utils.MessageType.PUTCHUNK) {
+        if (type == MessageType.PUTCHUNK) {
             replicationDegree = Integer.parseInt(headerSplit[5]);
         }
 
 
     }
 
-    public Utils.MessageType getType() {
+    public MessageType getType() {
         return type;
     }
 
