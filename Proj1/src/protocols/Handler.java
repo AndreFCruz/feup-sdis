@@ -52,6 +52,7 @@ public class Handler implements Runnable {
 //        System.out.println("tu 2");
 //        System.out.println(msg);
 
+        System.out.println("R: " + msg.getHeaderAsString() + "|");
         switch (msg.getType()) {
             case PUTCHUNK:
                 Backup backup = new Backup(parentPeer, msg);

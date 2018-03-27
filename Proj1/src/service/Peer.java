@@ -29,7 +29,7 @@ public class Peer implements IService {
 //
 //    private ArrayList<String> chunkBU = new ArrayList<>();
 
-    public Peer(int id, String[] mcAddress, String[] mdbAddress) throws IOException {
+    public Peer(int id, String[] mcAddress, String[] mdbAddress) {
         this.id = id;
 
         systemManager = new SystemManager(this, 100000);
@@ -53,7 +53,7 @@ public class Peer implements IService {
 //                                18)));
     }
 
-    public static void main(String args[]) throws IOException {
+    public static void main(String args[]) {
 
 //		if (args.length != 2) {
 //			System.out.println("Usage: java Peer <mc:port> <mdb:port> <mdl:port>");
@@ -83,6 +83,7 @@ public class Peer implements IService {
     }
 
     public void sendMessage(int channel, Message message) throws IOException {
+        System.out.println("S: " + message.getHeaderAsString() + "|");
         switch (channel) {
             case 0:
                 mc.sendMessage(message.getBytes());
@@ -97,29 +98,29 @@ public class Peer implements IService {
 
 
     @Override
-    public String backup(File file, int replicationDegree) throws RemoteException {
+    public String backup(File file, int replicationDegree) {
         new Thread(new BackupInitiator("1.0", file, replicationDegree, this)).start();
         return "backup command ok";
     }
 
     @Override
-    public String restore(String pathname) throws RemoteException {
+    public String restore(String pathname) {
         System.out.println("ola");
         return "ola";
     }
 
     @Override
-    public void delete(String pathname) throws RemoteException {
+    public void delete(String pathname) {
 
     }
 
     @Override
-    public void reclaim(int space) throws RemoteException {
+    public void reclaim(int space) {
 
     }
 
     @Override
-    public void state() throws RemoteException {
+    public void state() {
 
     }
 

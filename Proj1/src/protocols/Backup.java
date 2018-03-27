@@ -38,8 +38,8 @@ public class Backup implements Runnable {
         chunkNo = request.getChunkNo();
         replicationDegree = request.getReplicationDegree();
 
-        if (senderID == parentPeer.getID()) { // a peer never stores the chunks of it own files
-            System.out.println("Ignore backup");
+        if (senderID == parentPeer.getID()) { // a peer never stores the chunks of its own files
+            System.out.println("Ignoring backup of own files");
             return;
         }
 

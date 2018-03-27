@@ -19,7 +19,7 @@ public class TestApp {
     private IService stub;
 
     public static void main(String[] args) {
-        if(args.length < 2 || args.length > 3) {
+        if(args.length < 2 || args.length > 4) {
             System.out.println("Usage: java TestApp <peer_ap> <sub_protocol> <opnd_1> <opnd_2>");
             return;
         }

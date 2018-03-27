@@ -74,7 +74,7 @@ public class SystemManager {
 
     public static void createFolder(String name) {
         File file = new File(name);
-
+        // TODO check if dir already exists?
         file.mkdirs();
     }
 

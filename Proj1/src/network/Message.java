@@ -87,11 +87,10 @@ public class Message {
 
         }
 
-        System.out.println(header + "|");
         return header;
     }
 
-    private byte[] extractBody(byte[] data, int headerLength, int dataLength) throws IOException {
+    private byte[] extractBody(byte[] data, int headerLength, int dataLength) {
         int length = dataLength;
         int readBytes = length - headerLength - 4;
         ByteArrayInputStream message = new ByteArrayInputStream(data, headerLength + 4, readBytes);
