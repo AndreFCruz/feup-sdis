@@ -2,6 +2,7 @@ package service;
 
 import channels.MChannel;
 import channels.MDBChannel;
+import filesystem.FileInfo;
 import filesystem.SystemManager;
 import network.Message;
 import protocols.Handler;
@@ -9,7 +10,6 @@ import protocols.initiators.BackupInitiator;
 
 import java.io.File;
 import java.io.IOException;
-import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
@@ -27,7 +27,6 @@ public class Peer implements IService {
 //    private String serverAccessPoint;
 //    private IService stub;
 //
-//    private ArrayList<String> chunkBU = new ArrayList<>();
 
     public Peer(int id, String[] mcAddress, String[] mdbAddress) {
         this.id = id;
@@ -153,5 +152,9 @@ public class Peer implements IService {
 
     public void addMsgToHandler(byte[] data, int length) throws IOException {
         dispatcher.pushMessage(data, length);
+    }
+
+    public void addFileToDB(String fileName, FileInfo fileInfo){
+        systemManager.getDatabase().addRestorableFile(fileName, fileInfo);
     }
 }

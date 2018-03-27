@@ -1,16 +1,19 @@
 package protocols.initiators;
 
 import filesystem.Chunk;
-import filesystem.FileManager;
+import filesystem.ChunkInfo;
+import filesystem.FileInfo;
+import filesystem.SystemManager;
 import network.Message;
 import service.Peer;
 import utils.Utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
-import static filesystem.FileManager.fileSplit;
+import static filesystem.SystemManager.fileSplit;
 
 
 public class BackupInitiator implements Runnable {
@@ -32,18 +35,25 @@ public class BackupInitiator implements Runnable {
     @Override
     public void run() {
         try {
-            fileData = FileManager.loadFile(file);
+            fileData = SystemManager.loadFile(file);
             fileID = file.getName(); //temporary (need to be hashed)
             ArrayList<Chunk> chunks = fileSplit(fileData, fileID, replicationDegree);
+            ArrayList<ChunkInfo> chunksInfo = new ArrayList<>();
+
 
             for (Chunk chunk : chunks) {
                 sendMessageToMDB(chunk);
+                //Save chunk info, TODO: maybe save the peers that store each chunk?
+                chunksInfo.add(new ChunkInfo(chunk.getChunkNo(), chunk.getReplicationDegree()));
             }
 
 //            byte[] dataMerged = fileMerge(chunks);
 //            saveFile("batatas1.png", this.parentPeer.getPath("restores"), dataMerged);
 
             //sendMessageToMDB();
+
+
+            parentPeer.addFileToDB(file.getName(), new FileInfo(file, fileID, replicationDegree, chunksInfo));
 
         } catch (Exception e) {
             e.printStackTrace();
