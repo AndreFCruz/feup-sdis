@@ -3,9 +3,10 @@ package protocols;
 import filesystem.ChunkInfo;
 import network.Message;
 import service.Peer;
-import utils.Utils;
 
 import java.io.IOException;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import static filesystem.SystemManager.createFolder;
 import static filesystem.SystemManager.saveFile;
@@ -60,14 +61,14 @@ public class Backup implements Runnable {
         }
 
         try {
-            sendMessageToMC();
+            sendConfirmationMsg();
         } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
 
-    private void sendMessageToMC() throws IOException {
+    private void sendConfirmationMsg() throws IOException {
         System.out.println(parentPeer);
 
         String[] args = {
@@ -78,6 +79,8 @@ public class Backup implements Runnable {
         };
 
         Message msg = new Message(Message.MessageType.STORED, args);
-        parentPeer.sendMessage(0, msg);
+
+        Random random = new Random();
+        parentPeer.sendDelayedMessage(0, msg, random.nextInt(400), TimeUnit.MILLISECONDS);
     }
 }

@@ -16,6 +16,9 @@ import java.io.IOException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class Peer implements IService {
 
@@ -25,6 +28,7 @@ public class Peer implements IService {
 
     private Handler dispatcher;
     private SystemManager systemManager;
+    private ScheduledExecutorService scheduledExecutor;
 
     private int id;
 //    private String protocolVersion;
@@ -49,6 +53,7 @@ public class Peer implements IService {
 
 
         new Thread(dispatcher).start();
+        scheduledExecutor = new ScheduledThreadPoolExecutor(1);
 
         System.out.println("Peer " + id + " online!");
 
@@ -83,6 +88,16 @@ public class Peer implements IService {
         }
 
 
+    }
+
+    public void sendDelayedMessage(int channel,  Message message, long delay, TimeUnit unit) {
+        scheduledExecutor.schedule(() -> {
+            try {
+                sendMessage(channel, message);
+            } catch (IOException e) {
+                System.err.println("Error sending message to channel " + channel + " - " + message.getHeaderAsString());
+            }
+        }, delay, unit);
     }
 
     public void sendMessage(int channel, Message message) throws IOException {
