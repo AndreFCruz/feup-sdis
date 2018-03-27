@@ -7,7 +7,9 @@ public class Utils {
 
     public enum MessageType {
         PUTCHUNK,
-        STORED
+        STORED,
+        GETCHUNK,
+        CHUNK
     }
 
 }

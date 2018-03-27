@@ -62,23 +62,20 @@ public class Handler implements Runnable {
                 System.out.println("Stored received");
                 //           parentPeer.updateFileStorage(message);
                 break;
-
+            case GETCHUNK:
+                Restore restore = new Restore(parentPeer, msg);
+                executor.execute(restore);
+                break;
+            case CHUNK:
+                System.out.println("Chunk received");
+                //           parentPeer.updateFileStorage(message);
+                break;
             default:
                 return;
 
         }
 
     }
-
-    public void pushMessage(String msg) {
-        Message msgParsed = new Message(msg); //create and parse the message
-        msgQueue.add(msgParsed);
-        System.out.println(msgParsed.getHeaderAsString());
-//        System.out.println("eu 1");
-//        System.out.println(msg);
-        //add to queue
-    }
-
 
     public void pushMessage(byte[] data, int length) throws IOException {
         Message msgParsed = new Message(data, length); //create and parse the message

@@ -3,8 +3,8 @@ package filesystem;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Database {
-    private ConcurrentHashMap<String, FileInfo> restorableFiles;
-    private ConcurrentHashMap<String, ChunkInfo> chunksBackedUp;
+    private ConcurrentHashMap<String, FileInfo> restorableFiles; //pathname, fileinfo
+    private ConcurrentHashMap<String, ChunkInfo> chunksBackedUp; //chunkid, chunkinfo
 
     public Database() {
         restorableFiles = new ConcurrentHashMap<>();
@@ -26,34 +26,34 @@ public class Database {
      *
      */
     //Backup
-    public void addRestorableFile(String fileName, FileInfo fileInfo) {
-        if (!hasChunk(fileName)) {
-            restorableFiles.put(fileName, fileInfo);
+    public void addRestorableFile(String pathName, FileInfo fileInfo) {
+        if (!hasChunk(pathName)) {
+            restorableFiles.put(pathName, fileInfo);
 
             saveDatabase();
         }
     }
 
     //delete
-    public void removeRestorableFile(String fileName) {
-        restorableFiles.remove(fileName);
+    public void removeRestorableFile(String pathName) {
+        restorableFiles.remove(pathName);
 
         saveDatabase();
     }
 
-    public boolean hasFile(String fileName) {
-        return restorableFiles.containsKey(fileName);
+    public boolean hasFile(String pathName) {
+        return restorableFiles.containsKey(pathName);
     }
 
-    public FileInfo getFileInfo(String fileName) {
-        return restorableFiles.get(fileName);
+    public FileInfo getFileInfo(String pathName) {
+        return restorableFiles.get(pathName);
     }
 
     /*
      *
      */
-    public boolean hasChunk(String String) {
-        return chunksBackedUp.containsKey(String);
+    public boolean hasChunk(String chunkID) {
+        return chunksBackedUp.containsKey(chunkID);
     }
 
     public void addChunk(String chunkID, ChunkInfo chunkInfo) {

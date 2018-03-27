@@ -18,10 +18,11 @@ public class Message {
     private byte[] body;
 
 
-    public Message(String msg) {
-        parseMessage(msg);
-    }
+//    public Message(String msg) {
+//        parseMessage(msg);
+//    }
 
+    //Constructor that handle received messages
     public Message(byte[] data, int length) throws IOException {
         String header = extractHeader(data);
 
@@ -36,40 +37,26 @@ public class Message {
 
     }
 
+    //constructor that handle send messages without body
     public Message(Utils.MessageType type, String[] args) {
         this.type = type;
         version = args[0];
         senderID = Integer.parseInt(args[1]);
         fileID = args[2];
         chunkNo = Integer.parseInt(args[3]);
-
-        switch (this.type) {
-            case PUTCHUNK:
-                replicationDegree = Integer.parseInt(args[4]);
-                break;
-            case STORED:
-                break;
-            default:
-                break;
-        }
     }
 
+    //constructor that handle send messages with body
     public Message(Utils.MessageType type, String[] args, byte[] data) {
         this.type = type;
         version = args[0];
         senderID = Integer.parseInt(args[1]);
         fileID = args[2];
         chunkNo = Integer.parseInt(args[3]);
+        body=data;
 
-        switch (this.type) {
-            case PUTCHUNK:
-                replicationDegree = Integer.parseInt(args[4]);
-                body = data;
-                break;
-            case STORED:
-                break;
-            default:
-                break;
+        if (type == Utils.MessageType.PUTCHUNK) {
+            replicationDegree = Integer.parseInt(args[4]);
         }
     }
 
@@ -105,32 +92,32 @@ public class Message {
         return bodyContent;
     }
 
-    private void parseMessage(String msg) {
-        //Split header from body ( \R -> CRLF)
-        String[] msgSplit = msg.split("\\R\\R", 2);
-        System.out.println("c3: " + msg.length());
-        String header, body = null;
-
-        if (msgSplit.length == 0 || msgSplit.length > 2)
-            return; //message discarded
-        else if (msgSplit.length == 2)
-            body = msgSplit[1];
-
-        header = msgSplit[0];
-
-        System.out.println("header: " + header.length());
-
-        String headerCleaned = header.trim().replaceAll("\\s+", " ");
-        String[] headerSplit = headerCleaned.split("\\s+");
-
-        parseHeader(headerSplit);
-
-        if (body != null) {
-            System.out.println("body: " + body.length());
-            this.body = body.getBytes();
-            System.out.println("parser:" + this.body.length);
-        }
-    }
+//    private void parseMessage(String msg) {
+//        //Split header from body ( \R -> CRLF)
+//        String[] msgSplit = msg.split("\\R\\R", 2);
+//        System.out.println("c3: " + msg.length());
+//        String header, body = null;
+//
+//        if (msgSplit.length == 0 || msgSplit.length > 2)
+//            return; //message discarded
+//        else if (msgSplit.length == 2)
+//            body = msgSplit[1];
+//
+//        header = msgSplit[0];
+//
+//        System.out.println("header: " + header.length());
+//
+//        String headerCleaned = header.trim().replaceAll("\\s+", " ");
+//        String[] headerSplit = headerCleaned.split("\\s+");
+//
+//        parseHeader(headerSplit);
+//
+//        if (body != null) {
+//            System.out.println("body: " + body.length());
+//            this.body = body.getBytes();
+//            System.out.println("parser:" + this.body.length);
+//        }
+//    }
 
     private void parseHeader(String[] headerSplit) {
 
@@ -143,6 +130,12 @@ public class Message {
                 type = Utils.MessageType.STORED;
                 numberArgs = 5;
                 break;
+            case "GETCHUNK":
+                type = Utils.MessageType.GETCHUNK;
+                numberArgs = 5;
+            case "CHUNK":
+                type = Utils.MessageType.CHUNK;
+                numberArgs = 5;
             default:
                 return;
         }
@@ -170,25 +163,16 @@ public class Message {
         return type;
     }
 
-    private String getMsgAsString() {
-        if (body != null) {
-            String bodyStr = new String(body);
-            return getHeaderAsString() + bodyStr;
-        } else
-            return getHeaderAsString();
-    }
-
     public String getHeaderAsString() {
-        String str = "";
+        String str;
 
         switch (type) {
             case PUTCHUNK:
                 str = type + " " + version + " " + senderID + " " + fileID + " " + chunkNo + " " + replicationDegree + " " + Utils.CRLF + Utils.CRLF;
                 break;
-            case STORED:
-                str = type + " " + version + " " + senderID + " " + fileID + " " + chunkNo + " " + Utils.CRLF + Utils.CRLF;
-                break;
+
             default:
+                str = type + " " + version + " " + senderID + " " + fileID + " " + chunkNo + " " + Utils.CRLF + Utils.CRLF;
                 break;
         }
 

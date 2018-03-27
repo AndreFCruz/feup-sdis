@@ -2,6 +2,8 @@ package service;
 
 import channels.MChannel;
 import channels.MDBChannel;
+import channels.MDRChannel;
+import filesystem.ChunkInfo;
 import filesystem.FileInfo;
 import filesystem.SystemManager;
 import network.Message;
@@ -18,6 +20,7 @@ public class Peer implements IService {
 
     private MChannel mc;
     private MDBChannel mdb;
+    private MDRChannel mdr;
 
     private Handler dispatcher;
     private SystemManager systemManager;
@@ -28,43 +31,43 @@ public class Peer implements IService {
 //    private IService stub;
 //
 
-    public Peer(int id, String[] mcAddress, String[] mdbAddress) {
+    public Peer(int id, String[] mcAddress, String[] mdbAddress, String[] mdrAddress) {
         this.id = id;
 
         systemManager = new SystemManager(this, 100000);
 
         mc = new MChannel(this, mcAddress[0], mcAddress[1]);
         mdb = new MDBChannel(this, mdbAddress[0], mdbAddress[1]);
+        mdr = new MDRChannel(this, mdrAddress[0], mdrAddress[1]);
 
         dispatcher = new Handler(this);
 
         new Thread(mc).start();
         new Thread(mdb).start();
+        new Thread(mdr).start();
+
 
         new Thread(dispatcher).start();
 
         System.out.println("Peer " + id + " online!");
 
-//        saveFile("peras.png", "files",
-//                fileMerge(
-//                        loadChunks(
-//                                systemManager.getChunksPath()+"/image1.png",
-//                                18)));
+
     }
 
     public static void main(String args[]) {
 
 //		if (args.length != 2) {
-//			System.out.println("Usage: java Peer <mc:port> <mdb:port> <mdl:port>");
+//			System.out.println("Usage: java Peer <mc:port> <mdb:port> <mdr:port>");
 //			return;
 //		}
 
         String[] mcAddress = args[1].split(":");
         String[] mdbAddress = args[2].split(":");
+        String[] mdrAddress = args[3].split(":");
 
 
         try {
-            Peer obj = new Peer(Integer.parseInt(args[0]), mcAddress, mdbAddress);
+            Peer obj = new Peer(Integer.parseInt(args[0]), mcAddress, mdbAddress, mdrAddress);
             IService stub = (IService) UnicastRemoteObject.exportObject(obj, 0);
 
             // Bind the remote object's stub in the registry
@@ -89,6 +92,9 @@ public class Peer implements IService {
                 break;
             case 1:
                 mdb.sendMessage(message.getBytes());
+                break;
+            case 2:
+                mdr.sendMessage(message.getBytes());
                 break;
             default:
                 break;
@@ -123,11 +129,6 @@ public class Peer implements IService {
 
     }
 
-
-    public void addMsgToHandler(String trim) {
-        dispatcher.pushMessage(trim);
-    }
-
     public int getID() {
         return id;
     }
@@ -156,5 +157,17 @@ public class Peer implements IService {
 
     public void addFileToDB(String fileName, FileInfo fileInfo){
         systemManager.getDatabase().addRestorableFile(fileName, fileInfo);
+    }
+
+    public FileInfo getFileFromDB(String pathName) {
+        return systemManager.getDatabase().getFileInfo(pathName);
+    }
+
+    public void addChunkToDB(String chunkID, ChunkInfo chunkInfo) {
+        systemManager.getDatabase().addChunk(chunkID, chunkInfo);
+    }
+
+    public boolean hasChunkFromDB(String chunkID) {
+       return systemManager.getDatabase().hasChunk(chunkID);
     }
 }
