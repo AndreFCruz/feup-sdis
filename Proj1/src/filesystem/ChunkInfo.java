@@ -36,4 +36,15 @@ public class ChunkInfo {
         mirrors.remove(peerID);
     }
 
+    public String getFileID() {
+        return fileID;
+    }
+
+    public String getChunkNo() {
+        return chunkNo;
+    }
+
+    public int getSize() {
+        return size;
+    }
 }

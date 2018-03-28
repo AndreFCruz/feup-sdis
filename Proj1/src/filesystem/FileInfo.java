@@ -2,6 +2,7 @@ package filesystem;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class FileInfo {
 
@@ -9,25 +10,16 @@ public class FileInfo {
     private String pathname;
     private int numChunks;
     private int desiredReplicationDegree;
-    private ArrayList<ChunkInfo> chunks;
+    private ConcurrentHashMap<String, ChunkInfo> chunks; //ChunkNO -> ChunkInfo
 
 
-    public FileInfo(String fileID, String pathname, int numChunks,
-                    int desiredReplicationDegree, ArrayList<ChunkInfo> chunks) {
-
-        this.fileID = fileID;
-        this.pathname = pathname;
-        this.numChunks = numChunks;
-        this.desiredReplicationDegree = desiredReplicationDegree;
-        this.chunks = chunks;
-    }
-
-    public FileInfo(File file, String fileID, int replicationDegree, ArrayList<ChunkInfo> chunksInfo) {
+    public FileInfo(File file, String fileID, int replicationDegree, ConcurrentHashMap<String, ChunkInfo> chunksInfo) {
         this.fileID = fileID;
         this.pathname = file.getPath();
         this.numChunks = chunksInfo.size();
         this.desiredReplicationDegree = replicationDegree;
         this.chunks = chunksInfo;
+
     }
 
     public String getFileID() {
@@ -41,4 +33,7 @@ public class FileInfo {
     public String getPathname() {
         return pathname;
     }
+
+
+
 }

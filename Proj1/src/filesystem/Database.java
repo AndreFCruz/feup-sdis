@@ -4,11 +4,17 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Database {
     private ConcurrentHashMap<String, FileInfo> restorableFiles; //pathname, fileinfo
-    private ConcurrentHashMap<String, ChunkInfo> chunksBackedUp; //chunkid, chunkinfo
+    private ConcurrentHashMap<String, ChunkInfo> chunksBackedUp;//chunkid (fileID/ChunkNo), chunkinfo
+
+    private ConcurrentHashMap<String, ConcurrentHashMap<String, Chunk>> filesRestoring;
+    // fileID(sha256) -> ChunkNo -> Chunk
+
+
 
     public Database() {
         restorableFiles = new ConcurrentHashMap<>();
         chunksBackedUp = new ConcurrentHashMap<>();
+        filesRestoring = new ConcurrentHashMap<>();
         initializeDatabase();
     }
 
@@ -21,6 +27,39 @@ public class Database {
         //TODO: Save metadata to files
     }
 
+
+    /*
+        Restore Initiator functions
+     */
+    public void setFlagRestored(boolean flag, String fileID){
+        if(flag){
+            filesRestoring.put(fileID, new ConcurrentHashMap<>());
+        } else {
+            filesRestoring.remove(fileID);
+        }
+    }
+
+    public boolean getFlagRestored(String fileID){
+        return filesRestoring.containsKey(fileID);
+    }
+
+//    public void addChunksRestored(ChunkInfo chunk){
+//        if(chunksRestored.containsKey(chunk.getChunkNo())){
+//            System.out.println("Chunk already exist");
+//        } else {
+//            System.out.println("Adding chunk to merge");
+//            chunksRestored.put(chunk.getChunkNo(),chunk);
+//        }
+//
+//    }
+//
+//    public void setRestoring(boolean b, String pathName) {
+//        systemManager.getDatabase().getFileInfo(pathName).setFlagRestored(b);
+//    }
+//
+//    public Integer getChunksRestoredSize(){
+//        return chunksRestored.size();
+//    }
 
     /*
      *
