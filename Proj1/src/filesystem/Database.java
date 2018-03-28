@@ -43,23 +43,23 @@ public class Database {
         return filesRestoring.containsKey(fileID);
     }
 
-    public void addChunksRestored(ChunkInfo chunk){
-        if(chunksRestored.containsKey(chunk.getChunkNo())){
-            System.out.println("Chunk already exist");
-        } else {
-            System.out.println("Adding chunk to merge");
-            chunksRestored.put(chunk.getChunkNo(),chunk);
-        }
-
-    }
-
-    public void setRestoring(boolean b, String pathName) {
-        systemManager.getDatabase().getFileInfo(pathName).setFlagRestored(b);
-    }
-    
-    public Integer getChunksRestoredSize(){
-        return chunksRestored.size();
-    }
+//    public void addChunksRestored(ChunkInfo chunk){
+//        if(chunksRestored.containsKey(chunk.getChunkNo())){
+//            System.out.println("Chunk already exist");
+//        } else {
+//            System.out.println("Adding chunk to merge");
+//            chunksRestored.put(chunk.getChunkNo(),chunk);
+//        }
+//
+//    }
+//
+//    public void setRestoring(boolean b, String pathName) {
+//        systemManager.getDatabase().getFileInfo(pathName).setFlagRestored(b);
+//    }
+//
+//    public Integer getChunksRestoredSize(){
+//        return chunksRestored.size();
+//    }
 
     /*
      *
