@@ -1,14 +1,29 @@
 package filesystem;
 
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 public class Database {
-    private ConcurrentHashMap<String, FileInfo> restorableFiles; // pathname, fileinfo
-    private ConcurrentHashMap<String, ChunkInfo> chunksBackedUp;// chunkid (fileID/ChunkNo), chunkinfo
+    /**
+     * Contains files ready to be restored.
+     * Maps (pathname -> FileInfo)
+     */
+    private ConcurrentMap<String, FileInfo> restorableFiles;
+
+    /**
+     * Contains backed up Chunks.
+     * Maps (fileID -> ChunkInfo)
+     */
+    private ConcurrentMap<String, ChunkInfo> chunksBackedUp;
 
     // TODO _inner_ String to Int, and _inner_ ConcurrentHashMap to ConcurrentSkipListMap
-    private ConcurrentHashMap<String, ConcurrentHashMap<String, Chunk>> chunksRestored;
-    // fileID(sha256) -> (ChunkNo -> Chunk)
+    /**
+     * Contains the in-memory chunks restored.
+     * Maps (fileID -> (ChunkNum -> Chunk))
+     */
+    private ConcurrentMap<String, ConcurrentHashMap<String, Chunk>> chunksRestored;
+//    private ConcurrentMap<String, ConcurrentSkipListMap<String, Chunk>> chunksRestored;
 
 
     public Database() {
@@ -20,11 +35,13 @@ public class Database {
 
     private void initializeDatabase() {
         //TODO: Load from metadata from files the previous backups and chunks
-        //maybe usar json
+
+        //TODO: unserialize self?
     }
 
     private void saveDatabase() {
         //TODO: Save metadata to files
+
         //TODO: or serialize self?
     }
 
@@ -58,7 +75,7 @@ public class Database {
         return chunksRestored.get(fileID).size();
     }
 
-    public ConcurrentHashMap<String, Chunk> getChunksToRestore(String fileID) {
+    public ConcurrentHashMap<String, Chunk> getChunksRestored(String fileID) {
         return chunksRestored.get(fileID);
     }
 

@@ -48,7 +48,7 @@ public class RestoreInitiator implements Runnable {
             }
             System.out.println("Received all chunks");
             //TODO:merge file and save
-            ConcurrentHashMap<String, Chunk> chunksRestored = parentPeer.getChunksToRestore(fileInfo.getFileID());
+            ConcurrentHashMap<String, Chunk> chunksRestored = parentPeer.getChunksRestored(fileInfo.getFileID());
             String pathToSave = parentPeer.getPath("restores");
             saveFile(fileInfo.getFileName(), pathToSave, fileMerge(convertHashMapToArray(chunksRestored)));
 

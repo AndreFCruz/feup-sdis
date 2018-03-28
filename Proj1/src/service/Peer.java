@@ -217,7 +217,7 @@ public class Peer implements IService {
         systemManager.getDatabase().addChunksRestored(chunk);
     }
 
-    public ConcurrentHashMap<String, Chunk> getChunksToRestore(String fileID) {
-        return systemManager.getDatabase().getChunksToRestore(fileID);
+    public ConcurrentHashMap<String, Chunk> getChunksRestored(String fileID) {
+        return systemManager.getDatabase().getChunksRestored(fileID);
     }
 }
