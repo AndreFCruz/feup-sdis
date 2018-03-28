@@ -44,37 +44,18 @@ public class Peer implements IService {
     private Handler dispatcher;
 
     private SystemManager systemManager;
-    private ScheduledExecutorService scheduledExecutor;
+
+    /**
+     * Executor service responsible for scheduling delayed responses
+     * and performing all sub-protocol tasks (backup, restore, ...).
+     */
+    private ScheduledExecutorService executor;
 
     private int id;
 //    private String protocolVersion;
 //    private String serverAccessPoint;
 //    private IService stub;
 //
-
-    public Peer(int id, String[] mcAddress, String[] mdbAddress, String[] mdrAddress) {
-        this.id = id;
-
-        systemManager = new SystemManager(this, 100000);
-
-        mc = new MChannel(this, mcAddress[0], mcAddress[1]);
-        mdb = new MDBChannel(this, mdbAddress[0], mdbAddress[1]);
-        mdr = new MDRChannel(this, mdrAddress[0], mdrAddress[1]);
-
-        dispatcher = new Handler(this);
-
-        new Thread(mc).start();
-        new Thread(mdb).start();
-        new Thread(mdr).start();
-
-
-        new Thread(dispatcher).start();
-        scheduledExecutor = new ScheduledThreadPoolExecutor(1);
-
-        System.out.println("Peer " + id + " online!");
-
-
-    }
 
     public static void main(String args[]) {
 
@@ -87,6 +68,8 @@ public class Peer implements IService {
         String[] mdbAddress = args[2].split(":");
         String[] mdrAddress = args[3].split(":");
 
+        // Flag needed for systems that use IPv6 by default
+        System.setProperty("java.net.preferIPv4Stack", "true");
 
         try {
             Peer obj = new Peer(Integer.parseInt(args[0]), mcAddress, mdbAddress, mdrAddress);
@@ -106,8 +89,32 @@ public class Peer implements IService {
 
     }
 
+    public Peer(int id, String[] mcAddress, String[] mdbAddress, String[] mdrAddress) {
+        this.id = id;
+
+        systemManager = new SystemManager(this, 100000);
+
+        mc = new MChannel(this, mcAddress[0], mcAddress[1]);
+        mdb = new MDBChannel(this, mdbAddress[0], mdbAddress[1]);
+        mdr = new MDRChannel(this, mdrAddress[0], mdrAddress[1]);
+
+        dispatcher = new Handler(this);
+
+        new Thread(mc).start();
+        new Thread(mdb).start();
+        new Thread(mdr).start();
+
+
+        new Thread(dispatcher).start();
+        executor = new ScheduledThreadPoolExecutor(3);
+
+        System.out.println("Peer " + id + " online!");
+
+
+    }
+
     public void sendDelayedMessage(int channel,  Message message, long delay, TimeUnit unit) {
-        scheduledExecutor.schedule(() -> {
+        executor.schedule(() -> {
             try {
                 sendMessage(channel, message);
             } catch (IOException e) {
@@ -136,13 +143,13 @@ public class Peer implements IService {
 
     @Override
     public String backup(File file, int replicationDegree) {
-        new Thread(new BackupInitiator("1.0", file, replicationDegree, this)).start();
+        executor.execute(new BackupInitiator("1.0", file, replicationDegree, this));
         return "backup command ok";
     }
 
     @Override
     public String restore(String pathname) {
-        new Thread(new RestoreInitiator("1.0", pathname, this)).start();
+        executor.execute(new RestoreInitiator("1.0", pathname, this));
         return "restore command ok";
     }
 
