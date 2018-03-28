@@ -12,7 +12,9 @@ import java.util.concurrent.TimeUnit;
 import static filesystem.SystemManager.createFolder;
 import static filesystem.SystemManager.saveFile;
 
-public class Backup implements Runnable {
+public class BackupChunk implements Runnable {
+
+    private static final int MAX_DELAY = 400;
 
     private Peer parentPeer;
     private Message request;
@@ -24,7 +26,7 @@ public class Backup implements Runnable {
     private String version;
     private int senderID;
 
-    public Backup(Peer parentPeer, Message request) {
+    public BackupChunk(Peer parentPeer, Message request) {
         this.parentPeer = parentPeer;
         this.request = request;
 
@@ -82,6 +84,6 @@ public class Backup implements Runnable {
         Message msg = new Message(Message.MessageType.STORED, args);
 
         Random random = new Random();
-        parentPeer.sendDelayedMessage(Channel.ChannelType.MC, msg, random.nextInt(400), TimeUnit.MILLISECONDS);
+        parentPeer.sendDelayedMessage(Channel.ChannelType.MC, msg, random.nextInt(MAX_DELAY), TimeUnit.MILLISECONDS);
     }
 }

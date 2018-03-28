@@ -50,6 +50,8 @@ public class BackupInitiator implements Runnable {
                 chunksInfo.put(Integer.toString(chunk.getChunkNo()), new ChunkInfo(chunk.getChunkNo(), chunk.getReplicationDegree()));
             }
 
+            // TODO Await STORED messages and possibly resend PUTCHUNKs
+
 //            byte[] dataMerged = fileMerge(chunks);
 //            saveFile("batatas1.png", this.parentPeer.getPath("restores"), dataMerged);
 
@@ -77,7 +79,6 @@ public class BackupInitiator implements Runnable {
         }
 
         String fileID = file.getName() + attr.lastModifiedTime() + attr.size();
-
         return fileID;
     }
 

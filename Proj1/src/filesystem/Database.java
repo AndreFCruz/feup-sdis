@@ -64,7 +64,7 @@ public class Database {
     /*
      *
      */
-    //Backup
+    //BackupChunk
     public void addRestorableFile(String pathName, FileInfo fileInfo) {
         if (!hasChunk(pathName)) {
             restorableFiles.put(pathName, fileInfo);

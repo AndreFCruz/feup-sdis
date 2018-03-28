@@ -55,8 +55,8 @@ public class Handler implements Runnable {
         System.out.println("R: " + msg.getHeaderAsString() + "|");
         switch (msg.getType()) {
             case PUTCHUNK:
-                Backup backup = new Backup(parentPeer, msg);
-                executor.execute(backup);
+                BackupChunk backupChunk = new BackupChunk(parentPeer, msg);
+                executor.execute(backupChunk);
                 break;
             case STORED:
                 System.out.println("Stored received");
