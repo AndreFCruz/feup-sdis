@@ -44,11 +44,10 @@ public class BackupInitiator implements Runnable {
             ArrayList<Chunk> chunks = fileSplit(fileData, fileID, replicationDegree);
             ConcurrentHashMap<String, ChunkInfo> chunksInfo = new ConcurrentHashMap<>();
 
-//            parentPeer.getPeerData().startChunkReplication(fileID, chunks.size());
+            parentPeer.getPeerData().startChunkReplication(fileID, chunks.size());
 
             for (Chunk chunk : chunks) {
                 sendMessageToMDB(chunk);
-                //Save chunk info, TODO: maybe save the peers that store each chunk?
                 chunksInfo.put(Integer.toString(chunk.getChunkNo()), new ChunkInfo(chunk.getChunkNo(), chunk.getReplicationDegree()));
             }
 

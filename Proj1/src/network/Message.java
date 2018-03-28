@@ -12,8 +12,8 @@ public class Message {
     private String version;
     private int senderID;
     private String fileID;
-    private int chunkNo = -1;
-    private int replicationDegree = -1;
+    private int chunkNo;
+    private int replicationDegree;
     //    Body
     private byte[] body;
     //Constructor that handle received messages
@@ -43,20 +43,16 @@ public class Message {
         senderID = Integer.parseInt(args[1]);
         fileID = args[2];
         chunkNo = Integer.parseInt(args[3]);
+
+        if (type == MessageType.PUTCHUNK || type == MessageType.STORED) {
+            replicationDegree = Integer.parseInt(args[4]);
+        }
     }
 
     //constructor that handle send messages with body
     public Message(MessageType type, String[] args, byte[] data) {
-        this.type = type;
-        version = args[0];
-        senderID = Integer.parseInt(args[1]);
-        fileID = args[2];
-        chunkNo = Integer.parseInt(args[3]);
+        this(type, args);
         body = data;
-
-        if (type == MessageType.PUTCHUNK) {
-            replicationDegree = Integer.parseInt(args[4]);
-        }
     }
 
     private String extractHeader(byte[] data) {

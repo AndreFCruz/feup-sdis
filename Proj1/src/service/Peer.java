@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 import static protocols.ProtocolSettings.*;
 
 
-public class Peer implements IService {
+public class Peer implements Service {
 
     /**
      * Handler and Dispatcher for received messages
@@ -52,7 +52,7 @@ public class Peer implements IService {
     private int id;
 //    private String protocolVersion;
 //    private String serverAccessPoint;
-//    private IService stub;
+//    private Service stub;
 //
 
     public static void main(String args[]) {
@@ -71,7 +71,7 @@ public class Peer implements IService {
 
         try {
             Peer obj = new Peer(Integer.parseInt(args[0]), mcAddress, mdbAddress, mdrAddress);
-            IService stub = (IService) UnicastRemoteObject.exportObject(obj, 0);
+            Service stub = (Service) UnicastRemoteObject.exportObject(obj, 0);
 
             // Bind the remote object's stub in the registry
             Registry registry = LocateRegistry.getRegistry();
@@ -95,12 +95,12 @@ public class Peer implements IService {
 
         systemManager = new SystemManager(this, MAX_SYSTEM_MEMORY);
         executor = new ScheduledThreadPoolExecutor(10);
-        peerData = new PeerData();
 
         System.out.println("Peer " + id + " online!");
     }
 
     private void setupDispatcher() {
+        peerData = new PeerData();
         dispatcher = new Handler(this);
         new Thread(dispatcher).start();
     }

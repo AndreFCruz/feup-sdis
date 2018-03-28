@@ -28,6 +28,7 @@ public class PeerData {
     public Integer addChunkReplication(String fileID, int chunkNo) {
         if (! chunkReplication.containsKey(fileID))
             return null;
+        System.out.println("Incrementeing replication of " + fileID + " at " + chunkNo);
         return chunkReplication.get(fileID).addAndGet(chunkNo, 1);
     }
 

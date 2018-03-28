@@ -41,11 +41,10 @@ public class Handler implements Runnable {
     }
 
     private void dispatchMessage(Message msg) {
-        //see type of message and
-        //switch case
-        //chunk backup, chunk restore, file deletion, space reclamming, putchunk, getchunk
-//        System.out.println("tu 2");
-//        System.out.println(msg);
+        if (msg == null) {
+            System.err.println("Null Message Received");
+            return;
+        }
 
         System.out.println("R: " + msg.getHeaderAsString() + "|");
         switch (msg.getType()) {
@@ -54,8 +53,7 @@ public class Handler implements Runnable {
                 executor.execute(backup);
                 break;
             case STORED:
-                System.out.println("Stored received");
-//                peerData.addChunkReplication(msg.getFileID(), msg.getChunkNo());
+                peerData.addChunkReplication(msg.getFileID(), msg.getChunkNo());
                 break;
             case GETCHUNK:
                 Restore restore = new Restore(parentPeer, msg);
