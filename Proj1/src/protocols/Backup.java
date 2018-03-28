@@ -55,8 +55,8 @@ public class Backup implements Runnable {
         try {
             saveFile(Integer.toString(chunkNo), chunkPathname, chunkData);
             //save to database
-            String chunkID = fileID+"/"+chunkNo;
-            parentPeer.addChunkToDB(chunkID, new ChunkInfo(fileID,Integer.toString(chunkNo), replicationDegree, chunkData.length ));
+            String chunkID = fileID + "/" + chunkNo;
+            parentPeer.addChunkToDB(chunkID, new ChunkInfo(fileID, Integer.toString(chunkNo), replicationDegree, chunkData.length));
         } catch (IOException e) {
             e.printStackTrace();
         }

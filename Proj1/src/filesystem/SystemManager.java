@@ -4,7 +4,6 @@ import service.Peer;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.Arrays.copyOfRange;
 import static utils.Utils.MAXCHUNK;

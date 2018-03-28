@@ -3,7 +3,6 @@ package protocols;
 import channels.Channel;
 import network.Message;
 import service.Peer;
-import utils.Utils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -44,11 +43,11 @@ public class Restore implements Runnable {
         }
 
         //Access to database to get the Chunk
-        String chunkID = fileID+"/"+chunkNo;
-        if(parentPeer.hasChunkFromDB(chunkID)){
+        String chunkID = fileID + "/" + chunkNo;
+        if (parentPeer.hasChunkFromDB(chunkID)) {
             try {
                 //load chunk data
-                chunkData = loadFile(new File(parentPeer.getPath("chunks")+chunkID));
+                chunkData = loadFile(new File(parentPeer.getPath("chunks") + chunkID));
                 //send message to MDR
                 sendMessageToMDR();
             } catch (FileNotFoundException e) {

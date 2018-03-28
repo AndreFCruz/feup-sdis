@@ -182,7 +182,7 @@ public class Peer implements IService {
         dispatcher.pushMessage(data, length);
     }
 
-    public void addFileToDB(String fileName, FileInfo fileInfo){
+    public void addFileToDB(String fileName, FileInfo fileInfo) {
         systemManager.getDatabase().addRestorableFile(fileName, fileInfo);
     }
 
@@ -195,6 +195,6 @@ public class Peer implements IService {
     }
 
     public boolean hasChunkFromDB(String chunkID) {
-       return systemManager.getDatabase().hasChunk(chunkID);
+        return systemManager.getDatabase().hasChunk(chunkID);
     }
 }

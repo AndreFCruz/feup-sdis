@@ -17,7 +17,7 @@ public class ChunkInfo {
     }
 
     public ChunkInfo(String fileID, String chunkNo, int replicationDegree, int size) {
-        this.fileID=fileID;
+        this.fileID = fileID;
         this.chunkNo = chunkNo;
         this.replicationDegree = replicationDegree;
         this.size = size;

@@ -1,7 +1,6 @@
 package service;
 
 import java.io.File;
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -19,7 +18,7 @@ public class TestApp {
     private IService stub;
 
     public static void main(String[] args) {
-        if(args.length < 2 || args.length > 4) {
+        if (args.length < 2 || args.length > 4) {
             System.out.println("Usage: java TestApp <peer_ap> <sub_protocol> <opnd_1> <opnd_2>");
             return;
         }
@@ -40,11 +39,11 @@ public class TestApp {
         this.opnd_2 = opnd_2;
 
         handlers = new HashMap<>();
-        handlers.put("BACKUP", this::handleBackup );
-        handlers.put("RESTORE", this::handleRestore );
-        handlers.put("DELETE", this::handleDelete );
-        handlers.put("RECLAIM", this::handleReclaim );
-        handlers.put("STATE", this::handleState );
+        handlers.put("BACKUP", this::handleBackup);
+        handlers.put("RESTORE", this::handleRestore);
+        handlers.put("DELETE", this::handleDelete);
+        handlers.put("RECLAIM", this::handleReclaim);
+        handlers.put("STATE", this::handleState);
 
     }
 

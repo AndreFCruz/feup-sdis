@@ -60,7 +60,7 @@ public class Message {
         senderID = Integer.parseInt(args[1]);
         fileID = args[2];
         chunkNo = Integer.parseInt(args[3]);
-        body=data;
+        body = data;
 
         if (type == MessageType.PUTCHUNK) {
             replicationDegree = Integer.parseInt(args[4]);
