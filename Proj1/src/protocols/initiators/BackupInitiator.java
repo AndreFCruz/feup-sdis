@@ -77,7 +77,6 @@ public class BackupInitiator implements Runnable {
         }
 
         String fileID = file.getName() + attr.lastModifiedTime() + attr.size();
-        System.out.println("Unhashed fileID for " + file.getPath() + " is " + fileID);
 
         return fileID;
     }
@@ -94,7 +93,6 @@ public class BackupInitiator implements Runnable {
         };
 
         Message msg = new Message(Message.MessageType.PUTCHUNK, args, chunk.getData());
-
         parentPeer.sendMessage(Channel.ChannelType.MDB, msg);
     }
 
