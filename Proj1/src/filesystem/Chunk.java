@@ -8,7 +8,7 @@ public class Chunk implements Comparable<Chunk> {
     private byte[] data;
 
 
-    Chunk(String fileID, int chunkNo, int replicationDegree, byte[] data) {
+    public Chunk(String fileID, int chunkNo, int replicationDegree, byte[] data) {
         this.fileID = fileID;
         this.chunkNo = chunkNo;
         this.data = data;

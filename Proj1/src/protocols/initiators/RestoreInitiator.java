@@ -1,11 +1,18 @@
 package protocols.initiators;
 
 import channels.Channel;
+import filesystem.Chunk;
 import filesystem.FileInfo;
+import filesystem.SystemManager;
 import network.Message;
 import service.Peer;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static filesystem.SystemManager.fileMerge;
+import static filesystem.SystemManager.saveFile;
 
 public class RestoreInitiator implements Runnable {
 
@@ -28,7 +35,7 @@ public class RestoreInitiator implements Runnable {
                 return;
 
             //Activate restore flag
-            //parentPeer.setRestoring(true, pathName);
+            parentPeer.setRestoring(true, fileInfo.getFileID());
 
             //Send GETCHUNK to MC
             for (int i = 0; i < fileInfo.getNumChunks(); i++) {
@@ -36,18 +43,19 @@ public class RestoreInitiator implements Runnable {
             }
 
             //TODO:Handle Received Chunks
-
-
+            while (!parentPeer.hasRestoreFinished(pathName, fileInfo.getFileID())) {
+                //Probably this will kill the cpu :')
+                //And need to ask again if lose some chunks
+            }
+            System.out.println("Received all chunks");
             //TODO:merge file and save
+            ConcurrentHashMap<String, Chunk> chunksRestored = parentPeer.getChunksToRestore(fileInfo.getFileID());
+            String pathToSave = parentPeer.getPath("restores");
+            saveFile(fileInfo.getFileName(), pathToSave, fileMerge(convertHashMapToArray(chunksRestored)));
 
             //Delete restore flag
-            //parentPeer.setRestoring(false, pathName);
+            parentPeer.setRestoring(false, fileInfo.getFileID());
 
-            //        saveFile("peras.png", "files",
-//                fileMerge(
-//                        loadChunks(
-//                                systemManager.getChunksPath()+"/image1.png",
-//                                18)));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -66,6 +74,14 @@ public class RestoreInitiator implements Runnable {
         Message msg = new Message(Message.MessageType.GETCHUNK, args);
 
         parentPeer.sendMessage(Channel.ChannelType.MC, msg);
+    }
+
+    private ArrayList<Chunk> convertHashMapToArray(ConcurrentHashMap<String, Chunk> chunksRestored){
+        ArrayList<Chunk> chunks = new ArrayList<>();
+        for(int i=0; i < fileInfo.getNumChunks(); i++){
+            chunks.add(chunksRestored.get(Integer.toString(i)));
+        }
+        return chunks;
     }
 
 }

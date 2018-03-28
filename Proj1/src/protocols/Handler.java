@@ -1,5 +1,6 @@
 package protocols;
 
+import filesystem.Chunk;
 import network.Message;
 import service.Peer;
 
@@ -68,7 +69,11 @@ public class Handler implements Runnable {
                 break;
             case CHUNK:
                 System.out.println("Chunk received");
-
+                if(parentPeer.getFlagRestored(msg.getFileID())){
+                    parentPeer.addChunkToRestore(new Chunk(msg.getFileID(), msg.getChunkNo(), -1, msg.getBody()));
+                } else{
+                    System.out.println("Discard chunk");
+                }
                 //           parentPeer.updateFileStorage(message);
                 break;
             default:
