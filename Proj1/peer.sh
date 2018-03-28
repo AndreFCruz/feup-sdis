@@ -4,4 +4,4 @@ if [ "$#" -ne 1 ]; then
   exit 1
 fi
 
-java -Djava.net.preferIPv4Stack=true -classpath bin service.Peer "$1" 224.0.0.0:8000 224.0.0.0:8001 224.0.0.0:8002
+java -classpath bin service.Peer "$1" 224.0.0.0:8000 224.0.0.0:8001 224.0.0.0:8002
