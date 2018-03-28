@@ -1,6 +1,7 @@
 package filesystem;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class FileInfo {
@@ -10,10 +11,10 @@ public class FileInfo {
     private String fileName;
     private int numChunks;
     private int desiredReplicationDegree;
-    private ConcurrentHashMap<String, ChunkInfo> chunks; //ChunkNO -> ChunkInfo
+    private HashMap<String, ChunkInfo> chunks; //ChunkNO -> ChunkInfo
 
 
-    public FileInfo(File file, String fileID, int replicationDegree, ConcurrentHashMap<String, ChunkInfo> chunksInfo) {
+    public FileInfo(File file, String fileID, int replicationDegree, HashMap<String, ChunkInfo> chunksInfo) {
         this.fileID = fileID;
         this.fileName = file.getName();
         this.pathname = file.getPath();

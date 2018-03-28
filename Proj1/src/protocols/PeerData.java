@@ -35,4 +35,8 @@ public class PeerData {
     public int getChunkReplication(String fileID, int chunkNo) {
         return chunkReplication.get(fileID).get(chunkNo);
     }
+
+    public AtomicIntegerArray getChunkReplication(String fileID) {
+        return chunkReplication.get(fileID);
+    }
 }

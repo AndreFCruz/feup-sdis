@@ -6,14 +6,17 @@ import filesystem.ChunkInfo;
 import filesystem.FileInfo;
 import filesystem.SystemManager;
 import network.Message;
+import protocols.initiators.helpers.BackupChunkHelper;
 import service.Peer;
 import utils.Utils;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
@@ -40,24 +43,22 @@ public class BackupInitiator implements Runnable {
     public void run() {
         try {
             fileData = SystemManager.loadFile(file);
-            fileID = generateFileID(file);
-            ArrayList<Chunk> chunks = fileSplit(fileData, fileID, replicationDegree);
-            ConcurrentHashMap<String, ChunkInfo> chunksInfo = new ConcurrentHashMap<>();
-
-            parentPeer.getPeerData().startChunkReplication(fileID, chunks.size());
-
-            for (Chunk chunk : chunks) {
-                sendMessageToMDB(chunk);
-                chunksInfo.put(Integer.toString(chunk.getChunkNo()), new ChunkInfo(chunk.getChunkNo(), chunk.getReplicationDegree()));
-            }
-
-            // TODO Await STORED messages and possibly resend PUTCHUNKs
-
-            parentPeer.addFileToDB(file.getPath(), new FileInfo(file, fileID, replicationDegree, chunksInfo));
-
-        } catch (Exception e) {
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+
+        fileID = generateFileID(file);
+        ArrayList<Chunk> chunks = fileSplit(fileData, fileID, replicationDegree);
+        HashMap<String, ChunkInfo> chunksInfo = new HashMap<>();
+
+        parentPeer.getPeerData().startChunkReplication(fileID, chunks.size());
+
+        for (Chunk chunk : chunks) {
+            new Thread(new BackupChunkHelper(this, chunk)).start();
+            chunksInfo.put(Integer.toString(chunk.getChunkNo()), new ChunkInfo(chunk.getChunkNo(), chunk.getReplicationDegree()));
+        }
+
+        parentPeer.addFileToDB(file.getPath(), new FileInfo(file, fileID, replicationDegree, chunksInfo));
     }
 
     private String generateFileID(File file) {
@@ -77,23 +78,15 @@ public class BackupInitiator implements Runnable {
         return fileID;
     }
 
-    private void sendMessageToMDB(Chunk chunk) throws IOException {
-        System.out.println(parentPeer);
-
-        String[] args = {
-                version,
-                Integer.toString(parentPeer.getID()),
-                fileID,
-                Integer.toString(chunk.getChunkNo()),
-                Integer.toString(replicationDegree)
-        };
-
-        Message msg = new Message(Message.MessageType.PUTCHUNK, args, chunk.getData());
-        parentPeer.sendMessage(Channel.ChannelType.MDB, msg);
+    private void uploadFile() {
+        // TODO?
     }
 
-    private void uploadFile() {
+    public Peer getParentPeer() {
+        return parentPeer;
+    }
 
-
+    public String getProtocolVersion() {
+        return version;
     }
 }
