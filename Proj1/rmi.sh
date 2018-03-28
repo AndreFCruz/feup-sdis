@@ -1,2 +1,3 @@
 cd bin/
-rmiregistry
+rmiregistry &
+cd ..
