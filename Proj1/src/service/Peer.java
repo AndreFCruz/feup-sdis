@@ -87,7 +87,7 @@ public class Peer implements IService {
         setupDispatcher();
 
         systemManager = new SystemManager(this, 100000);
-        executor = new ScheduledThreadPoolExecutor(3);
+        executor = new ScheduledThreadPoolExecutor(10);
 
         System.out.println("Peer " + id + " online!");
     }
