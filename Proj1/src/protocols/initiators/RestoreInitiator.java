@@ -1,13 +1,13 @@
 package protocols.initiators;
 
+import channels.Channel;
 import filesystem.FileInfo;
 import network.Message;
 import service.Peer;
-import utils.Utils;
 
 import java.io.IOException;
 
-public class RestoreInitiator implements Runnable{
+public class RestoreInitiator implements Runnable {
 
     private FileInfo fileInfo;
     private String pathName;
@@ -24,14 +24,14 @@ public class RestoreInitiator implements Runnable{
     @Override
     public void run() {
         try {
-            if(fileInfo == null)
+            if (fileInfo == null)
                 return;
 
             //Activate restore flag
             parentPeer.setRestoring(true, pathName);
 
             //Send GETCHUNK to MC
-            for(int i = 0; i < fileInfo.getNumChunks(); i++){
+            for (int i = 0; i < fileInfo.getNumChunks(); i++) {
                 sendMessageToMC(i);
             }
 
@@ -65,7 +65,7 @@ public class RestoreInitiator implements Runnable{
 
         Message msg = new Message(Message.MessageType.GETCHUNK, args);
 
-        parentPeer.sendMessage(0, msg);
+        parentPeer.sendMessage(Channel.ChannelType.MC, msg);
     }
 
 }

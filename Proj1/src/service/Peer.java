@@ -1,5 +1,7 @@
 package service;
 
+import channels.Channel;
+import channels.Channel.ChannelType;
 import channels.MChannel;
 import channels.MDBChannel;
 import channels.MDRChannel;
@@ -16,49 +18,35 @@ import java.io.IOException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+
 public class Peer implements IService {
 
-    private MChannel mc;
-    private MDBChannel mdb;
-    private MDRChannel mdr;
-
+    /**
+     * Handler and Dispatcher for received messages
+     */
     private Handler dispatcher;
+
+    /**
+     * Executor service responsible for scheduling delayed responses
+     * and performing all sub-protocol tasks (backup, restore, ...).
+     */
+    private ScheduledExecutorService executor;
+
+    private Map<ChannelType, Channel> channels;
+
     private SystemManager systemManager;
-    private ScheduledExecutorService scheduledExecutor;
 
     private int id;
 //    private String protocolVersion;
 //    private String serverAccessPoint;
 //    private IService stub;
 //
-
-    public Peer(int id, String[] mcAddress, String[] mdbAddress, String[] mdrAddress) {
-        this.id = id;
-
-        systemManager = new SystemManager(this, 100000);
-
-        mc = new MChannel(this, mcAddress[0], mcAddress[1]);
-        mdb = new MDBChannel(this, mdbAddress[0], mdbAddress[1]);
-        mdr = new MDRChannel(this, mdrAddress[0], mdrAddress[1]);
-
-        dispatcher = new Handler(this);
-
-        new Thread(mc).start();
-        new Thread(mdb).start();
-        new Thread(mdr).start();
-
-
-        new Thread(dispatcher).start();
-        scheduledExecutor = new ScheduledThreadPoolExecutor(1);
-
-        System.out.println("Peer " + id + " online!");
-
-
-    }
 
     public static void main(String args[]) {
 
@@ -71,6 +59,8 @@ public class Peer implements IService {
         String[] mdbAddress = args[2].split(":");
         String[] mdrAddress = args[3].split(":");
 
+        // Flag needed for systems that use IPv6 by default
+        System.setProperty("java.net.preferIPv4Stack", "true");
 
         try {
             Peer obj = new Peer(Integer.parseInt(args[0]), mcAddress, mdbAddress, mdrAddress);
@@ -90,43 +80,64 @@ public class Peer implements IService {
 
     }
 
-    public void sendDelayedMessage(int channel,  Message message, long delay, TimeUnit unit) {
-        scheduledExecutor.schedule(() -> {
+    public Peer(int id, String[] mcAddress, String[] mdbAddress, String[] mdrAddress) {
+        this.id = id;
+
+        setupChannels(mcAddress, mdbAddress, mdrAddress);
+        setupDispatcher();
+
+        systemManager = new SystemManager(this, 100000);
+        executor = new ScheduledThreadPoolExecutor(3);
+
+        System.out.println("Peer " + id + " online!");
+    }
+
+    private void setupDispatcher() {
+        dispatcher = new Handler(this);
+        new Thread(dispatcher).start();
+    }
+
+    private void setupChannels(String[] mcAddress, String[] mdbAddress, String[] mdrAddress) {
+        Channel mc = new MChannel(this, mcAddress[0], mcAddress[1]);
+        Channel mdb = new MDBChannel(this, mdbAddress[0], mdbAddress[1]);
+        Channel mdr = new MDRChannel(this, mdrAddress[0], mdrAddress[1]);
+
+        new Thread(mc).start();
+        new Thread(mdb).start();
+        new Thread(mdr).start();
+
+        channels = new HashMap<>();
+        channels.put(ChannelType.MC, mc);
+        channels.put(ChannelType.MDB, mdb);
+        channels.put(ChannelType.MDR, mdr);
+    }
+
+    public void sendDelayedMessage(ChannelType channelType, Message message, long delay, TimeUnit unit) {
+        executor.schedule(() -> {
             try {
-                sendMessage(channel, message);
+                sendMessage(channelType, message);
             } catch (IOException e) {
-                System.err.println("Error sending message to channel " + channel + " - " + message.getHeaderAsString());
+                System.err.println("Error sending message to channel " + channelType + " - " + message.getHeaderAsString());
             }
         }, delay, unit);
     }
 
-    public void sendMessage(int channel, Message message) throws IOException {
+    public void sendMessage(ChannelType channelType, Message message) throws IOException {
         System.out.println("S: " + message.getHeaderAsString() + "|");
-        switch (channel) {
-            case 0:
-                mc.sendMessage(message.getBytes());
-                break;
-            case 1:
-                mdb.sendMessage(message.getBytes());
-                break;
-            case 2:
-                mdr.sendMessage(message.getBytes());
-                break;
-            default:
-                break;
-        }
+
+        channels.get(channelType).sendMessage(message.getBytes());
     }
 
 
     @Override
     public String backup(File file, int replicationDegree) {
-        new Thread(new BackupInitiator("1.0", file, replicationDegree, this)).start();
+        executor.execute(new BackupInitiator("1.0", file, replicationDegree, this));
         return "backup command ok";
     }
 
     @Override
     public String restore(String pathname) {
-        new Thread(new RestoreInitiator("1.0", pathname, this)).start();
+        executor.execute(new RestoreInitiator("1.0", pathname, this));
         return "restore command ok";
     }
 
@@ -171,7 +182,7 @@ public class Peer implements IService {
         dispatcher.pushMessage(data, length);
     }
 
-    public void addFileToDB(String fileName, FileInfo fileInfo){
+    public void addFileToDB(String fileName, FileInfo fileInfo) {
         systemManager.getDatabase().addRestorableFile(fileName, fileInfo);
     }
 
@@ -184,6 +195,6 @@ public class Peer implements IService {
     }
 
     public boolean hasChunkFromDB(String chunkID) {
-       return systemManager.getDatabase().hasChunk(chunkID);
+        return systemManager.getDatabase().hasChunk(chunkID);
     }
 }

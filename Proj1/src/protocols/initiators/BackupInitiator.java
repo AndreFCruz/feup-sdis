@@ -1,5 +1,6 @@
 package protocols.initiators;
 
+import channels.Channel;
 import filesystem.Chunk;
 import filesystem.ChunkInfo;
 import filesystem.FileInfo;
@@ -10,13 +11,8 @@ import utils.Utils;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -99,7 +95,7 @@ public class BackupInitiator implements Runnable {
 
         Message msg = new Message(Message.MessageType.PUTCHUNK, args, chunk.getData());
 
-        parentPeer.sendMessage(1, msg);
+        parentPeer.sendMessage(Channel.ChannelType.MDB, msg);
     }
 
     private void uploadFile() {

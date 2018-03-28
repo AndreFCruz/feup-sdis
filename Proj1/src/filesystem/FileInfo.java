@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class FileInfo {
 
-    private String fileID; //sha256?
+    private String fileID; // hashed through sha256
     private String pathname;
     private int numChunks;
     private int desiredReplicationDegree;

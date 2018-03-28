@@ -2,6 +2,7 @@ package filesystem;
 
 import java.util.ArrayList;
 
+// TODO common subclass between Chunk and ChunkInfo, lots of replication
 public class ChunkInfo {
     private String fileID; // chunkID -> fileID/chunkNo
     private String chunkNo;
@@ -16,7 +17,7 @@ public class ChunkInfo {
     }
 
     public ChunkInfo(String fileID, String chunkNo, int replicationDegree, int size) {
-        this.fileID=fileID;
+        this.fileID = fileID;
         this.chunkNo = chunkNo;
         this.replicationDegree = replicationDegree;
         this.size = size;
