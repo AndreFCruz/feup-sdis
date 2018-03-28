@@ -22,11 +22,27 @@ import java.util.concurrent.TimeUnit;
 
 public class Peer implements IService {
 
+    /**
+     * The Control Channel
+     * used for control messages
+     */
     private MChannel mc;
+
+    /**
+     * The Data-Backup Channel
+     */
     private MDBChannel mdb;
+
+    /**
+     * The Data-Restore Channel
+     */
     private MDRChannel mdr;
 
+    /**
+     * Handler and Dispatcher for received messages
+     */
     private Handler dispatcher;
+
     private SystemManager systemManager;
     private ScheduledExecutorService scheduledExecutor;
 
