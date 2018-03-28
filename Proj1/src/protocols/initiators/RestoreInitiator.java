@@ -1,5 +1,6 @@
 package protocols.initiators;
 
+import channels.Channel;
 import filesystem.FileInfo;
 import network.Message;
 import service.Peer;
@@ -58,7 +59,7 @@ public class RestoreInitiator implements Runnable{
 
         Message msg = new Message(Message.MessageType.GETCHUNK, args);
 
-        parentPeer.sendMessage(0, msg);
+        parentPeer.sendMessage(Channel.ChannelType.MC, msg);
     }
 
 }

@@ -1,5 +1,6 @@
 package protocols.initiators;
 
+import channels.Channel;
 import filesystem.Chunk;
 import filesystem.ChunkInfo;
 import filesystem.FileInfo;
@@ -98,7 +99,7 @@ public class BackupInitiator implements Runnable {
 
         Message msg = new Message(Message.MessageType.PUTCHUNK, args, chunk.getData());
 
-        parentPeer.sendMessage(1, msg);
+        parentPeer.sendMessage(Channel.ChannelType.MDB, msg);
     }
 
     private void uploadFile() {

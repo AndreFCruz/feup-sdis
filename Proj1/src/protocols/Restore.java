@@ -1,5 +1,6 @@
 package protocols;
 
+import channels.Channel;
 import network.Message;
 import service.Peer;
 import utils.Utils;
@@ -67,6 +68,6 @@ public class Restore implements Runnable {
         };
 
         Message msg = new Message(Message.MessageType.CHUNK, args, chunkData);
-        parentPeer.sendMessage(2, msg);
+        parentPeer.sendMessage(Channel.ChannelType.MDR, msg);
     }
 }

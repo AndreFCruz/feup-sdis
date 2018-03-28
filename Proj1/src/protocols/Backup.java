@@ -1,5 +1,6 @@
 package protocols;
 
+import channels.Channel;
 import filesystem.ChunkInfo;
 import network.Message;
 import service.Peer;
@@ -81,6 +82,6 @@ public class Backup implements Runnable {
         Message msg = new Message(Message.MessageType.STORED, args);
 
         Random random = new Random();
-        parentPeer.sendDelayedMessage(0, msg, random.nextInt(400), TimeUnit.MILLISECONDS);
+        parentPeer.sendDelayedMessage(Channel.ChannelType.MC, msg, random.nextInt(400), TimeUnit.MILLISECONDS);
     }
 }

@@ -1,5 +1,7 @@
 package service;
 
+import channels.Channel;
+import channels.Channel.ChannelType;
 import channels.MChannel;
 import channels.MDBChannel;
 import channels.MDRChannel;
@@ -16,40 +18,29 @@ import java.io.IOException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+
 public class Peer implements IService {
-
-    /**
-     * The Control Channel
-     * used for control messages
-     */
-    private MChannel mc;
-
-    /**
-     * The Data-Backup Channel
-     */
-    private MDBChannel mdb;
-
-    /**
-     * The Data-Restore Channel
-     */
-    private MDRChannel mdr;
 
     /**
      * Handler and Dispatcher for received messages
      */
     private Handler dispatcher;
 
-    private SystemManager systemManager;
-
     /**
      * Executor service responsible for scheduling delayed responses
      * and performing all sub-protocol tasks (backup, restore, ...).
      */
     private ScheduledExecutorService executor;
+
+    private Map<ChannelType, Channel> channels;
+
+    private SystemManager systemManager;
 
     private int id;
 //    private String protocolVersion;
@@ -92,52 +83,49 @@ public class Peer implements IService {
     public Peer(int id, String[] mcAddress, String[] mdbAddress, String[] mdrAddress) {
         this.id = id;
 
+        setupChannels(mcAddress, mdbAddress, mdrAddress);
+        setupDispatcher();
+
         systemManager = new SystemManager(this, 100000);
+        executor = new ScheduledThreadPoolExecutor(3);
 
-        mc = new MChannel(this, mcAddress[0], mcAddress[1]);
-        mdb = new MDBChannel(this, mdbAddress[0], mdbAddress[1]);
-        mdr = new MDRChannel(this, mdrAddress[0], mdrAddress[1]);
+        System.out.println("Peer " + id + " online!");
+    }
 
+    private void setupDispatcher() {
         dispatcher = new Handler(this);
+        new Thread(dispatcher).start();
+    }
+
+    private void setupChannels(String[] mcAddress, String[] mdbAddress, String[] mdrAddress) {
+        Channel mc = new MChannel(this, mcAddress[0], mcAddress[1]);
+        Channel mdb = new MDBChannel(this, mdbAddress[0], mdbAddress[1]);
+        Channel mdr = new MDRChannel(this, mdrAddress[0], mdrAddress[1]);
 
         new Thread(mc).start();
         new Thread(mdb).start();
         new Thread(mdr).start();
 
-
-        new Thread(dispatcher).start();
-        executor = new ScheduledThreadPoolExecutor(3);
-
-        System.out.println("Peer " + id + " online!");
-
-
+        channels = new HashMap<>();
+        channels.put(ChannelType.MC, mc);
+        channels.put(ChannelType.MDB, mdb);
+        channels.put(ChannelType.MDR, mdr);
     }
 
-    public void sendDelayedMessage(int channel,  Message message, long delay, TimeUnit unit) {
+    public void sendDelayedMessage(ChannelType channelType, Message message, long delay, TimeUnit unit) {
         executor.schedule(() -> {
             try {
-                sendMessage(channel, message);
+                sendMessage(channelType, message);
             } catch (IOException e) {
-                System.err.println("Error sending message to channel " + channel + " - " + message.getHeaderAsString());
+                System.err.println("Error sending message to channel " + channelType + " - " + message.getHeaderAsString());
             }
         }, delay, unit);
     }
 
-    public void sendMessage(int channel, Message message) throws IOException {
+    public void sendMessage(ChannelType channelType, Message message) throws IOException {
         System.out.println("S: " + message.getHeaderAsString() + "|");
-        switch (channel) {
-            case 0:
-                mc.sendMessage(message.getBytes());
-                break;
-            case 1:
-                mdb.sendMessage(message.getBytes());
-                break;
-            case 2:
-                mdr.sendMessage(message.getBytes());
-                break;
-            default:
-                break;
-        }
+
+        channels.get(channelType).sendMessage(message.getBytes());
     }
 
 
