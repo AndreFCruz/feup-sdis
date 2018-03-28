@@ -40,6 +40,8 @@ public class BackupChunkHelper implements Runnable {
             sleep(waitTime);
             if (checkReplicationDegree())
                 break;
+
+            waitTime *= 2;
         }
     }
 
