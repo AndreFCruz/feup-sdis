@@ -2,7 +2,7 @@ package filesystem;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.atomic.AtomicIntegerArray;
 
 public class Database {
     /**
@@ -30,6 +30,7 @@ public class Database {
         restorableFiles = new ConcurrentHashMap<>();
         chunksBackedUp = new ConcurrentHashMap<>();
         chunksRestored = new ConcurrentHashMap<>();
+
         initializeDatabase();
     }
 
@@ -45,10 +46,6 @@ public class Database {
         //TODO: or serialize self?
     }
 
-
-    /*
-        Restore Initiator functions
-     */
     public void setFlagRestored(boolean flag, String fileID) {
         if (flag) {
             chunksRestored.put(fileID, new ConcurrentHashMap<>());
@@ -135,12 +132,9 @@ public class Database {
     }
 
     public void addChunkMirror(String chunkID, String peerID) {
-        if (hasChunk(chunkID)) {
-            if (!chunksBackedUp.get(chunkID).getMirrors().contains(peerID)) {
-                chunksBackedUp.get(chunkID).getMirrors().add(peerID);
-
-                saveDatabase();
-            }
+        if (hasChunk(chunkID) && !chunksBackedUp.get(chunkID).getMirrors().contains(peerID)) {
+            chunksBackedUp.get(chunkID).getMirrors().add(peerID);
+            saveDatabase();
         }
     }
 

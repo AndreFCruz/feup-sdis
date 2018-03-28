@@ -71,7 +71,7 @@ public abstract class Channel implements Runnable {
 //        this.close();
     }
 
-    public void sendMessage(byte[] message) {
+    synchronized public void sendMessage(byte[] message) {
 
         DatagramPacket packet = new DatagramPacket(message, message.length, mcastAddr, mcastPort);
 

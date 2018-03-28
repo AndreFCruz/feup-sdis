@@ -11,6 +11,7 @@ import filesystem.FileInfo;
 import filesystem.SystemManager;
 import network.Message;
 import network.Handler;
+import protocols.PeerData;
 import protocols.initiators.BackupInitiator;
 import protocols.initiators.RestoreInitiator;
 
@@ -25,6 +26,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
+import static protocols.ProtocolSettings.*;
 
 
 public class Peer implements IService {
@@ -44,23 +47,13 @@ public class Peer implements IService {
 
     private SystemManager systemManager;
 
+    private PeerData peerData;
+
     private int id;
 //    private String protocolVersion;
 //    private String serverAccessPoint;
 //    private IService stub;
 //
-
-    public Peer(int id, String[] mcAddress, String[] mdbAddress, String[] mdrAddress) {
-        this.id = id;
-
-        setupChannels(mcAddress, mdbAddress, mdrAddress);
-        setupDispatcher();
-
-        systemManager = new SystemManager(this, 100000);
-        executor = new ScheduledThreadPoolExecutor(10);
-
-        System.out.println("Peer " + id + " online!");
-    }
 
     public static void main(String args[]) {
 
@@ -92,6 +85,19 @@ public class Peer implements IService {
         }
 
 
+    }
+
+    public Peer(int id, String[] mcAddress, String[] mdbAddress, String[] mdrAddress) {
+        this.id = id;
+
+        setupChannels(mcAddress, mdbAddress, mdrAddress);
+        setupDispatcher();
+
+        systemManager = new SystemManager(this, MAX_SYSTEM_MEMORY);
+        executor = new ScheduledThreadPoolExecutor(10);
+        peerData = new PeerData();
+
+        System.out.println("Peer " + id + " online!");
     }
 
     private void setupDispatcher() {
@@ -130,6 +136,9 @@ public class Peer implements IService {
         channels.get(channelType).sendMessage(message.getBytes());
     }
 
+    public Channel getChannel(ChannelType channelType) {
+        return channels.get(channelType);
+    }
 
     @Override
     public String backup(File file, int replicationDegree) {
@@ -219,5 +228,9 @@ public class Peer implements IService {
 
     public ConcurrentHashMap<String, Chunk> getChunksRestored(String fileID) {
         return systemManager.getDatabase().getChunksRestored(fileID);
+    }
+
+    public PeerData getPeerData() {
+        return peerData;
     }
 }

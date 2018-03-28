@@ -15,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicIntegerArray;
 
 import static filesystem.SystemManager.fileSplit;
 
@@ -43,6 +44,7 @@ public class BackupInitiator implements Runnable {
             ArrayList<Chunk> chunks = fileSplit(fileData, fileID, replicationDegree);
             ConcurrentHashMap<String, ChunkInfo> chunksInfo = new ConcurrentHashMap<>();
 
+//            parentPeer.getPeerData().startChunkReplication(fileID, chunks.size());
 
             for (Chunk chunk : chunks) {
                 sendMessageToMDB(chunk);
@@ -51,12 +53,6 @@ public class BackupInitiator implements Runnable {
             }
 
             // TODO Await STORED messages and possibly resend PUTCHUNKs
-
-//            byte[] dataMerged = fileMerge(chunks);
-//            saveFile("batatas1.png", this.parentPeer.getPath("restores"), dataMerged);
-
-            //sendMessageToMDB();
-
 
             parentPeer.addFileToDB(file.getPath(), new FileInfo(file, fileID, replicationDegree, chunksInfo));
 

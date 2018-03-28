@@ -2,27 +2,27 @@ package network;
 
 import filesystem.Chunk;
 import protocols.Backup;
+import protocols.PeerData;
 import protocols.Restore;
 import service.Peer;
 
 import java.io.IOException;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class Handler implements Runnable {
     private Peer parentPeer;
-    private LinkedBlockingQueue<Message> msgQueue;
+    private PeerData peerData;
+    private BlockingQueue<Message> msgQueue;
     private ExecutorService executor;
 
     public Handler(Peer parentPeer) {
         this.parentPeer = parentPeer;
+        this.peerData = parentPeer.getPeerData();
         msgQueue = new LinkedBlockingQueue<>();
         executor = Executors.newFixedThreadPool(3);
-
-        //Executor Service aka threads(each for each protocol)
-        //Queue
-
     }
 
 
@@ -30,21 +30,14 @@ public class Handler implements Runnable {
     public void run() {
         Message msg;
 
-        //probably will terminate when the queue is empty...
         while (true) {
-            while ((msg = msgQueue.poll()) != null) {
-                dispatchMessage(msg);
-            }
             try {
-                Thread.sleep(1000);
+                msg = msgQueue.take();
+                dispatchMessage(msg);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
-
-        //            //Parse messages from channels
-//            //Handle result
-
     }
 
     private void dispatchMessage(Message msg) {
@@ -62,7 +55,7 @@ public class Handler implements Runnable {
                 break;
             case STORED:
                 System.out.println("Stored received");
-                //           parentPeer.updateFileStorage(message);
+//                peerData.addChunkReplication(msg.getFileID(), msg.getChunkNo());
                 break;
             case GETCHUNK:
                 Restore restore = new Restore(parentPeer, msg);
@@ -75,7 +68,6 @@ public class Handler implements Runnable {
                 } else {
                     System.out.println("Discard chunk");
                 }
-                //           parentPeer.updateFileStorage(message);
                 break;
             default:
                 return;
