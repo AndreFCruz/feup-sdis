@@ -68,6 +68,7 @@ public class Handler implements Runnable {
                 break;
             case CHUNK:
                 System.out.println("Chunk received");
+
                 //           parentPeer.updateFileStorage(message);
                 break;
             default:

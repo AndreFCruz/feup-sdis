@@ -27,6 +27,9 @@ public class RestoreInitiator implements Runnable{
             if(fileInfo == null)
                 return;
 
+            //Activate restore flag
+            parentPeer.setRestoring(true, pathName);
+
             //Send GETCHUNK to MC
             for(int i = 0; i < fileInfo.getNumChunks(); i++){
                 sendMessageToMC(i);
@@ -34,7 +37,11 @@ public class RestoreInitiator implements Runnable{
 
             //TODO:Handle Received Chunks
 
+
             //TODO:merge file and save
+
+            //Delete restore flag
+            parentPeer.setRestoring(false, pathName);
 
             //        saveFile("peras.png", "files",
 //                fileMerge(

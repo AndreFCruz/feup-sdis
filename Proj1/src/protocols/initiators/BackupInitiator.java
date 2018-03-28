@@ -18,6 +18,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static filesystem.SystemManager.fileSplit;
 
@@ -44,13 +45,13 @@ public class BackupInitiator implements Runnable {
             fileData = SystemManager.loadFile(file);
             fileID = generateFileID(file);
             ArrayList<Chunk> chunks = fileSplit(fileData, fileID, replicationDegree);
-            ArrayList<ChunkInfo> chunksInfo = new ArrayList<>();
+            ConcurrentHashMap<String, ChunkInfo> chunksInfo = new ConcurrentHashMap<>();
 
 
             for (Chunk chunk : chunks) {
                 sendMessageToMDB(chunk);
                 //Save chunk info, TODO: maybe save the peers that store each chunk?
-                chunksInfo.add(new ChunkInfo(chunk.getChunkNo(), chunk.getReplicationDegree()));
+                chunksInfo.put(Integer.toString(chunk.getChunkNo()), new ChunkInfo(chunk.getChunkNo(), chunk.getReplicationDegree()));
             }
 
 //            byte[] dataMerged = fileMerge(chunks);
