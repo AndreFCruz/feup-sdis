@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 import static filesystem.SystemManager.createFolder;
 import static filesystem.SystemManager.saveFile;
 
-public class BackupChunk implements Runnable {
+public class Backup implements Runnable {
 
     private static final int MAX_DELAY = 400;
 
@@ -26,7 +26,7 @@ public class BackupChunk implements Runnable {
     private String version;
     private int senderID;
 
-    public BackupChunk(Peer parentPeer, Message request) {
+    public Backup(Peer parentPeer, Message request) {
         this.parentPeer = parentPeer;
         this.request = request;
 

@@ -10,7 +10,7 @@ import filesystem.ChunkInfo;
 import filesystem.FileInfo;
 import filesystem.SystemManager;
 import network.Message;
-import protocols.Handler;
+import network.Handler;
 import protocols.initiators.BackupInitiator;
 import protocols.initiators.RestoreInitiator;
 

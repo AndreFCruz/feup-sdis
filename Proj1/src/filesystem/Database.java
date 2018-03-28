@@ -3,17 +3,18 @@ package filesystem;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Database {
-    private ConcurrentHashMap<String, FileInfo> restorableFiles; //pathname, fileinfo
-    private ConcurrentHashMap<String, ChunkInfo> chunksBackedUp;//chunkid (fileID/ChunkNo), chunkinfo
+    private ConcurrentHashMap<String, FileInfo> restorableFiles; // pathname, fileinfo
+    private ConcurrentHashMap<String, ChunkInfo> chunksBackedUp;// chunkid (fileID/ChunkNo), chunkinfo
 
-    private ConcurrentHashMap<String, ConcurrentHashMap<String, Chunk>> filesRestoring;
-    // fileID(sha256) -> ChunkNo -> Chunk
+    // TODO _inner_ String to Int, and _inner_ ConcurrentHashMap to ConcurrentSkipListMap
+    private ConcurrentHashMap<String, ConcurrentHashMap<String, Chunk>> chunksRestored;
+    // fileID(sha256) -> (ChunkNo -> Chunk)
 
 
     public Database() {
         restorableFiles = new ConcurrentHashMap<>();
         chunksBackedUp = new ConcurrentHashMap<>();
-        filesRestoring = new ConcurrentHashMap<>();
+        chunksRestored = new ConcurrentHashMap<>();
         initializeDatabase();
     }
 
@@ -24,6 +25,7 @@ public class Database {
 
     private void saveDatabase() {
         //TODO: Save metadata to files
+        //TODO: or serialize self?
     }
 
 
@@ -32,32 +34,32 @@ public class Database {
      */
     public void setFlagRestored(boolean flag, String fileID) {
         if (flag) {
-            filesRestoring.put(fileID, new ConcurrentHashMap<>());
+            chunksRestored.put(fileID, new ConcurrentHashMap<>());
         } else {
-            filesRestoring.remove(fileID);
+            chunksRestored.remove(fileID);
         }
     }
 
     public boolean getFlagRestored(String fileID) {
-        return filesRestoring.containsKey(fileID);
+        return chunksRestored.containsKey(fileID);
     }
 
     public void addChunksRestored(Chunk chunk) {
-        if (filesRestoring.get(chunk.getFileID()).containsKey(Integer.toString(chunk.getChunkNo()))) {
+        if (chunksRestored.get(chunk.getFileID()).containsKey(Integer.toString(chunk.getChunkNo()))) {
             System.out.println("Chunk already exist");
         } else {
             System.out.println("Adding chunk to merge");
-            filesRestoring.get(chunk.getFileID()).put(Integer.toString(chunk.getChunkNo()), chunk);
+            chunksRestored.get(chunk.getFileID()).put(Integer.toString(chunk.getChunkNo()), chunk);
         }
 
     }
 
     public Integer getChunksRestoredSize(String fileID) {
-        return filesRestoring.get(fileID).size();
+        return chunksRestored.get(fileID).size();
     }
 
     public ConcurrentHashMap<String, Chunk> getChunksToRestore(String fileID) {
-        return filesRestoring.get(fileID);
+        return chunksRestored.get(fileID);
     }
 
     public boolean hasRestoreFinished(String pathName, String fileID) {
@@ -70,7 +72,7 @@ public class Database {
     /*
      *
      */
-    //BackupChunk
+    //Backup
     public void addRestorableFile(String pathName, FileInfo fileInfo) {
         if (!hasChunk(pathName)) {
             restorableFiles.put(pathName, fileInfo);
