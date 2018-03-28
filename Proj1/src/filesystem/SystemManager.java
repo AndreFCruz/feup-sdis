@@ -38,33 +38,6 @@ public class SystemManager {
         initializePeerFS();
     }
 
-
-    private void initializePeerFS() {
-        createFolder(rootPath + CHUNKS);
-        createFolder(rootPath + RESTORES);
-    }
-
-
-    public String getRootPath() {
-        return rootPath;
-    }
-
-    public String getChunksPath() {
-        return rootPath + CHUNKS;
-    }
-
-    public String getRestoresPath() {
-        return rootPath + RESTORES;
-    }
-
-    public long getMaxMemory() {
-        return maxMemory;
-    }
-
-    public long getUsedMemory() {
-        return usedMemory;
-    }
-
     public static boolean fileExists(String name) {
         File file = new File(name);
 
@@ -158,6 +131,30 @@ public class SystemManager {
         return fileData;
     }
 
+    private void initializePeerFS() {
+        createFolder(rootPath + CHUNKS);
+        createFolder(rootPath + RESTORES);
+    }
+
+    public String getRootPath() {
+        return rootPath;
+    }
+
+    public String getChunksPath() {
+        return rootPath + CHUNKS;
+    }
+
+    public String getRestoresPath() {
+        return rootPath + RESTORES;
+    }
+
+    public long getMaxMemory() {
+        return maxMemory;
+    }
+
+    public long getUsedMemory() {
+        return usedMemory;
+    }
 
     public Database getDatabase() {
         return database;

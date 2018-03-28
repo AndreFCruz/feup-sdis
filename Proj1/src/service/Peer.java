@@ -5,6 +5,7 @@ import channels.Channel.ChannelType;
 import channels.MChannel;
 import channels.MDBChannel;
 import channels.MDRChannel;
+import filesystem.Chunk;
 import filesystem.ChunkInfo;
 import filesystem.FileInfo;
 import filesystem.SystemManager;
@@ -20,6 +21,7 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -47,6 +49,18 @@ public class Peer implements IService {
 //    private String serverAccessPoint;
 //    private IService stub;
 //
+
+    public Peer(int id, String[] mcAddress, String[] mdbAddress, String[] mdrAddress) {
+        this.id = id;
+
+        setupChannels(mcAddress, mdbAddress, mdrAddress);
+        setupDispatcher();
+
+        systemManager = new SystemManager(this, 100000);
+        executor = new ScheduledThreadPoolExecutor(10);
+
+        System.out.println("Peer " + id + " online!");
+    }
 
     public static void main(String args[]) {
 
@@ -78,18 +92,6 @@ public class Peer implements IService {
         }
 
 
-    }
-
-    public Peer(int id, String[] mcAddress, String[] mdbAddress, String[] mdrAddress) {
-        this.id = id;
-
-        setupChannels(mcAddress, mdbAddress, mdrAddress);
-        setupDispatcher();
-
-        systemManager = new SystemManager(this, 100000);
-        executor = new ScheduledThreadPoolExecutor(10);
-
-        System.out.println("Peer " + id + " online!");
     }
 
     private void setupDispatcher() {
@@ -196,5 +198,26 @@ public class Peer implements IService {
 
     public boolean hasChunkFromDB(String chunkID) {
         return systemManager.getDatabase().hasChunk(chunkID);
+    }
+
+    public void setRestoring(boolean flag, String fileID) {
+        systemManager.getDatabase().setFlagRestored(flag, fileID);
+    }
+
+
+    public boolean hasRestoreFinished(String pathName, String fileID) {
+        return systemManager.getDatabase().hasRestoreFinished(pathName, fileID);
+    }
+
+    public boolean getFlagRestored(String fileID) {
+        return systemManager.getDatabase().getFlagRestored(fileID);
+    }
+
+    public void addChunkToRestore(Chunk chunk) {
+        systemManager.getDatabase().addChunksRestored(chunk);
+    }
+
+    public ConcurrentHashMap<String, Chunk> getChunksToRestore(String fileID) {
+        return systemManager.getDatabase().getChunksToRestore(fileID);
     }
 }

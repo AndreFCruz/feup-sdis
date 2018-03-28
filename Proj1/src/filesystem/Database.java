@@ -10,7 +10,6 @@ public class Database {
     // fileID(sha256) -> ChunkNo -> Chunk
 
 
-
     public Database() {
         restorableFiles = new ConcurrentHashMap<>();
         chunksBackedUp = new ConcurrentHashMap<>();
@@ -31,35 +30,42 @@ public class Database {
     /*
         Restore Initiator functions
      */
-    public void setFlagRestored(boolean flag, String fileID){
-        if(flag){
+    public void setFlagRestored(boolean flag, String fileID) {
+        if (flag) {
             filesRestoring.put(fileID, new ConcurrentHashMap<>());
         } else {
             filesRestoring.remove(fileID);
         }
     }
 
-    public boolean getFlagRestored(String fileID){
+    public boolean getFlagRestored(String fileID) {
         return filesRestoring.containsKey(fileID);
     }
 
-//    public void addChunksRestored(ChunkInfo chunk){
-//        if(chunksRestored.containsKey(chunk.getChunkNo())){
-//            System.out.println("Chunk already exist");
-//        } else {
-//            System.out.println("Adding chunk to merge");
-//            chunksRestored.put(chunk.getChunkNo(),chunk);
-//        }
-//
-//    }
-//
-//    public void setRestoring(boolean b, String pathName) {
-//        systemManager.getDatabase().getFileInfo(pathName).setFlagRestored(b);
-//    }
-//
-//    public Integer getChunksRestoredSize(){
-//        return chunksRestored.size();
-//    }
+    public void addChunksRestored(Chunk chunk) {
+        if (filesRestoring.get(chunk.getFileID()).containsKey(Integer.toString(chunk.getChunkNo()))) {
+            System.out.println("Chunk already exist");
+        } else {
+            System.out.println("Adding chunk to merge");
+            filesRestoring.get(chunk.getFileID()).put(Integer.toString(chunk.getChunkNo()), chunk);
+        }
+
+    }
+
+    public Integer getChunksRestoredSize(String fileID) {
+        return filesRestoring.get(fileID).size();
+    }
+
+    public ConcurrentHashMap<String, Chunk> getChunksToRestore(String fileID) {
+        return filesRestoring.get(fileID);
+    }
+
+    public boolean hasRestoreFinished(String pathName, String fileID) {
+        int numChunks = restorableFiles.get(pathName).getNumChunks();
+        int chunksRestored = getChunksRestoredSize(fileID);
+
+        return numChunks == chunksRestored;
+    }
 
     /*
      *
