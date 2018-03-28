@@ -6,13 +6,6 @@ import java.io.*;
 
 public class Message {
 
-    public enum MessageType {
-        PUTCHUNK,
-        STORED,
-        GETCHUNK,
-        CHUNK
-    }
-
     private int numberArgs;
     //    Header
     private MessageType type;
@@ -23,12 +16,6 @@ public class Message {
     private int replicationDegree = -1;
     //    Body
     private byte[] body;
-
-
-//    public Message(String msg) {
-//        parseMessage(msg);
-//    }
-
     //Constructor that handle received messages
     public Message(byte[] data, int length) throws IOException {
         String header = extractHeader(data);
@@ -43,6 +30,11 @@ public class Message {
         }
 
     }
+
+
+//    public Message(String msg) {
+//        parseMessage(msg);
+//    }
 
     //constructor that handle send messages without body
     public Message(MessageType type, String[] args) {
@@ -99,33 +91,6 @@ public class Message {
         return bodyContent;
     }
 
-//    private void parseMessage(String msg) {
-//        //Split header from body ( \R -> CRLF)
-//        String[] msgSplit = msg.split("\\R\\R", 2);
-//        System.out.println("c3: " + msg.length());
-//        String header, body = null;
-//
-//        if (msgSplit.length == 0 || msgSplit.length > 2)
-//            return; //message discarded
-//        else if (msgSplit.length == 2)
-//            body = msgSplit[1];
-//
-//        header = msgSplit[0];
-//
-//        System.out.println("header: " + header.length());
-//
-//        String headerCleaned = header.trim().replaceAll("\\s+", " ");
-//        String[] headerSplit = headerCleaned.split("\\s+");
-//
-//        parseHeader(headerSplit);
-//
-//        if (body != null) {
-//            System.out.println("body: " + body.length());
-//            this.body = body.getBytes();
-//            System.out.println("parser:" + this.body.length);
-//        }
-//    }
-
     private void parseHeader(String[] headerSplit) {
 
         switch (headerSplit[0]) {
@@ -168,6 +133,33 @@ public class Message {
 
     }
 
+//    private void parseMessage(String msg) {
+//        //Split header from body ( \R -> CRLF)
+//        String[] msgSplit = msg.split("\\R\\R", 2);
+//        System.out.println("c3: " + msg.length());
+//        String header, body = null;
+//
+//        if (msgSplit.length == 0 || msgSplit.length > 2)
+//            return; //message discarded
+//        else if (msgSplit.length == 2)
+//            body = msgSplit[1];
+//
+//        header = msgSplit[0];
+//
+//        System.out.println("header: " + header.length());
+//
+//        String headerCleaned = header.trim().replaceAll("\\s+", " ");
+//        String[] headerSplit = headerCleaned.split("\\s+");
+//
+//        parseHeader(headerSplit);
+//
+//        if (body != null) {
+//            System.out.println("body: " + body.length());
+//            this.body = body.getBytes();
+//            System.out.println("parser:" + this.body.length);
+//        }
+//    }
+
     public MessageType getType() {
         return type;
     }
@@ -187,7 +179,6 @@ public class Message {
 
         return str;
     }
-
 
     public byte[] getBytes() throws IOException {
 
@@ -225,6 +216,13 @@ public class Message {
 
     public byte[] getBody() {
         return body;
+    }
+
+    public enum MessageType {
+        PUTCHUNK,
+        STORED,
+        GETCHUNK,
+        CHUNK
     }
 
 }

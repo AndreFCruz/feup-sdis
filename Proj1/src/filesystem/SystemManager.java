@@ -4,7 +4,6 @@ import service.Peer;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.Arrays.copyOfRange;
 import static utils.Utils.MAXCHUNK;
@@ -37,33 +36,6 @@ public class SystemManager {
         database = new Database();
 
         initializePeerFS();
-    }
-
-
-    private void initializePeerFS() {
-        createFolder(rootPath + CHUNKS);
-        createFolder(rootPath + RESTORES);
-    }
-
-
-    public String getRootPath() {
-        return rootPath;
-    }
-
-    public String getChunksPath() {
-        return rootPath + CHUNKS;
-    }
-
-    public String getRestoresPath() {
-        return rootPath + RESTORES;
-    }
-
-    public long getMaxMemory() {
-        return maxMemory;
-    }
-
-    public long getUsedMemory() {
-        return usedMemory;
     }
 
     public static boolean fileExists(String name) {
@@ -158,7 +130,31 @@ public class SystemManager {
 
         return fileData;
     }
-    
+
+    private void initializePeerFS() {
+        createFolder(rootPath + CHUNKS);
+        createFolder(rootPath + RESTORES);
+    }
+
+    public String getRootPath() {
+        return rootPath;
+    }
+
+    public String getChunksPath() {
+        return rootPath + CHUNKS;
+    }
+
+    public String getRestoresPath() {
+        return rootPath + RESTORES;
+    }
+
+    public long getMaxMemory() {
+        return maxMemory;
+    }
+
+    public long getUsedMemory() {
+        return usedMemory;
+    }
 
     public Database getDatabase() {
         return database;

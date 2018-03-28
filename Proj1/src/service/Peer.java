@@ -50,6 +50,18 @@ public class Peer implements IService {
 //    private IService stub;
 //
 
+    public Peer(int id, String[] mcAddress, String[] mdbAddress, String[] mdrAddress) {
+        this.id = id;
+
+        setupChannels(mcAddress, mdbAddress, mdrAddress);
+        setupDispatcher();
+
+        systemManager = new SystemManager(this, 100000);
+        executor = new ScheduledThreadPoolExecutor(10);
+
+        System.out.println("Peer " + id + " online!");
+    }
+
     public static void main(String args[]) {
 
 //		if (args.length != 2) {
@@ -80,18 +92,6 @@ public class Peer implements IService {
         }
 
 
-    }
-
-    public Peer(int id, String[] mcAddress, String[] mdbAddress, String[] mdrAddress) {
-        this.id = id;
-
-        setupChannels(mcAddress, mdbAddress, mdrAddress);
-        setupDispatcher();
-
-        systemManager = new SystemManager(this, 100000);
-        executor = new ScheduledThreadPoolExecutor(10);
-
-        System.out.println("Peer " + id + " online!");
     }
 
     private void setupDispatcher() {
@@ -209,7 +209,7 @@ public class Peer implements IService {
         return systemManager.getDatabase().hasRestoreFinished(pathName, fileID);
     }
 
-    public boolean getFlagRestored(String fileID){
+    public boolean getFlagRestored(String fileID) {
         return systemManager.getDatabase().getFlagRestored(fileID);
     }
 
@@ -217,7 +217,7 @@ public class Peer implements IService {
         systemManager.getDatabase().addChunksRestored(chunk);
     }
 
-    public ConcurrentHashMap<String, Chunk> getChunksToRestore(String fileID){
+    public ConcurrentHashMap<String, Chunk> getChunksToRestore(String fileID) {
         return systemManager.getDatabase().getChunksToRestore(fileID);
     }
 }

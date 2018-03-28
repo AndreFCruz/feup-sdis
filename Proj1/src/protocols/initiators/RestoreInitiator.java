@@ -3,7 +3,6 @@ package protocols.initiators;
 import channels.Channel;
 import filesystem.Chunk;
 import filesystem.FileInfo;
-import filesystem.SystemManager;
 import network.Message;
 import service.Peer;
 
@@ -76,9 +75,9 @@ public class RestoreInitiator implements Runnable {
         parentPeer.sendMessage(Channel.ChannelType.MC, msg);
     }
 
-    private ArrayList<Chunk> convertHashMapToArray(ConcurrentHashMap<String, Chunk> chunksRestored){
+    private ArrayList<Chunk> convertHashMapToArray(ConcurrentHashMap<String, Chunk> chunksRestored) {
         ArrayList<Chunk> chunks = new ArrayList<>();
-        for(int i=0; i < fileInfo.getNumChunks(); i++){
+        for (int i = 0; i < fileInfo.getNumChunks(); i++) {
             chunks.add(chunksRestored.get(Integer.toString(i)));
         }
         return chunks;

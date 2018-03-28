@@ -9,18 +9,11 @@ import java.net.MulticastSocket;
 
 public abstract class Channel implements Runnable {
 
-    public static enum ChannelType {
-        MC, MDB, MDR
-    }
-
     private static final int MAX_MESSAGE_SIZE = 65000;
-
     private MulticastSocket socket;
     private InetAddress mcastAddr;
     private int mcastPort;
     private Peer parentPeer;
-
-
     public Channel(Peer parentPeer, String mcastAddr, String mcastPort) {
         this.parentPeer = parentPeer;
 
@@ -78,7 +71,6 @@ public abstract class Channel implements Runnable {
 //        this.close();
     }
 
-
     public void sendMessage(byte[] message) {
 
         DatagramPacket packet = new DatagramPacket(message, message.length, mcastAddr, mcastPort);
@@ -92,5 +84,9 @@ public abstract class Channel implements Runnable {
 
     private void close() {
         socket.close();
+    }
+
+    public static enum ChannelType {
+        MC, MDB, MDR
     }
 }

@@ -1,7 +1,6 @@
 package filesystem;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class FileInfo {
