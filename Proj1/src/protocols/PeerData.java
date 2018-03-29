@@ -11,7 +11,8 @@ import java.util.concurrent.atomic.AtomicIntegerArray;
 public class PeerData {
 
     /**
-     * Contains number of confirmed STORE messages received.
+     * Contains number of confirmed STORE messages received,
+     * for Chunks of local files (from BackupInitiator).
      * Maps (fileID -> (ChunkNum -> NumStoresReceived))
      */
     private ConcurrentMap<String, AtomicIntegerArray> chunkReplication;

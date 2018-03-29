@@ -52,17 +52,16 @@ public class SystemManager {
 
     public static void createFolder(String name) {
         File file = new File(name);
-        // TODO check if dir already exists?
         file.mkdirs();
     }
 
-    public static final void saveFile(String fileName, String pathname, byte[] data) throws IOException {
+    public static void saveFile(String fileName, String pathname, byte[] data) throws IOException {
         FileOutputStream out = new FileOutputStream(pathname + "/" + fileName);
         out.write(data);
         out.close();
     }
 
-    public static final byte[] loadFile(File file) throws FileNotFoundException {
+    public static byte[] loadFile(File file) throws FileNotFoundException {
         FileInputStream inputStream = new FileInputStream(file);
 
         byte[] data = new byte[(int) file.length()];

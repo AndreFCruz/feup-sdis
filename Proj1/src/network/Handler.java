@@ -65,10 +65,12 @@ public class Handler implements Runnable {
                 if (parentPeer.getFlagRestored(msg.getFileID())) {
                     parentPeer.addChunkToRestore(new Chunk(msg.getFileID(), msg.getChunkNo(), -1, msg.getBody()));
                 } else {
-                    Log.logWarning("Discard chunk");
+                    Log.logWarning("Discard chunk, it's not for me");
                 }
                 break;
             case REMOVED:
+                Log.logWarning("Received REMOVED");
+                // TODO update replication degree
                 break;
             default:
                 return;

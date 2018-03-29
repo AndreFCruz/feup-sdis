@@ -1,25 +1,27 @@
 package filesystem;
 
-import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 // TODO common subclass between Chunk and ChunkInfo, lots of replication
 public class ChunkInfo {
     private String fileID; // chunkID -> fileID/chunkNo
     private int chunkNo;
     private int size;
-    private int replicationDegree;
-    private ArrayList<String> mirrors; //Not sure if it is the right place to store this
+    private Integer replicationDegree;
+    private Set<Integer> mirrors;
 
     public ChunkInfo(int chunkNo, int replicationDegree) {
         this.chunkNo = chunkNo;
         this.replicationDegree = replicationDegree;
 
+        this.mirrors = new HashSet<>();
     }
 
     public ChunkInfo(String fileID, int chunkNo, int replicationDegree, int size) {
+        this(chunkNo, replicationDegree);
+
         this.fileID = fileID;
-        this.chunkNo = chunkNo;
-        this.replicationDegree = replicationDegree;
         this.size = size;
     }
 
@@ -28,12 +30,16 @@ public class ChunkInfo {
         return replicationDegree;
     }
 
-    public ArrayList<String> getMirrors() {
-        return mirrors;
+    public boolean removeMirror(Integer peerID) {
+        return mirrors.remove(peerID);
     }
 
-    public void removeMirror(String peerID) {
-        mirrors.remove(peerID);
+    public boolean addMirror(Integer peerID) {
+        return mirrors.add(peerID);
+    }
+
+    public int getNumMirrors() {
+        return mirrors.size();
     }
 
     public String getFileID() {
