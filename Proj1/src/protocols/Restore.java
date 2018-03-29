@@ -43,11 +43,11 @@ public class Restore implements Runnable {
         }
 
         //Access to database to get the Chunk
-        String chunkID = fileID + "/" + chunkNo;
-        if (parentPeer.hasChunkFromDB(chunkID)) {
+        if (parentPeer.hasChunkFromDB(fileID, chunkNo)) {
+            String chunkPath = parentPeer.getPath("chunks") + fileID + "/" + chunkNo;
             try {
                 //load chunk data
-                chunkData = loadFile(new File(parentPeer.getPath("chunks") + chunkID));
+                chunkData = loadFile(new File(chunkPath));
                 //send message to MDR
                 sendMessageToMDR();
             } catch (FileNotFoundException e) {

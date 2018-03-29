@@ -4,6 +4,7 @@ import channels.Channel;
 import filesystem.Chunk;
 import filesystem.FileInfo;
 import network.Message;
+import protocols.PeerData;
 import service.Peer;
 
 import java.io.IOException;
@@ -17,52 +18,53 @@ public class RestoreInitiator implements Runnable {
 
     private FileInfo fileInfo;
     private String pathName;
-    private Peer parentPeer;
     private String version;
+
+    private Peer parentPeer;
 
     public RestoreInitiator(String version, String pathName, Peer parentPeer) {
         this.version = version;
         this.pathName = pathName;
         this.parentPeer = parentPeer;
-        fileInfo = parentPeer.getFileFromDB(pathName); //handle if not exist??
+        fileInfo = parentPeer.getFileFromDB(pathName); // TODO handle if doesn't exist
     }
 
     @Override
     public void run() {
-        try {
-            if (fileInfo == null)
-                return;
+        if (fileInfo == null)
+            return;
 
-            //Activate restore flag
-            parentPeer.setRestoring(true, fileInfo.getFileID());
+        // Activate restore flag
+        parentPeer.setRestoring(true, fileInfo.getFileID());
 
-            //Send GETCHUNK to MC
-            for (int i = 0; i < fileInfo.getNumChunks(); i++) {
-                sendMessageToMC(i);
-            }
-
-            //TODO:Handle Received Chunks
-            while (!parentPeer.hasRestoreFinished(pathName, fileInfo.getFileID())) {
-                //Probably this will kill the cpu :')
-                //And need to ask again if lose some chunks
-            }
-            System.out.println("Received all chunks");
-            //TODO:merge file and save
-            ConcurrentHashMap<String, Chunk> chunksRestored = parentPeer.getChunksRestored(fileInfo.getFileID());
-            String pathToSave = parentPeer.getPath("restores");
-            saveFile(fileInfo.getFileName(), pathToSave, fileMerge(convertHashMapToArray(chunksRestored)));
-
-            //Delete restore flag
-            parentPeer.setRestoring(false, fileInfo.getFileID());
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        // Send GETCHUNK to MC
+        for (int i = 0; i < fileInfo.getNumChunks(); i++) {
+            sendMessageToMC(i);
         }
 
+        //TODO: handle Received Chunks
+        while (!parentPeer.hasRestoreFinished(pathName, fileInfo.getFileID())) {
+            //Probably this will kill the cpu :')
+            //And need to ask again if lose some chunks
+            // TODO sleep ?
+        }
+        System.out.println("Received all chunks");
+        //TODO: merge file and save
+        ConcurrentHashMap<String, Chunk> chunksRestored = parentPeer.getChunksRestored(fileInfo.getFileID());
+        String pathToSave = parentPeer.getPath("restores");
+
+        try {
+            saveFile(fileInfo.getFileName(), pathToSave, fileMerge(convertHashMapToArray(chunksRestored)));
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.err.println();
+        }
+
+        // File no longer restoring
+        parentPeer.setRestoring(false, fileInfo.getFileID());
     }
 
-    private void sendMessageToMC(int chunkNo) throws IOException {
+    private boolean sendMessageToMC(int chunkNo) {
         String[] args = {
                 version,
                 Integer.toString(parentPeer.getID()),
@@ -72,7 +74,14 @@ public class RestoreInitiator implements Runnable {
 
         Message msg = new Message(Message.MessageType.GETCHUNK, args);
 
-        parentPeer.sendMessage(Channel.ChannelType.MC, msg);
+        try {
+            parentPeer.sendMessage(Channel.ChannelType.MC, msg);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        return true;
     }
 
     private ArrayList<Chunk> convertHashMapToArray(ConcurrentHashMap<String, Chunk> chunksRestored) {

@@ -1,5 +1,7 @@
 package protocols;
 
+import filesystem.Chunk;
+
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicIntegerArray;
@@ -12,9 +14,48 @@ public class PeerData {
      */
     private ConcurrentMap<String, AtomicIntegerArray> chunkReplication;
 
+    // TODO _inner_ String to Int, and _inner_ ConcurrentHashMap to ConcurrentSkipListMap
+    /**
+     * Contains the in-memory chunks restored.
+     * Maps (fileID -> (ChunkNum -> Chunk))
+     */
+    private ConcurrentMap<String, ConcurrentHashMap<String, Chunk>> chunksRestored;
+//    private ConcurrentMap<String, ConcurrentSkipListMap<Integer, Chunk>> chunksRestored;
+
     public PeerData() {
         chunkReplication = new ConcurrentHashMap<>();
+        chunksRestored = new ConcurrentHashMap<>();
 
+    }
+
+    public void setFlagRestored(boolean flag, String fileID) {
+        if (flag) {
+            chunksRestored.put(fileID, new ConcurrentHashMap<>());
+        } else {
+            chunksRestored.remove(fileID);
+        }
+    }
+
+    public boolean getFlagRestored(String fileID) {
+        return chunksRestored.containsKey(fileID);
+    }
+
+    public void addChunksRestored(Chunk chunk) {
+        if (chunksRestored.get(chunk.getFileID()).containsKey(Integer.toString(chunk.getChunkNo()))) {
+            System.out.println("Chunk already exist");
+        } else {
+            System.out.println("Adding chunk to merge");
+            chunksRestored.get(chunk.getFileID()).put(Integer.toString(chunk.getChunkNo()), chunk);
+        }
+
+    }
+
+    public Integer getChunksRestoredSize(String fileID) {
+        return chunksRestored.get(fileID).size();
+    }
+
+    public ConcurrentHashMap<String, Chunk> getChunksRestored(String fileID) {
+        return chunksRestored.get(fileID);
     }
 
     public void resetChunkReplication(String fileID) {

@@ -5,10 +5,7 @@ import channels.Channel.ChannelType;
 import channels.MChannel;
 import channels.MDBChannel;
 import channels.MDRChannel;
-import filesystem.Chunk;
-import filesystem.ChunkInfo;
-import filesystem.FileInfo;
-import filesystem.SystemManager;
+import filesystem.*;
 import network.Message;
 import network.Handler;
 import protocols.PeerData;
@@ -46,6 +43,8 @@ public class Peer implements Service {
     private Map<ChannelType, Channel> channels;
 
     private SystemManager systemManager;
+
+    private Database database;
 
     private PeerData peerData;
 
@@ -94,6 +93,8 @@ public class Peer implements Service {
         setupDispatcher();
 
         systemManager = new SystemManager(this, MAX_SYSTEM_MEMORY);
+        database = database;
+        
         executor = new ScheduledThreadPoolExecutor(10);
 
         System.out.println("Peer " + id + " online!");
@@ -194,40 +195,43 @@ public class Peer implements Service {
     }
 
     public void addFileToDB(String fileName, FileInfo fileInfo) {
-        systemManager.getDatabase().addRestorableFile(fileName, fileInfo);
+        database.addRestorableFile(fileName, fileInfo);
     }
 
     public FileInfo getFileFromDB(String pathName) {
-        return systemManager.getDatabase().getFileInfo(pathName);
+        return database.getFileInfo(pathName);
     }
 
     public void addChunkToDB(ChunkInfo chunkInfo) {
-        systemManager.getDatabase().addChunk(chunkInfo);
+        database.addChunk(chunkInfo);
     }
 
     public boolean hasChunkFromDB(String fileID, int chunkNo) {
-        return systemManager.getDatabase().hasChunk(fileID, chunkNo);
+        return database.hasChunk(fileID, chunkNo);
     }
 
     public void setRestoring(boolean flag, String fileID) {
-        systemManager.getDatabase().setFlagRestored(flag, fileID);
+        peerData.setFlagRestored(flag, fileID);
     }
 
 
     public boolean hasRestoreFinished(String pathName, String fileID) {
-        return systemManager.getDatabase().hasRestoreFinished(pathName, fileID);
+        int numChunks = database.getNumChunks(pathName);
+        int chunksRestored = peerData.getChunksRestoredSize(fileID);
+
+        return numChunks == chunksRestored;
     }
 
     public boolean getFlagRestored(String fileID) {
-        return systemManager.getDatabase().getFlagRestored(fileID);
+        return peerData.getFlagRestored(fileID);
     }
 
     public void addChunkToRestore(Chunk chunk) {
-        systemManager.getDatabase().addChunksRestored(chunk);
+        peerData.addChunksRestored(chunk);
     }
 
     public ConcurrentHashMap<String, Chunk> getChunksRestored(String fileID) {
-        return systemManager.getDatabase().getChunksRestored(fileID);
+        return peerData.getChunksRestored(fileID);
     }
 
     public PeerData getPeerData() {
