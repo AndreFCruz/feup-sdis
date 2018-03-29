@@ -30,7 +30,7 @@ public class PeerData {
 
     public void setFlagRestored(boolean flag, String fileID) {
         if (flag) {
-            chunksRestored.put(fileID, new ConcurrentSkipListMap<>());
+            chunksRestored.putIfAbsent(fileID, new ConcurrentSkipListMap<>());
         } else {
             chunksRestored.remove(fileID);
         }

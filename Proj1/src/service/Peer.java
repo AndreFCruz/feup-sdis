@@ -205,8 +205,8 @@ public class Peer implements RemoteBackupService {
         dispatcher.pushMessage(data, length);
     }
 
-    public void addFileToDB(String fileName, FileInfo fileInfo) {
-        database.addRestorableFile(fileName, fileInfo);
+    public void addFileToDB(String pathName, FileInfo fileInfo) {
+        database.addRestorableFile(pathName, fileInfo);
     }
 
     public FileInfo getFileFromDB(String pathName) {
