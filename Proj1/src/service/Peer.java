@@ -21,10 +21,7 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 import static protocols.ProtocolSettings.MAX_SYSTEM_MEMORY;
 
@@ -238,7 +235,7 @@ public class Peer implements RemoteBackupService {
         peerData.addChunksRestored(chunk);
     }
 
-    public ConcurrentHashMap<String, Chunk> getChunksRestored(String fileID) {
+    public ConcurrentMap<Integer, Chunk> getChunksRestored(String fileID) {
         return peerData.getChunksRestored(fileID);
     }
 

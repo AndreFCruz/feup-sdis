@@ -11,6 +11,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import static filesystem.SystemManager.fileMerge;
 import static filesystem.SystemManager.saveFile;
@@ -60,11 +61,11 @@ public class RestoreInitiator implements Runnable {
         }
         Log.logWarning("Received all chunks");
         //TODO: merge file and save
-        ConcurrentHashMap<String, Chunk> chunksRestored = parentPeer.getChunksRestored(fileInfo.getFileID());
+        ConcurrentMap<Integer, Chunk> chunksRestored = parentPeer.getChunksRestored(fileInfo.getFileID());
         String pathToSave = parentPeer.getPath("restores");
 
         try {
-            saveFile(fileInfo.getFileName(), pathToSave, fileMerge(convertHashMapToArray(chunksRestored)));
+            saveFile(fileInfo.getFileName(), pathToSave, fileMerge(convertMapToArray(chunksRestored)));
         } catch (IOException e) {
             e.printStackTrace();
             Log.logError("Failed saving file at " + fileInfo.getPathname());
@@ -94,7 +95,7 @@ public class RestoreInitiator implements Runnable {
         return true;
     }
 
-    private ArrayList<Chunk> convertHashMapToArray(ConcurrentHashMap<String, Chunk> chunksRestored) {
+    private ArrayList<Chunk> convertMapToArray(ConcurrentMap<Integer, Chunk> chunksRestored) {
         ArrayList<Chunk> chunks = new ArrayList<>();
         for (int i = 0; i < fileInfo.getNumChunks(); i++) {
             chunks.add(chunksRestored.get(Integer.toString(i)));

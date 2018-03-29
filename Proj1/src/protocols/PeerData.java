@@ -20,7 +20,7 @@ public class PeerData {
      * Contains the in-memory chunks restored.
      * Maps (fileID -> (ChunkNum -> Chunk))
      */
-    private ConcurrentMap<String, ConcurrentHashMap<String, Chunk>> chunksRestored;
+    private ConcurrentMap<String, ConcurrentHashMap<Integer, Chunk>> chunksRestored;
 //    private ConcurrentMap<String, ConcurrentSkipListMap<Integer, Chunk>> chunksRestored;
 
     public PeerData() {
@@ -46,7 +46,7 @@ public class PeerData {
             Log.logWarning("Chunk already exist");
         } else {
             Log.logWarning("Adding chunk to merge");
-            chunksRestored.get(chunk.getFileID()).put(Integer.toString(chunk.getChunkNo()), chunk);
+            chunksRestored.get(chunk.getFileID()).put(chunk.getChunkNo(), chunk);
         }
 
     }
@@ -55,7 +55,7 @@ public class PeerData {
         return chunksRestored.get(fileID).size();
     }
 
-    public ConcurrentHashMap<String, Chunk> getChunksRestored(String fileID) {
+    public ConcurrentMap<Integer, Chunk> getChunksRestored(String fileID) {
         return chunksRestored.get(fileID);
     }
 
@@ -72,7 +72,7 @@ public class PeerData {
             return null;
 
         int replication = chunkReplication.get(fileID).addAndGet(chunkNo, 1);
-        Log.logWarning("Incrementeing replication of " + fileID + "/" + chunkNo + " to " + replication);
+        Log.logWarning("Incrementing replication of " + fileID + "/" + chunkNo + " to " + replication);
         return replication;
     }
 
