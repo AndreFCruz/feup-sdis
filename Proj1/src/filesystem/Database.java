@@ -1,8 +1,14 @@
 package filesystem;
 
+import utils.Log;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import static filesystem.SystemManager.loadFile;
 
 public class Database {
 
@@ -15,7 +21,7 @@ public class Database {
 
     /**
      * Contains backed up Chunks (on disk memory).
-     * Maps (fileID -> (ChunkNum -> Chunk))
+     * Maps (fileID -> (ChunkNum -> ChunkInfo))
      */
     private ConcurrentMap<String, ConcurrentMap<Integer, ChunkInfo>> chunksBackedUp;
 
@@ -98,6 +104,39 @@ public class Database {
         return filesBackedUp.get(pathname).getNumChunks();
     }
 
-    // TODO addChunkMirror, removeChunkMirror, getChunkMirrorsSize ?
+    public Boolean addChunkMirror(String fileID, int chunkNo, int peerID) {
+        boolean ret;
+        try {
+            ret = chunksBackedUp.get(fileID).get(chunkNo).addMirror(peerID);
+        } catch (NullPointerException e) {
+            Log.logError("addChunkMirror " + e.getMessage());
+            return null;
+        }
 
+        return ret;
+    }
+
+    public Boolean removeChunkMirror(String fileID, int chunkNo, int peerID) {
+        boolean ret;
+        try {
+            ret = chunksBackedUp.get(fileID).get(chunkNo).removeMirror(peerID);
+        } catch (NullPointerException e) {
+            Log.logError("removeChunkMirror " + e.getMessage());
+            return null;
+        }
+
+        return ret;
+    }
+
+    public Integer getChunkPerceivedReplication(String fileID, int chunkNo) {
+        int ret;
+        try {
+            ret = chunksBackedUp.get(fileID).get(chunkNo).getNumMirrors();
+        } catch (NullPointerException e) {
+            Log.logError("getChunkPerceivedReplication " + e.getMessage());
+            return null;
+        }
+
+        return ret;
+    }
 }

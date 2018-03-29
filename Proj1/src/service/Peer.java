@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.*;
 
+import static filesystem.SystemManager.loadFile;
 import static protocols.ProtocolSettings.MAX_SYSTEM_MEMORY;
 
 
@@ -88,11 +89,11 @@ public class Peer implements RemoteBackupService {
     public Peer(int id, String[] mcAddress, String[] mdbAddress, String[] mdrAddress) {
         this.id = id;
 
-        setupChannels(mcAddress, mdbAddress, mdrAddress);
-        setupDispatcher();
-
         systemManager = new SystemManager(this, MAX_SYSTEM_MEMORY);
         database = systemManager.getDatabase();
+
+        setupChannels(mcAddress, mdbAddress, mdrAddress);
+        setupDispatcher();
 
         executor = new ScheduledThreadPoolExecutor(10);
 
@@ -206,6 +207,7 @@ public class Peer implements RemoteBackupService {
         dispatcher.pushMessage(data, length);
     }
 
+    // DB WRAPPERS -- START
     public void addFileToDB(String fileName, FileInfo fileInfo) {
         database.addRestorableFile(fileName, fileInfo);
     }
@@ -217,9 +219,10 @@ public class Peer implements RemoteBackupService {
     public void addChunkToDB(ChunkInfo chunkInfo) {
         database.addChunk(chunkInfo);
     }
+    // DB WRAPPERS -- END
 
-    public boolean hasChunkFromDB(String fileID, int chunkNo) {
-        return database.hasChunk(fileID, chunkNo);
+    public byte[] loadChunk(String fileID, int chunkNo) {
+        return systemManager.loadChunk(fileID, chunkNo);
     }
 
     public void setRestoring(boolean flag, String fileID) {
@@ -248,5 +251,9 @@ public class Peer implements RemoteBackupService {
 
     public PeerData getPeerData() {
         return peerData;
+    }
+
+    public Database getDatabase() {
+        return database;
     }
 }

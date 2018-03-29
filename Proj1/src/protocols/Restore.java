@@ -16,12 +16,6 @@ public class Restore implements Runnable {
     private Peer parentPeer;
     private Message request;
 
-    private String fileID;
-    private int chunkNo;
-    private String version;
-    private int senderID;
-    private byte[] chunkData;
-
     public Restore(Peer parentPeer, Message request) {
         this.parentPeer = parentPeer;
         this.request = request;
@@ -32,40 +26,36 @@ public class Restore implements Runnable {
 
     @Override
     public void run() {
-
-        version = request.getVersion();
-        senderID = request.getSenderID();
-        fileID = request.getFileID();
-        chunkNo = request.getChunkNo();
-
-        if (senderID == parentPeer.getID()) { // ignore Chunks of own files
+        if (request.getSenderID() == parentPeer.getID()) { // ignore Chunks of own files
             Log.logWarning("Ignoring CHUNKs of own files");
             return;
         }
 
-        //Access to database to get the Chunk
-        if (parentPeer.hasChunkFromDB(fileID, chunkNo)) {
-            String chunkPath = parentPeer.getPath("chunks") + fileID + "/" + chunkNo;
-            try {
-                //load chunk data
-                chunkData = loadFile(new File(chunkPath));
-                //send message to MDR
-                sendMessageToMDR();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        String fileID = request.getFileID();
+        int chunkNo = request.getChunkNo();
+        //Access database to get the Chunk
+
+        byte[] chunkData = parentPeer.loadChunk(fileID, chunkNo);
+        if (chunkData == null) {
+            Log.logError("Chunk not found locally: " + fileID + "/" + chunkNo);
+        }
+
+        try {
+            sendMessageToMDR(request, chunkData);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
-    private void sendMessageToMDR() throws IOException {
+    private void sendMessageToMDR(Message msg, byte[] chunkData) throws IOException {
         String[] args = {
-                version,
+                msg.getVersion(),
                 Integer.toString(parentPeer.getID()),
-                fileID,
-                Integer.toString(chunkNo)
+                msg.getFileID(),
+                Integer.toString(msg.getChunkNo())
         };
 
-        Message msg = new Message(Message.MessageType.CHUNK, args, chunkData);
-        parentPeer.sendMessage(Channel.ChannelType.MDR, msg);
+        Message msgToSend = new Message(Message.MessageType.CHUNK, args, chunkData);
+        parentPeer.sendMessage(Channel.ChannelType.MDR, msgToSend);
     }
 }
