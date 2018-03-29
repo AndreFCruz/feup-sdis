@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 import static protocols.ProtocolSettings.MAX_SYSTEM_MEMORY;
 
 
-public class Peer implements Service {
+public class Peer implements RemoteBackupService {
 
     /**
      * Handler and Dispatcher for received messages
@@ -52,7 +52,7 @@ public class Peer implements Service {
     private int id;
 //    private String protocolVersion;
 //    private String serverAccessPoint;
-//    private Service stub;
+//    private RemoteBackupService stub;
 //
 
     public static void main(String args[]) {
@@ -71,7 +71,7 @@ public class Peer implements Service {
 
         try {
             Peer obj = new Peer(Integer.parseInt(args[0]), mcAddress, mdbAddress, mdrAddress);
-            Service stub = (Service) UnicastRemoteObject.exportObject(obj, 0);
+            RemoteBackupService stub = (RemoteBackupService) UnicastRemoteObject.exportObject(obj, 0);
 
             // Bind the remote object's stub in the registry
             Registry registry = LocateRegistry.getRegistry();

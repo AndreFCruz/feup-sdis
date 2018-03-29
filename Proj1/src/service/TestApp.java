@@ -17,7 +17,7 @@ public class TestApp {
     private String opnd_2;
 
     private Map<String, Runnable> handlers;
-    private Service stub;
+    private RemoteBackupService stub;
 
     public TestApp(String peer_ap, String sub_protocol, String opnd_1, String opnd_2) {
         this.peer_ap = peer_ap;
@@ -59,7 +59,7 @@ public class TestApp {
     private void initiateRMIStub() {
         try {
             Registry registry = LocateRegistry.getRegistry(null);
-            stub = (Service) registry.lookup(peer_ap);
+            stub = (RemoteBackupService) registry.lookup(peer_ap);
         } catch (Exception e) {
             Log.logError("Error when opening RMI stub");
             e.printStackTrace();
