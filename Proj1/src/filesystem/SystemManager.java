@@ -168,6 +168,10 @@ public class SystemManager {
         return rootPath + RESTORES;
     }
 
+    public Database getDatabase() {
+        return database;
+    }
+
     public long getMaxMemory() {
         return maxMemory;
     }
@@ -176,7 +180,11 @@ public class SystemManager {
         return usedMemory;
     }
 
-    public Database getDatabase() {
-        return database;
+    public void setMaxMemory(int maxMemory) {
+        this.maxMemory = maxMemory;
+    }
+
+    public long getAvailableMemory() {
+        return maxMemory - usedMemory;
     }
 }

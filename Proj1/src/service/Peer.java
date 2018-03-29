@@ -10,6 +10,7 @@ import network.Handler;
 import network.Message;
 import protocols.PeerData;
 import protocols.initiators.BackupInitiator;
+import protocols.initiators.ReclaimInitiator;
 import protocols.initiators.RestoreInitiator;
 import utils.Log;
 
@@ -175,7 +176,8 @@ public class Peer implements RemoteBackupService {
 
     @Override
     public void reclaim(int space) {
-
+        systemManager.setMaxMemory(space);
+        executor.execute(new ReclaimInitiator(this));
     }
 
     @Override
@@ -257,5 +259,9 @@ public class Peer implements RemoteBackupService {
 
     public Database getDatabase() {
         return database;
+    }
+
+    public SystemManager getSystemManager() {
+        return systemManager;
     }
 }
