@@ -98,7 +98,7 @@ public class RestoreInitiator implements Runnable {
     private ArrayList<Chunk> convertMapToArray(ConcurrentMap<Integer, Chunk> chunksRestored) {
         ArrayList<Chunk> chunks = new ArrayList<>();
         for (int i = 0; i < fileInfo.getNumChunks(); i++) {
-            chunks.add(chunksRestored.get(Integer.toString(i)));
+            chunks.add(chunksRestored.get(i));
         }
         return chunks;
     }

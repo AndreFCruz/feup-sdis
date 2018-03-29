@@ -148,13 +148,16 @@ public class Peer implements RemoteBackupService {
 
     @Override
     public boolean restore(String pathname) {
+        final Future handler;
         try {
-            executor.execute(new RestoreInitiator("1.0", pathname, this));
+            handler = executor.submit(new RestoreInitiator("1.0", pathname, this));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             Log.logError("Failed RestoreInitiator");
             return false;
         }
+
+        executor.schedule(() -> handler.cancel(true), 10, TimeUnit.SECONDS);
         return true;
     }
 
