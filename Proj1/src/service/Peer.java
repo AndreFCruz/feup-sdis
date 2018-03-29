@@ -14,6 +14,7 @@ import protocols.initiators.RestoreInitiator;
 import utils.Log;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -149,9 +150,15 @@ public class Peer implements RemoteBackupService {
     }
 
     @Override
-    public String restore(String pathname) {
-        executor.execute(new RestoreInitiator("1.0", pathname, this));
-        return "restore command ok";
+    public boolean restore(String pathname) {
+        try {
+            executor.execute(new RestoreInitiator("1.0", pathname, this));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            Log.logError("Failed RestoreInitiator");
+            return false;
+        }
+        return true;
     }
 
     @Override

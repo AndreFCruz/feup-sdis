@@ -7,6 +7,7 @@ import network.Message;
 import service.Peer;
 import utils.Log;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,11 +23,16 @@ public class RestoreInitiator implements Runnable {
 
     private Peer parentPeer;
 
-    public RestoreInitiator(String version, String pathName, Peer parentPeer) {
+    public RestoreInitiator(String version, String pathName, Peer parentPeer) throws FileNotFoundException {
         this.version = version;
         this.pathName = pathName;
         this.parentPeer = parentPeer;
-        fileInfo = parentPeer.getFileFromDB(pathName); // TODO handle if doesn't exist
+
+        fileInfo = parentPeer.getFileFromDB(pathName);
+        if (fileInfo == null) {
+            Log.logError("File not found for RESTORE");
+            throw new FileNotFoundException("Path: " + pathName);
+        }
     }
 
     @Override
@@ -34,14 +40,18 @@ public class RestoreInitiator implements Runnable {
         if (fileInfo == null)
             return;
 
+        Log.logWarning("Starting RESTORE");
+
         // Activate restore flag
         parentPeer.setRestoring(true, fileInfo.getFileID());
 
+        Log.logWarning("Sending GETCHUNK messages");
         // Send GETCHUNK to MC
         for (int i = 0; i < fileInfo.getNumChunks(); i++) {
             sendMessageToMC(i);
         }
 
+        Log.logWarning("Waiting for restored chunks");
         //TODO: handle Received Chunks
         while (!parentPeer.hasRestoreFinished(pathName, fileInfo.getFileID())) {
             //Probably this will kill the cpu :')

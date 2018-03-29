@@ -8,7 +8,7 @@ public interface RemoteBackupService extends Remote {
 
     String backup(File file, int replicationDegree) throws RemoteException;
 
-    String restore(String pathname) throws RemoteException;
+    boolean restore(String pathname) throws RemoteException; // TODO return byte[]
 
     void delete(String pathname) throws RemoteException;
 
