@@ -157,7 +157,10 @@ public class Peer implements RemoteBackupService {
             return false;
         }
 
-        executor.schedule(() -> handler.cancel(true), 10, TimeUnit.SECONDS);
+        executor.schedule(() -> {
+            handler.cancel(true);
+            Log.logWarning("RestoreInitiator was killed for lack of chunks.");
+        }, 10, TimeUnit.SECONDS);
         return true;
     }
 
