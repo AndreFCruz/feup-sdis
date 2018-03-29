@@ -65,7 +65,7 @@ public class RestoreInitiator implements Runnable {
         String pathToSave = parentPeer.getPath("restores");
 
         try {
-            saveFile(fileInfo.getFileName(), pathToSave, fileMerge(convertMapToArray(chunksRestored)));
+            saveFile(fileInfo.getFileName(), pathToSave, fileMerge(new ArrayList<>(chunksRestored.values())));
         } catch (IOException e) {
             e.printStackTrace();
             Log.logError("Failed saving file at " + fileInfo.getPathname());
@@ -93,14 +93,6 @@ public class RestoreInitiator implements Runnable {
         }
 
         return true;
-    }
-
-    private ArrayList<Chunk> convertMapToArray(ConcurrentMap<Integer, Chunk> chunksRestored) {
-        ArrayList<Chunk> chunks = new ArrayList<>();
-        for (int i = 0; i < fileInfo.getNumChunks(); i++) {
-            chunks.add(chunksRestored.get(i));
-        }
-        return chunks;
     }
 
 }
