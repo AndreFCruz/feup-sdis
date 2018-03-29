@@ -29,7 +29,7 @@ public class Delete implements Runnable {
     public void run() {
         String fileID = request.getFileID();
 
-        if(!database.hasChunks(fileID)){
+        if (!database.hasChunks(fileID)) {
             Log.logError("Chunks didn't exist! Aborting Delete!");
             return;
         }
@@ -52,5 +52,7 @@ public class Delete implements Runnable {
         }
 
         database.removeFileBackedUp(fileID);
+        Log.logWarning("Finished delete!");
     }
+
 }

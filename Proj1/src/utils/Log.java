@@ -3,17 +3,25 @@ package utils;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Log {
     private static PrintStream logFile = System.err;
+    private static DateFormat dateFormat = new SimpleDateFormat("d MMM yyyy HH:mm:ss.SSS");
 
     synchronized public static void logError(String msg) {
-        logFile.println("Error   @ " + System.currentTimeMillis() + " : " + msg);
+        Date date = new Date();
+
+        logFile.println("Error   @ " + dateFormat.format(date) + " : " + msg);
         logFile.flush();
     }
 
     synchronized public static void logWarning(String msg) {
-        logFile.println("Warning @ " + System.currentTimeMillis() + " : " + msg);
+        Date date = new Date();
+
+        logFile.println("Warning @ " + dateFormat.format(date) + " : " + msg);
         logFile.flush();
     }
 

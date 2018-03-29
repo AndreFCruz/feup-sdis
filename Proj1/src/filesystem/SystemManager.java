@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 import static filesystem.Database.loadDatabase;
 import static java.util.Arrays.copyOfRange;
-import static utils.Utils.MAXCHUNK;
+import static protocols.ProtocolSettings.MAXCHUNK;
 
 public class SystemManager {
 

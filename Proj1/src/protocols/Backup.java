@@ -62,15 +62,12 @@ public class Backup implements Runnable {
             e.printStackTrace();
         }
 
-        try {
-            sendConfirmationMsg();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        sendConfirmationMsg();
 
+        Log.logWarning("Finished backup!");
     }
 
-    private void sendConfirmationMsg() throws IOException {
+    private void sendConfirmationMsg() {
         String[] args = {
                 version,
                 Integer.toString(parentPeer.getID()),

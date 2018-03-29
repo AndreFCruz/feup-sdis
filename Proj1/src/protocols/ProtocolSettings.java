@@ -10,4 +10,6 @@ public class ProtocolSettings {
     public static final int MAX_SYSTEM_MEMORY = 100000;
 
     public static final int PUTCHUNK_RETRIES = 5;
+
+    public static final int MAXCHUNK = 64000;
 }

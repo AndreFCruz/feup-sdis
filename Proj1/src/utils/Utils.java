@@ -7,8 +7,6 @@ import java.security.NoSuchAlgorithmException;
 public class Utils {
     public static final String CRLF = "" + (char) 0x0D + (char) 0x0A;
 
-    public static final int MAXCHUNK = 64000;
-
     private final static char[] hexArray = "0123456789ABCDEF".toCharArray();
 
     public static String bytesToHex(byte[] bytes) {

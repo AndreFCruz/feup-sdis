@@ -38,7 +38,7 @@ public class Message {
         senderID = Integer.parseInt(args[1]);
         fileID = args[2];
 
-        if(type != MessageType.DELETE)
+        if (type != MessageType.DELETE)
             chunkNo = Integer.parseInt(args[3]);
 
         if (type == MessageType.PUTCHUNK) {

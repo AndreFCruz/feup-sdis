@@ -160,7 +160,9 @@ public class Database implements Serializable {
         return ret;
     }
 
-    public boolean hasChunks(String fileID) { return chunksBackedUp.containsKey(fileID); }
+    public boolean hasChunks(String fileID) {
+        return chunksBackedUp.containsKey(fileID);
+    }
 
     public Set<Integer> getFileChunksKey(String fileID) {
         return chunksBackedUp.get(fileID).keySet();

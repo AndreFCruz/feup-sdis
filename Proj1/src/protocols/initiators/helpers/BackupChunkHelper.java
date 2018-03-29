@@ -37,6 +37,7 @@ public class BackupChunkHelper implements Runnable {
 
         int waitTime = 1000; // wait time, in milliseconds
         Message msg = generatePutChunkMsg(chunk, protocolVersion);
+
         for (int i = 0; i < ProtocolSettings.PUTCHUNK_RETRIES; ++i) {
             try {
                 parentPeer.sendMessage(Channel.ChannelType.MDB, msg);

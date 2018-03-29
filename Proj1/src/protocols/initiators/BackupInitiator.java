@@ -19,7 +19,6 @@ import java.util.HashMap;
 
 import static filesystem.SystemManager.fileSplit;
 
-
 public class BackupInitiator implements Runnable {
 
     private byte[] fileData;
@@ -59,6 +58,8 @@ public class BackupInitiator implements Runnable {
 
         parentPeer.addFileToDB(file.getPath(), new FileInfo(file, fileID, replicationDegree, chunksInfo));
         parentPeer.getPeerData().resetChunkReplication(fileID);
+
+        Log.logWarning("Finished backupInitiator!");
     }
 
     private String generateFileID(File file) {
@@ -76,10 +77,6 @@ public class BackupInitiator implements Runnable {
 
         String fileID = file.getName() + attr.lastModifiedTime() + attr.size();
         return fileID;
-    }
-
-    private void uploadFile() {
-        // TODO?
     }
 
     public Peer getParentPeer() {

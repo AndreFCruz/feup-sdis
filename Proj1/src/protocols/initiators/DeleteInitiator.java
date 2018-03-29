@@ -45,7 +45,7 @@ public class DeleteInitiator implements Runnable {
 
         //Delete file from database
         parentPeer.deleteFileToDB(pathName);
-
+        Log.logWarning("Finished deleteInitiator!");
     }
 
     private boolean sendMessageToMC(FileInfo fileInfo) {

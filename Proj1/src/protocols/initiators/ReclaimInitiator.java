@@ -21,5 +21,7 @@ public class ReclaimInitiator implements Runnable {
         while (systemManager.getAvailableMemory() < 0) {
             // TODO get a random chunk
         }
+
+        Log.logWarning("Finished reclaimInitiator!");
     }
 }

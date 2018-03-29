@@ -27,41 +27,34 @@ public class RestoreInitiator implements Runnable {
         this.version = version;
         this.pathName = pathName;
         this.parentPeer = parentPeer;
-
         fileInfo = parentPeer.getFileFromDB(pathName);
-        if (fileInfo == null) {
-            Log.logError("File not found for RESTORE");
-            throw new FileNotFoundException("Path: " + pathName);
-        }
 
         Log.logWarning("Starting restoreInitiator!");
     }
 
     @Override
     public void run() {
-        if (fileInfo == null)
+        if (fileInfo == null) {
+            Log.logError("File not found for RESTORE");
             return;
-
-        Log.logWarning("Starting RESTORE");
+        }
 
         // Activate restore flag
         parentPeer.setRestoring(true, fileInfo.getFileID());
 
-        Log.logWarning("Sending GETCHUNK messages");
+        //Log.logWarning("Sending GETCHUNK messages");
         // Send GETCHUNK to MC
         for (int i = 0; i < fileInfo.getNumChunks(); i++) {
             sendMessageToMC(i);
         }
 
-        Log.logWarning("Waiting for restored chunks");
-        //TODO: handle Received Chunks
+        //Log.logWarning("Waiting for restored chunks");
         while (!parentPeer.hasRestoreFinished(pathName, fileInfo.getFileID())) {
             //Probably this will kill the cpu :')
             //And need to ask again if lose some chunks
             // TODO sleep ?
         }
-        Log.logWarning("Received all chunks");
-        //TODO: merge file and save
+//        Log.logWarning("Received all chunks");
         ConcurrentMap<Integer, Chunk> chunksRestored = parentPeer.getChunksRestored(fileInfo.getFileID());
         String pathToSave = parentPeer.getPath("restores");
 
@@ -74,6 +67,7 @@ public class RestoreInitiator implements Runnable {
 
         // File no longer restoring
         parentPeer.setRestoring(false, fileInfo.getFileID());
+        Log.logWarning("Finished restoreInitiator!");
     }
 
     private boolean sendMessageToMC(int chunkNo) {

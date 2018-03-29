@@ -22,10 +22,10 @@ public class Restore implements Runnable {
         Log.logWarning("Starting restore!");
     }
 
-
     @Override
     public void run() {
-        if (request.getSenderID() == parentPeer.getID()) { // ignore Chunks of own files
+        //Ignore Chunks of own files
+        if (request.getSenderID() == parentPeer.getID()) {
             Log.logWarning("Ignoring CHUNKs of own files");
             return;
         }
@@ -46,6 +46,8 @@ public class Restore implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        Log.logWarning("Finished restore!");
+
     }
 
     private void sendMessageToMDR(Message msg, byte[] chunkData) throws IOException {
@@ -57,6 +59,7 @@ public class Restore implements Runnable {
         };
 
         Message msgToSend = new Message(Message.MessageType.CHUNK, args, chunkData);
+
         parentPeer.sendMessage(Channel.ChannelType.MDR, msgToSend);
     }
 }

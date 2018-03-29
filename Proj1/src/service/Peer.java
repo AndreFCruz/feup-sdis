@@ -27,7 +27,6 @@ import java.util.concurrent.*;
 
 import static protocols.ProtocolSettings.MAX_SYSTEM_MEMORY;
 
-
 public class Peer implements RemoteBackupService {
 
     public static final String PROTOCOL_VERSION = "1.0";
@@ -99,8 +98,6 @@ public class Peer implements RemoteBackupService {
             Log.logError("Server exception: " + e.toString());
             e.printStackTrace();
         }
-
-
     }
 
     private void setupDispatcher() {
@@ -135,7 +132,7 @@ public class Peer implements RemoteBackupService {
     }
 
     public void sendMessage(ChannelType channelType, Message message) throws IOException {
-        Log.logWarning("S: " + message.getHeaderAsString() + "|");
+        Log.logWarning("S: " + message.toString());
 
         channels.get(channelType).sendMessage(message.getBytes());
     }
@@ -237,7 +234,6 @@ public class Peer implements RemoteBackupService {
     public void setRestoring(boolean flag, String fileID) {
         peerData.setFlagRestored(flag, fileID);
     }
-
 
     public boolean hasRestoreFinished(String pathName, String fileID) {
         int numChunks = database.getNumChunks(pathName);
