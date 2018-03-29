@@ -30,7 +30,7 @@ import static protocols.ProtocolSettings.MAX_SYSTEM_MEMORY;
 
 public class Peer implements RemoteBackupService {
 
-    public  static final String PROTOCOL_VERSION = "1.0";
+    public static final String PROTOCOL_VERSION = "1.0";
 
     /**
      * Handler and Dispatcher for received messages
@@ -56,6 +56,20 @@ public class Peer implements RemoteBackupService {
 //    private String serverAccessPoint;
 //    private RemoteBackupService stub;
 //
+
+    public Peer(int id, String[] mcAddress, String[] mdbAddress, String[] mdrAddress) {
+        this.id = id;
+
+        systemManager = new SystemManager(this, MAX_SYSTEM_MEMORY);
+        database = systemManager.getDatabase();
+
+        setupChannels(mcAddress, mdbAddress, mdrAddress);
+        setupDispatcher();
+
+        executor = new ScheduledThreadPoolExecutor(10);
+
+        Log.logWarning("Peer " + id + " online!");
+    }
 
     public static void main(String args[]) {
 
@@ -87,20 +101,6 @@ public class Peer implements RemoteBackupService {
         }
 
 
-    }
-
-    public Peer(int id, String[] mcAddress, String[] mdbAddress, String[] mdrAddress) {
-        this.id = id;
-
-        systemManager = new SystemManager(this, MAX_SYSTEM_MEMORY);
-        database = systemManager.getDatabase();
-
-        setupChannels(mcAddress, mdbAddress, mdrAddress);
-        setupDispatcher();
-
-        executor = new ScheduledThreadPoolExecutor(10);
-
-        Log.logWarning("Peer " + id + " online!");
     }
 
     private void setupDispatcher() {

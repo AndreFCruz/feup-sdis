@@ -82,6 +82,6 @@ public class Backup implements Runnable {
         Message msg = new Message(Message.MessageType.STORED, args);
 
         Random random = new Random();
-        parentPeer.sendDelayedMessage(Channel.ChannelType.MC, msg, random.nextInt(MAX_DELAY+1), TimeUnit.MILLISECONDS);
+        parentPeer.sendDelayedMessage(Channel.ChannelType.MC, msg, random.nextInt(MAX_DELAY + 1), TimeUnit.MILLISECONDS);
     }
 }

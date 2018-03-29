@@ -1,28 +1,16 @@
 package protocols.initiators;
 
 import channels.Channel;
-import filesystem.Chunk;
-import filesystem.ChunkInfo;
 import filesystem.FileInfo;
-import filesystem.SystemManager;
 import network.Message;
-import protocols.initiators.helpers.BackupChunkHelper;
 import service.Peer;
 import utils.Log;
-import utils.Utils;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.HashMap;
 
-import static filesystem.SystemManager.fileSplit;
-
-public class DeleteInitiator implements Runnable{
+public class DeleteInitiator implements Runnable {
     private String version;
     private String pathName;
     private Peer parentPeer;
@@ -37,7 +25,7 @@ public class DeleteInitiator implements Runnable{
     public void run() {
         //Obtain info of the file from Database
         FileInfo fileInfo = parentPeer.getFileFromDB(pathName);
-        if(fileInfo == null){
+        if (fileInfo == null) {
             Log.logError("File didn't exist! Aborting Delete!");
             return;
         }

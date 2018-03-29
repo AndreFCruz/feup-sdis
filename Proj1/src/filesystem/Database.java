@@ -145,7 +145,7 @@ public class Database {
         return ret;
     }
 
-    public Set<Integer> getFileChunksKey(String fileID){
+    public Set<Integer> getFileChunksKey(String fileID) {
         return chunksBackedUp.get(fileID).keySet();
     }
 }

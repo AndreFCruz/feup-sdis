@@ -5,11 +5,7 @@ import network.Message;
 import service.Peer;
 import utils.Log;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-
-import static filesystem.SystemManager.loadFile;
 
 public class Restore implements Runnable {
 

@@ -76,27 +76,6 @@ public class SystemManager {
         return data;
     }
 
-    public String getChunkPath(String fileID, int chunkNo) {
-        return getChunksPath() + fileID + "/" + chunkNo;
-    }
-
-    public byte[] loadChunk(String fileID, int chunkNo) {
-        if (! database.hasChunk(fileID, chunkNo)) {
-            return null;
-        }
-
-        byte[] chunkData = null;
-        String chunkPath = getChunkPath(fileID, chunkNo);
-        try {
-            //load chunk data
-            chunkData = loadFile(new File(chunkPath));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return chunkData;
-    }
-
     public static ArrayList<Chunk> loadChunks(String pathname, int numberOfChunks) throws FileNotFoundException {
         ArrayList<Chunk> chunks = new ArrayList<>();
 
@@ -151,6 +130,27 @@ public class SystemManager {
         return fileData;
     }
 
+    public String getChunkPath(String fileID, int chunkNo) {
+        return getChunksPath() + fileID + "/" + chunkNo;
+    }
+
+    public byte[] loadChunk(String fileID, int chunkNo) {
+        if (!database.hasChunk(fileID, chunkNo)) {
+            return null;
+        }
+
+        byte[] chunkData = null;
+        String chunkPath = getChunkPath(fileID, chunkNo);
+        try {
+            //load chunk data
+            chunkData = loadFile(new File(chunkPath));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return chunkData;
+    }
+
     private void initializePeerFS() {
         createFolder(rootPath + CHUNKS);
         createFolder(rootPath + RESTORES);
@@ -176,12 +176,12 @@ public class SystemManager {
         return maxMemory;
     }
 
-    public long getUsedMemory() {
-        return usedMemory;
-    }
-
     public void setMaxMemory(int maxMemory) {
         this.maxMemory = maxMemory;
+    }
+
+    public long getUsedMemory() {
+        return usedMemory;
     }
 
     public long getAvailableMemory() {
