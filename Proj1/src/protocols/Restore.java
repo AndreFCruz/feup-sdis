@@ -38,8 +38,8 @@ public class Restore implements Runnable {
         fileID = request.getFileID();
         chunkNo = request.getChunkNo();
 
-        if (senderID == parentPeer.getID()) { // a peer never stores the chunks of its own files
-            Log.logWarning("Ignoring restore of own files"); //TODO: better message
+        if (senderID == parentPeer.getID()) { // ignore Chunks of own files
+            Log.logWarning("Ignoring CHUNKs of own files");
             return;
         }
 
@@ -51,8 +51,6 @@ public class Restore implements Runnable {
                 chunkData = loadFile(new File(chunkPath));
                 //send message to MDR
                 sendMessageToMDR();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }

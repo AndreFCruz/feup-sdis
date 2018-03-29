@@ -56,6 +56,7 @@ public class BackupInitiator implements Runnable {
         }
 
         parentPeer.addFileToDB(file.getPath(), new FileInfo(file, fileID, replicationDegree, chunksInfo));
+        parentPeer.getPeerData().resetChunkReplication(fileID);
     }
 
     private String generateFileID(File file) {

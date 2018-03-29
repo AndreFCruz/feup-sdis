@@ -27,7 +27,6 @@ public class BackupChunkHelper implements Runnable {
 
     @Override
     public void run() {
-        // TODO send PUTCHUNK, Await STORED messages and possibly resend PUTCHUNKs
 
         int waitTime = 1000; // wait time, in milliseconds
         Message msg = generatePutChunkMsg(chunk, protocolVersion);
