@@ -29,6 +29,8 @@ import static protocols.ProtocolSettings.MAX_SYSTEM_MEMORY;
 
 public class Peer implements RemoteBackupService {
 
+    public  static final String PROTOCOL_VERSION = "1.0";
+
     /**
      * Handler and Dispatcher for received messages
      */
@@ -143,7 +145,7 @@ public class Peer implements RemoteBackupService {
 
     @Override
     public String backup(File file, int replicationDegree) {
-        executor.execute(new BackupInitiator("1.0", file, replicationDegree, this));
+        executor.execute(new BackupInitiator(PROTOCOL_VERSION, file, replicationDegree, this));
         return "backup command ok";
     }
 
@@ -151,7 +153,7 @@ public class Peer implements RemoteBackupService {
     public boolean restore(String pathname) {
         final Future handler;
         try {
-            handler = executor.submit(new RestoreInitiator("1.0", pathname, this));
+            handler = executor.submit(new RestoreInitiator(PROTOCOL_VERSION, pathname, this));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             Log.logError("Failed RestoreInitiator");

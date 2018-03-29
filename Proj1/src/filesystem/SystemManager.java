@@ -55,13 +55,13 @@ public class SystemManager {
         file.mkdirs();
     }
 
-    public static void saveFile(String fileName, String pathname, byte[] data) throws IOException {
+    synchronized public static void saveFile(String fileName, String pathname, byte[] data) throws IOException {
         FileOutputStream out = new FileOutputStream(pathname + "/" + fileName);
         out.write(data);
         out.close();
     }
 
-    public static byte[] loadFile(File file) throws FileNotFoundException {
+    synchronized public static byte[] loadFile(File file) throws FileNotFoundException {
         FileInputStream inputStream = new FileInputStream(file);
 
         byte[] data = new byte[(int) file.length()];

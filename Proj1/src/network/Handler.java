@@ -1,11 +1,13 @@
 package network;
 
 import filesystem.Chunk;
+import filesystem.ChunkInfo;
 import filesystem.Database;
 import protocols.Backup;
 import protocols.PeerData;
 import protocols.Restore;
 import protocols.initiators.helpers.BackupChunkHelper;
+import protocols.initiators.helpers.RemovedChunkHelper;
 import service.Peer;
 import utils.Log;
 
@@ -88,12 +90,14 @@ public class Handler implements Runnable {
 
         database.removeChunkMirror(fileID, chunkNo, msg.getSenderID());
 
+        ChunkInfo chunkInfo = database.getChunkInfo(fileID, chunkNo);
+
         int perceivedReplication = database.getChunkPerceivedReplication(fileID, chunkNo);
-        int desiredReplication = database.getChunkInfo(fileID, chunkNo).getReplicationDegree();
+        int desiredReplication = chunkInfo.getReplicationDegree();
         if (perceivedReplication < desiredReplication) {
             byte[] chunkData = parentPeer.loadChunk(fileID, chunkNo);
             executor.execute(() -> {
-                Log.logWarning("REMOVE");
+                new Thread(new RemovedChunkHelper(parentPeer, chunkInfo, chunkData)).start();
             });
         }
     }
