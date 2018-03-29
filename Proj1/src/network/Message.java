@@ -19,7 +19,7 @@ public class Message {
     private byte[] body;
 
     //Constructor that handle received messages
-    public Message(byte[] data, int length) throws IOException {
+    public Message(byte[] data, int length) { //TODO: Handle invalid messages
         String header = extractHeader(data);
 
         String headerCleaned = header.trim().replaceAll("\\s+", " ");
@@ -30,10 +30,9 @@ public class Message {
         if (type == MessageType.PUTCHUNK || type == MessageType.CHUNK) {
             this.body = extractBody(data, header.length(), length);
         }
-
     }
 
-    //constructor that handle send messages without body
+    //Constructor that handle send messages without body
     public Message(MessageType type, String[] args) {
         this.type = type;
         version = args[0];
@@ -41,12 +40,12 @@ public class Message {
         fileID = args[2];
         chunkNo = Integer.parseInt(args[3]);
 
-        if (type == MessageType.PUTCHUNK || type == MessageType.STORED) {
+        if (type == MessageType.PUTCHUNK) {
             replicationDegree = Integer.parseInt(args[4]);
         }
     }
 
-    //constructor that handle send messages with body
+    //Constructor that handle send messages with body
     public Message(MessageType type, String[] args, byte[] data) {
         this(type, args);
         body = data;
@@ -61,6 +60,7 @@ public class Message {
 
         try {
             header = reader.readLine();
+            //TODO: Check if have two CRLF
         } catch (IOException e) {
             e.printStackTrace();
 
@@ -73,14 +73,10 @@ public class Message {
         int length = dataLength;
         int readBytes = length - headerLength - 4;
         ByteArrayInputStream message = new ByteArrayInputStream(data, headerLength + 4, readBytes);
-
-
         byte[] bodyContent = new byte[readBytes];
 
         message.read(bodyContent, 0, readBytes);
-        Log.logWarning("data:" + dataLength);
-        Log.logWarning("headerLength:" + headerLength);
-        Log.logWarning("readBytes: " + readBytes);
+
         return bodyContent;
     }
 
@@ -103,6 +99,14 @@ public class Message {
                 type = MessageType.CHUNK;
                 numberArgs = 5;
                 break;
+            case "DELETE":
+                type = MessageType.DELETE;
+                numberArgs = 4;
+                break;
+            case "REMOVED":
+                type = MessageType.REMOVED;
+                numberArgs = 5;
+                break;
             default:
                 return;
         }
@@ -111,18 +115,14 @@ public class Message {
             return;
 
         version = headerSplit[1];
-
         senderID = Integer.parseInt(headerSplit[2]);
+        fileID = headerSplit[3];
 
-        if (numberArgs >= 4)
-            fileID = headerSplit[3];
+        if (numberArgs > 4)
+            chunkNo = Integer.parseInt(headerSplit[4]);
 
-        chunkNo = Integer.parseInt(headerSplit[4]);
-
-        if (type == MessageType.PUTCHUNK) {
+        if (type == MessageType.PUTCHUNK)
             replicationDegree = Integer.parseInt(headerSplit[5]);
-        }
-
 
     }
 
@@ -137,7 +137,9 @@ public class Message {
             case PUTCHUNK:
                 str = type + " " + version + " " + senderID + " " + fileID + " " + chunkNo + " " + replicationDegree + " " + Utils.CRLF + Utils.CRLF;
                 break;
-
+            case DELETE:
+                str = type + " " + version + " " + senderID + " " + fileID + " " + Utils.CRLF + Utils.CRLF;
+                break;
             default:
                 str = type + " " + version + " " + senderID + " " + fileID + " " + chunkNo + " " + Utils.CRLF + Utils.CRLF;
                 break;
@@ -154,8 +156,8 @@ public class Message {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             outputStream.write(header);
             outputStream.write(body);
-
             return outputStream.toByteArray();
+
         } else
             return header;
     }

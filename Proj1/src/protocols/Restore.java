@@ -1,6 +1,7 @@
 package protocols;
 
 import channels.Channel;
+import filesystem.Database;
 import network.Message;
 import service.Peer;
 import utils.Log;
@@ -11,10 +12,12 @@ public class Restore implements Runnable {
 
     private Peer parentPeer;
     private Message request;
+    private Database database;
 
     public Restore(Peer parentPeer, Message request) {
         this.parentPeer = parentPeer;
         this.request = request;
+        this.database = parentPeer.getDatabase();
 
         Log.logWarning("Starting restore!");
     }
@@ -29,12 +32,14 @@ public class Restore implements Runnable {
 
         String fileID = request.getFileID();
         int chunkNo = request.getChunkNo();
+
         //Access database to get the Chunk
+        if (!database.hasChunk(fileID, chunkNo)) {
+            Log.logError("Chunk not found locally: " + fileID + "/" + chunkNo);
+            return;
+        }
 
         byte[] chunkData = parentPeer.loadChunk(fileID, chunkNo);
-        if (chunkData == null) {
-            Log.logError("Chunk not found locally: " + fileID + "/" + chunkNo);
-        }
 
         try {
             sendMessageToMDR(request, chunkData);

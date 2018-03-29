@@ -4,8 +4,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 // TODO common subclass between Chunk and ChunkInfo, lots of replication
-public class ChunkInfo {
-    private String fileID; // chunkID -> fileID/chunkNo
+public class ChunkInfo{
+
+    private String fileID;
     private int chunkNo;
     private int size;
     private Integer replicationDegree;
@@ -14,7 +15,6 @@ public class ChunkInfo {
     public ChunkInfo(int chunkNo, int replicationDegree) {
         this.chunkNo = chunkNo;
         this.replicationDegree = replicationDegree;
-
         this.mirrors = new HashSet<>();
     }
 
@@ -24,7 +24,6 @@ public class ChunkInfo {
         this.fileID = fileID;
         this.size = size;
     }
-
 
     public int getReplicationDegree() {
         return replicationDegree;
@@ -53,4 +52,5 @@ public class ChunkInfo {
     public int getSize() {
         return size;
     }
+
 }

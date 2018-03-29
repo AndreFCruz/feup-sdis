@@ -5,6 +5,7 @@ import service.Peer;
 import java.io.*;
 import java.util.ArrayList;
 
+import static filesystem.Database.loadDatabase;
 import static java.util.Arrays.copyOfRange;
 import static utils.Utils.MAXCHUNK;
 
@@ -33,21 +34,18 @@ public class SystemManager {
         usedMemory = 0;
         rootPath = "fileSystem/Peer" + parentPeer.getID() + "/";
 
-        database = new Database();
-
+        initializeDatabase();
         initializePeerFS();
     }
 
-    public static boolean fileExists(String name) {
-        File file = new File(name);
+    private void initializeDatabase() {
+        File db = new File(rootPath + "db");
 
-        return file.exists() && file.isFile();
-    }
-
-    public static boolean folderExists(String name) {
-        File file = new File(name);
-
-        return file.exists() && file.isDirectory();
+        if(db.exists()){
+            database = loadDatabase(db);
+        } else{
+            database = new Database();
+        }
     }
 
     public static void createFolder(String name) {
@@ -86,7 +84,6 @@ public class SystemManager {
         }
 
         return chunks;
-
     }
 
     public static ArrayList<Chunk> fileSplit(byte[] fileData, String fileID, int replicationDegree) {
@@ -115,7 +112,6 @@ public class SystemManager {
 
     public static byte[] fileMerge(ArrayList<Chunk> chunks) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        byte[] fileData;
 
         for (int i = 0; i < chunks.size(); i++) {
             try {
@@ -125,9 +121,7 @@ public class SystemManager {
             }
         }
 
-        fileData = outputStream.toByteArray();
-
-        return fileData;
+        return outputStream.toByteArray();
     }
 
     public String getChunkPath(String fileID, int chunkNo) {
@@ -135,12 +129,9 @@ public class SystemManager {
     }
 
     public byte[] loadChunk(String fileID, int chunkNo) {
-        if (!database.hasChunk(fileID, chunkNo)) {
-            return null;
-        }
-
         byte[] chunkData = null;
         String chunkPath = getChunkPath(fileID, chunkNo);
+
         try {
             //load chunk data
             chunkData = loadFile(new File(chunkPath));
@@ -187,4 +178,5 @@ public class SystemManager {
     public long getAvailableMemory() {
         return maxMemory - usedMemory;
     }
+
 }

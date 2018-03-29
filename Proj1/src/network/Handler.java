@@ -28,8 +28,7 @@ public class Handler implements Runnable {
         msgQueue = new LinkedBlockingQueue<>();
         executor = Executors.newFixedThreadPool(3);
     }
-
-
+    
     @Override
     public void run() {
         Message msg;

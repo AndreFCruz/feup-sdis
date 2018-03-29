@@ -75,8 +75,7 @@ public class Backup implements Runnable {
                 version,
                 Integer.toString(parentPeer.getID()),
                 fileID,
-                Integer.toString(chunkNo),
-                Integer.toString(replicationDegree)
+                Integer.toString(chunkNo)
         };
 
         Message msg = new Message(Message.MessageType.STORED, args);

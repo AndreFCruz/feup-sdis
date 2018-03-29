@@ -1,14 +1,13 @@
 package filesystem;
 
-
 import utils.Log;
 
-public class Chunk implements Comparable<Chunk> {
+public class Chunk {
+
     private String fileID;
     private int chunkNo;
     private int replicationDegree;
     private byte[] data;
-
 
     public Chunk(String fileID, int chunkNo, int replicationDegree, byte[] data) {
         this.fileID = fileID;
@@ -39,10 +38,4 @@ public class Chunk implements Comparable<Chunk> {
         return data;
     }
 
-    @Override
-    public int compareTo(Chunk otherCunk) {
-        if (otherCunk == null)
-            return 1;
-        return Integer.compare(chunkNo, otherCunk.chunkNo);
-    }
 }
