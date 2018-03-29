@@ -38,16 +38,6 @@ public class SystemManager {
         initializePeerFS();
     }
 
-    private void initializeDatabase() {
-        File db = new File(rootPath + "db");
-
-        if(db.exists()){
-            database = loadDatabase(db);
-        } else{
-            database = new Database();
-        }
-    }
-
     public static void createFolder(String name) {
         File file = new File(name);
         file.mkdirs();
@@ -122,6 +112,16 @@ public class SystemManager {
         }
 
         return outputStream.toByteArray();
+    }
+
+    private void initializeDatabase() {
+        File db = new File(rootPath + "db");
+
+        if (db.exists()) {
+            database = loadDatabase(db);
+        } else {
+            database = new Database();
+        }
     }
 
     public String getChunkPath(String fileID, int chunkNo) {

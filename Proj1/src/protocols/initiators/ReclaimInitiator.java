@@ -2,6 +2,7 @@ package protocols.initiators;
 
 import filesystem.SystemManager;
 import service.Peer;
+import utils.Log;
 
 public class ReclaimInitiator implements Runnable {
 
@@ -11,6 +12,8 @@ public class ReclaimInitiator implements Runnable {
     public ReclaimInitiator(Peer parentPeer) {
         this.parentPeer = parentPeer;
         this.systemManager = parentPeer.getSystemManager();
+
+        Log.logWarning("Starting reclaimInitiator!");
     }
 
     @Override

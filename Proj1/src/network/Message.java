@@ -1,6 +1,5 @@
 package network;
 
-import utils.Log;
 import utils.Utils;
 
 import java.io.*;
@@ -38,7 +37,9 @@ public class Message {
         version = args[0];
         senderID = Integer.parseInt(args[1]);
         fileID = args[2];
-        chunkNo = Integer.parseInt(args[3]);
+
+        if(type != MessageType.DELETE)
+            chunkNo = Integer.parseInt(args[3]);
 
         if (type == MessageType.PUTCHUNK) {
             replicationDegree = Integer.parseInt(args[4]);
@@ -186,6 +187,25 @@ public class Message {
         return body;
     }
 
+    @Override
+    public String toString() {
+        String str;
+
+        switch (type) {
+            case PUTCHUNK:
+                str = type + " " + version + " " + senderID + " " + fileID + " " + chunkNo;
+                break;
+            case DELETE:
+                str = type + " " + version + " " + senderID + " " + fileID;
+                break;
+            default:
+                str = type + " " + version + " " + senderID + " " + fileID + " " + chunkNo;
+                break;
+        }
+
+        return str;
+    }
+
     public enum MessageType {
         PUTCHUNK,
         STORED,
@@ -194,5 +214,4 @@ public class Message {
         DELETE,
         CHUNK
     }
-
 }

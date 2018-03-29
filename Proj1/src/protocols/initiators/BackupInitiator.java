@@ -34,6 +34,8 @@ public class BackupInitiator implements Runnable {
         this.file = file;
         this.replicationDegree = replicationDegree;
         this.parentPeer = parentPeer;
+
+        Log.logWarning("Starting backupInitiator!");
     }
 
     @Override

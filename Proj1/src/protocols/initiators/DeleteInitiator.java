@@ -19,6 +19,8 @@ public class DeleteInitiator implements Runnable {
         this.version = version;
         this.pathName = pathName;
         this.parentPeer = parentPeer;
+
+        Log.logWarning("Starting deleteInitiator!");
     }
 
     @Override
@@ -29,6 +31,7 @@ public class DeleteInitiator implements Runnable {
             Log.logError("File didn't exist! Aborting Delete!");
             return;
         }
+
         //Send Delete message to MC channel
         sendMessageToMC(fileInfo);
 

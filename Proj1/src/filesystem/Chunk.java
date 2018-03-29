@@ -9,10 +9,14 @@ public class Chunk {
     private int replicationDegree;
     private byte[] data;
 
-    public Chunk(String fileID, int chunkNo, int replicationDegree, byte[] data) {
+    public Chunk(String fileID, int chunkNo, byte[] data) {
         this.fileID = fileID;
         this.chunkNo = chunkNo;
         this.data = data;
+    }
+
+    public Chunk(String fileID, int chunkNo, int replicationDegree, byte[] data) {
+        this(fileID, chunkNo, data);
         this.replicationDegree = replicationDegree;
 
         Log.logWarning("Created CHUNK " + fileID + " @" + chunkNo);

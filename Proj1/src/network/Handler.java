@@ -4,13 +4,13 @@ import filesystem.Chunk;
 import filesystem.ChunkInfo;
 import filesystem.Database;
 import protocols.Backup;
+import protocols.Delete;
 import protocols.PeerData;
 import protocols.Restore;
 import protocols.initiators.helpers.RemovedChunkHelper;
 import service.Peer;
 import utils.Log;
 
-import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -26,9 +26,9 @@ public class Handler implements Runnable {
         this.parentPeer = parentPeer;
         this.peerData = parentPeer.getPeerData();
         msgQueue = new LinkedBlockingQueue<>();
-        executor = Executors.newFixedThreadPool(3);
+        executor = Executors.newFixedThreadPool(3); //TODO: Change this number
     }
-    
+
     @Override
     public void run() {
         Message msg;
@@ -49,7 +49,8 @@ public class Handler implements Runnable {
             return;
         }
 
-        Log.logWarning("R: " + msg.getHeaderAsString() + "|");
+        Log.logWarning("R: " + msg.toString());
+
         switch (msg.getType()) {
             case PUTCHUNK:
                 Backup backup = new Backup(parentPeer, msg);
@@ -63,22 +64,22 @@ public class Handler implements Runnable {
                 executor.execute(restore);
                 break;
             case CHUNK:
-                Log.logWarning("Chunk received");
                 if (parentPeer.getFlagRestored(msg.getFileID())) {
-                    parentPeer.addChunkToRestore(new Chunk(msg.getFileID(), msg.getChunkNo(), -1, msg.getBody()));
+                    parentPeer.addChunkToRestore(new Chunk(msg.getFileID(), msg.getChunkNo(), msg.getBody()));
                 } else {
                     Log.logWarning("Discard chunk, it's not for me");
                 }
                 break;
             case REMOVED:
-                Log.logWarning("Received REMOVED");
                 handleRemoved(msg);
+                break;
+            case DELETE:
+                Delete delete = new Delete(parentPeer, msg);
+                executor.execute(delete);
                 break;
             default:
                 return;
-
         }
-
     }
 
     private void handleRemoved(Message msg) {
@@ -92,15 +93,14 @@ public class Handler implements Runnable {
 
         int perceivedReplication = database.getChunkPerceivedReplication(fileID, chunkNo);
         int desiredReplication = chunkInfo.getReplicationDegree();
+
         if (perceivedReplication < desiredReplication) {
             byte[] chunkData = parentPeer.loadChunk(fileID, chunkNo);
-            executor.execute(() -> {
-                new Thread(new RemovedChunkHelper(parentPeer, chunkInfo, chunkData)).start();
-            });
+            executor.execute(() -> new Thread(new RemovedChunkHelper(parentPeer, chunkInfo, chunkData)).start());
         }
     }
 
-    public void pushMessage(byte[] data, int length) throws IOException {
+    public void pushMessage(byte[] data, int length) {
         Message msgParsed = new Message(data, length); //create and parse the message
         msgQueue.add(msgParsed);
     }

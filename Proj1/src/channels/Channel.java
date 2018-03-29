@@ -1,7 +1,6 @@
 package channels;
 
 import service.Peer;
-import utils.Log;
 
 import java.io.IOException;
 import java.net.DatagramPacket;

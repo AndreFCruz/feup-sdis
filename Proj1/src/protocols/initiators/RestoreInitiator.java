@@ -33,6 +33,8 @@ public class RestoreInitiator implements Runnable {
             Log.logError("File not found for RESTORE");
             throw new FileNotFoundException("Path: " + pathName);
         }
+
+        Log.logWarning("Starting restoreInitiator!");
     }
 
     @Override

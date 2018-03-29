@@ -28,6 +28,12 @@ public class Delete implements Runnable {
     @Override
     public void run() {
         String fileID = request.getFileID();
+
+        if(!database.hasChunks(fileID)){
+            Log.logError("Chunks didn't exist! Aborting Delete!");
+            return;
+        }
+
         Set<Integer> chunks = database.getFileChunksKey(fileID);
         String path = parentPeer.getPath("chunks");
 
@@ -39,7 +45,12 @@ public class Delete implements Runnable {
             }
         }
 
-        database.removeFileBackedUp(fileID);
+        try {
+            Files.delete(Paths.get(path + "/" + fileID));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
+        database.removeFileBackedUp(fileID);
     }
 }
