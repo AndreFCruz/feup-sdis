@@ -19,6 +19,10 @@ public class Chunk implements Comparable<Chunk> {
         Log.logWarning("Created CHUNK " + fileID + " @" + chunkNo);
     }
 
+    public Chunk(ChunkInfo chunkInfo, byte[] data) {
+        this(chunkInfo.getFileID(), chunkInfo.getChunkNo(), chunkInfo.getReplicationDegree(), data);
+    }
+
     public String getFileID() {
         return fileID;
     }

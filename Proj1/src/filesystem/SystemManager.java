@@ -55,13 +55,13 @@ public class SystemManager {
         file.mkdirs();
     }
 
-    public static void saveFile(String fileName, String pathname, byte[] data) throws IOException {
+    synchronized public static void saveFile(String fileName, String pathname, byte[] data) throws IOException {
         FileOutputStream out = new FileOutputStream(pathname + "/" + fileName);
         out.write(data);
         out.close();
     }
 
-    public static byte[] loadFile(File file) throws FileNotFoundException {
+    synchronized public static byte[] loadFile(File file) throws FileNotFoundException {
         FileInputStream inputStream = new FileInputStream(file);
 
         byte[] data = new byte[(int) file.length()];
@@ -168,6 +168,10 @@ public class SystemManager {
         return rootPath + RESTORES;
     }
 
+    public Database getDatabase() {
+        return database;
+    }
+
     public long getMaxMemory() {
         return maxMemory;
     }
@@ -176,7 +180,11 @@ public class SystemManager {
         return usedMemory;
     }
 
-    public Database getDatabase() {
-        return database;
+    public void setMaxMemory(int maxMemory) {
+        this.maxMemory = maxMemory;
+    }
+
+    public long getAvailableMemory() {
+        return maxMemory - usedMemory;
     }
 }

@@ -25,6 +25,13 @@ public class BackupChunkHelper implements Runnable {
         this.chunkReplication = parentPeer.getPeerData().getChunkReplication(chunk.getFileID());
     }
 
+    BackupChunkHelper(Peer parentPeer, Chunk chunk) {
+        this.chunk = chunk;
+        this.parentPeer = parentPeer;
+        this.protocolVersion = Peer.PROTOCOL_VERSION;
+        this.chunkReplication = null;
+    }
+
     @Override
     public void run() {
 
@@ -38,15 +45,15 @@ public class BackupChunkHelper implements Runnable {
             }
 
             sleep(waitTime);
-            if (checkReplicationDegree())
+            if (isDesiredReplicationDegree())
                 break;
 
             waitTime *= 2;
         }
     }
 
-    private boolean checkReplicationDegree() {
-        return chunkReplication.get(chunk.getChunkNo()) >= chunk.getReplicationDegree();
+    protected boolean isDesiredReplicationDegree() {
+        return chunkReplication != null && chunkReplication.get(chunk.getChunkNo()) >= chunk.getReplicationDegree();
     }
 
     private void sleep(int waitTime) {

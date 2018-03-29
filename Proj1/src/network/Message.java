@@ -32,7 +32,7 @@ public class Message {
         }
 
     }
-    
+
     //constructor that handle send messages without body
     public Message(MessageType type, String[] args) {
         this.type = type;
