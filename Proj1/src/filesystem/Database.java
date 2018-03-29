@@ -17,7 +17,7 @@ public class Database {
      * Contains backed up Chunks (on disk memory).
      * Maps (fileID -> (ChunkNum -> Chunk))
      */
-    private ConcurrentMap<String, ConcurrentHashMap<Integer, ChunkInfo>> chunksBackedUp;
+    private ConcurrentMap<String, ConcurrentMap<Integer, ChunkInfo>> chunksBackedUp;
 
 
     public Database() {
@@ -71,10 +71,11 @@ public class Database {
         String fileID = chunkInfo.getFileID();
         int chunkNo = chunkInfo.getChunkNo();
 
-        Map<Integer, ChunkInfo> fileChunks;
+        ConcurrentMap<Integer, ChunkInfo> fileChunks;
         fileChunks = chunksBackedUp.getOrDefault(fileID, new ConcurrentHashMap<>());
-
         fileChunks.putIfAbsent(chunkNo, chunkInfo);
+
+        chunksBackedUp.putIfAbsent(fileID, fileChunks);
 
         saveDatabase();
     }
