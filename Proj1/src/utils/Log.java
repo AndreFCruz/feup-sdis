@@ -1,5 +1,7 @@
 package utils;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.PrintStream;
 
 public class Log {
@@ -13,5 +15,9 @@ public class Log {
     public static void logWarning(String msg) {
         logFile.println("Warning @ " + System.currentTimeMillis() + " : " + msg);
         logFile.flush();
+    }
+
+    public static void setLogFile(String filepath) throws FileNotFoundException {
+        Log.logFile = new PrintStream(new FileOutputStream(filepath, true));
     }
 }

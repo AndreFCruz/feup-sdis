@@ -94,7 +94,7 @@ public class Peer implements Service {
         setupDispatcher();
 
         systemManager = new SystemManager(this, MAX_SYSTEM_MEMORY);
-        database = database;
+        database = systemManager.getDatabase();
         
         executor = new ScheduledThreadPoolExecutor(10);
 
