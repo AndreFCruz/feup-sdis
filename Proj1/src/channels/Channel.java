@@ -42,7 +42,7 @@ public abstract class Channel implements Runnable {
     @Override
     public void run() {
 
-        byte[] rbuf = new byte[MAX_MESSAGE_SIZE * 2];
+        byte[] rbuf = new byte[MAX_MESSAGE_SIZE];
         DatagramPacket packet = new DatagramPacket(rbuf, rbuf.length);
 
         // Loop waiting for messages
@@ -50,25 +50,12 @@ public abstract class Channel implements Runnable {
 
             try { // blocking method
                 this.socket.receive(packet);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            Log.logWarning("packet length: " + packet.getLength());
-
-            //String msg = new String(packet.getData(), 0, packet.getLength());
-            //Log.logWarning("string length: " + msg.length());
-            //Log.logWarning(msg);
-
-            //this.parentPeer.addMsgToHandler(msg.trim());
-            try {
                 this.parentPeer.addMsgToHandler(packet.getData(), packet.getLength());
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
 
-//        this.close();
+        }
     }
 
     synchronized public void sendMessage(byte[] message) {
@@ -86,7 +73,7 @@ public abstract class Channel implements Runnable {
         socket.close();
     }
 
-    public static enum ChannelType {
+    public enum ChannelType {
         MC, MDB, MDR
     }
 }
