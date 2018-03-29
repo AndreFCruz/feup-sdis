@@ -32,12 +32,7 @@ public class Message {
         }
 
     }
-
-
-//    public Message(String msg) {
-//        parseMessage(msg);
-//    }
-
+    
     //constructor that handle send messages without body
     public Message(MessageType type, String[] args) {
         this.type = type;
@@ -131,33 +126,6 @@ public class Message {
 
     }
 
-//    private void parseMessage(String msg) {
-//        //Split header from body ( \R -> CRLF)
-//        String[] msgSplit = msg.split("\\R\\R", 2);
-//        Log.logWarning("c3: " + msg.length());
-//        String header, body = null;
-//
-//        if (msgSplit.length == 0 || msgSplit.length > 2)
-//            return; //message discarded
-//        else if (msgSplit.length == 2)
-//            body = msgSplit[1];
-//
-//        header = msgSplit[0];
-//
-//        Log.logWarning("header: " + header.length());
-//
-//        String headerCleaned = header.trim().replaceAll("\\s+", " ");
-//        String[] headerSplit = headerCleaned.split("\\s+");
-//
-//        parseHeader(headerSplit);
-//
-//        if (body != null) {
-//            Log.logWarning("body: " + body.length());
-//            this.body = body.getBytes();
-//            Log.logWarning("parser:" + this.body.length);
-//        }
-//    }
-
     public MessageType getType() {
         return type;
     }
@@ -221,6 +189,7 @@ public class Message {
         STORED,
         GETCHUNK,
         REMOVED,
+        DELETE,
         CHUNK
     }
 

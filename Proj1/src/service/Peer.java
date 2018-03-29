@@ -10,6 +10,7 @@ import network.Handler;
 import network.Message;
 import protocols.PeerData;
 import protocols.initiators.BackupInitiator;
+import protocols.initiators.DeleteInitiator;
 import protocols.initiators.RestoreInitiator;
 import utils.Log;
 
@@ -168,7 +169,7 @@ public class Peer implements RemoteBackupService {
 
     @Override
     public void delete(String pathname) {
-
+        executor.execute(new DeleteInitiator("1.0", pathname, this));
     }
 
     @Override
@@ -219,6 +220,11 @@ public class Peer implements RemoteBackupService {
     public void addChunkToDB(ChunkInfo chunkInfo) {
         database.addChunk(chunkInfo);
     }
+
+    public void deleteFileToDB(String pathName) {
+        database.removeRestorableFile(pathName);
+    }
+
     // DB WRAPPERS -- END
 
     public byte[] loadChunk(String fileID, int chunkNo) {

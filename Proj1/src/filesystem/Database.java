@@ -2,13 +2,10 @@ package filesystem;
 
 import utils.Log;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
-import static filesystem.SystemManager.loadFile;
 
 public class Database {
 
@@ -100,6 +97,14 @@ public class Database {
         saveDatabase();
     }
 
+    public void removeFileBackedUp(String fileID) {
+        if (!chunksBackedUp.containsKey(fileID))
+            return;
+
+        chunksBackedUp.remove(fileID);
+        saveDatabase();
+    }
+
     public int getNumChunks(String pathname) {
         return filesBackedUp.get(pathname).getNumChunks();
     }
@@ -138,5 +143,9 @@ public class Database {
         }
 
         return ret;
+    }
+
+    public Set<Integer> getFileChunksKey(String fileID){
+        return chunksBackedUp.get(fileID).keySet();
     }
 }
