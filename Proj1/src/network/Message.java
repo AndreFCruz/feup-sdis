@@ -17,6 +17,7 @@ public class Message {
     private int replicationDegree;
     //    Body
     private byte[] body;
+
     //Constructor that handle received messages
     public Message(byte[] data, int length) throws IOException {
         String header = extractHeader(data);

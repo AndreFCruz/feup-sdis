@@ -6,8 +6,8 @@ import channels.MChannel;
 import channels.MDBChannel;
 import channels.MDRChannel;
 import filesystem.*;
-import network.Message;
 import network.Handler;
+import network.Message;
 import protocols.PeerData;
 import protocols.initiators.BackupInitiator;
 import protocols.initiators.RestoreInitiator;
@@ -25,7 +25,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import static protocols.ProtocolSettings.*;
+import static protocols.ProtocolSettings.MAX_SYSTEM_MEMORY;
 
 
 public class Peer implements Service {
@@ -58,7 +58,7 @@ public class Peer implements Service {
     public static void main(String args[]) {
 
 //		if (args.length != 2) {
-//			Log.logWarning("Usage: java Peer <mc:port> <mdb:port> <mdr:port>");
+//			System.out.println("Usage: java Peer <mc:port> <mdb:port> <mdr:port>");
 //			return;
 //		}
 
@@ -78,7 +78,7 @@ public class Peer implements Service {
             registry.rebind(args[0], stub);
             //registry.bind(args[0], stub);
 
-            Log.logError("Server ready");
+            Log.logWarning("Server ready");
         } catch (Exception e) {
             Log.logError("Server exception: " + e.toString());
             e.printStackTrace();
@@ -95,7 +95,7 @@ public class Peer implements Service {
 
         systemManager = new SystemManager(this, MAX_SYSTEM_MEMORY);
         database = systemManager.getDatabase();
-        
+
         executor = new ScheduledThreadPoolExecutor(10);
 
         Log.logWarning("Peer " + id + " online!");

@@ -86,7 +86,7 @@ public class Database {
     }
 
     public void removeChunk(String fileID, int chunkNo) {
-        if (! chunksBackedUp.containsKey(fileID))
+        if (!chunksBackedUp.containsKey(fileID))
             return;
 
         chunksBackedUp.get(fileID).remove(chunkNo);

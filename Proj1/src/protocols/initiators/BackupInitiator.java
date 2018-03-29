@@ -1,11 +1,9 @@
 package protocols.initiators;
 
-import channels.Channel;
 import filesystem.Chunk;
 import filesystem.ChunkInfo;
 import filesystem.FileInfo;
 import filesystem.SystemManager;
-import network.Message;
 import protocols.initiators.helpers.BackupChunkHelper;
 import service.Peer;
 import utils.Log;
@@ -18,8 +16,6 @@ import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicIntegerArray;
 
 import static filesystem.SystemManager.fileSplit;
 

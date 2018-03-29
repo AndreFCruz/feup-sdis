@@ -15,6 +15,7 @@ public abstract class Channel implements Runnable {
     private InetAddress mcastAddr;
     private int mcastPort;
     private Peer parentPeer;
+
     public Channel(Peer parentPeer, String mcastAddr, String mcastPort) {
         this.parentPeer = parentPeer;
 
@@ -43,8 +44,6 @@ public abstract class Channel implements Runnable {
 
         byte[] rbuf = new byte[MAX_MESSAGE_SIZE * 2];
         DatagramPacket packet = new DatagramPacket(rbuf, rbuf.length);
-
-        Log.logWarning("Channel Run!");
 
         // Loop waiting for messages
         while (true) {
