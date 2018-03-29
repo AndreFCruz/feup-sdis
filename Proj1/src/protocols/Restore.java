@@ -3,6 +3,7 @@ package protocols;
 import channels.Channel;
 import network.Message;
 import service.Peer;
+import utils.Log;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -25,7 +26,7 @@ public class Restore implements Runnable {
         this.parentPeer = parentPeer;
         this.request = request;
 
-        System.out.println("Starting restore!");
+        Log.logWarning("Starting restore!");
     }
 
 
@@ -38,7 +39,7 @@ public class Restore implements Runnable {
         chunkNo = request.getChunkNo();
 
         if (senderID == parentPeer.getID()) { // a peer never stores the chunks of its own files
-            System.out.println("Ignoring restore of own files"); //TODO: better message
+            Log.logWarning("Ignoring restore of own files"); //TODO: better message
             return;
         }
 

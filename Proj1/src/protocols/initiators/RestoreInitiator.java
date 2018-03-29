@@ -4,8 +4,8 @@ import channels.Channel;
 import filesystem.Chunk;
 import filesystem.FileInfo;
 import network.Message;
-import protocols.PeerData;
 import service.Peer;
+import utils.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -48,7 +48,7 @@ public class RestoreInitiator implements Runnable {
             //And need to ask again if lose some chunks
             // TODO sleep ?
         }
-        System.out.println("Received all chunks");
+        Log.logWarning("Received all chunks");
         //TODO: merge file and save
         ConcurrentHashMap<String, Chunk> chunksRestored = parentPeer.getChunksRestored(fileInfo.getFileID());
         String pathToSave = parentPeer.getPath("restores");
@@ -57,7 +57,7 @@ public class RestoreInitiator implements Runnable {
             saveFile(fileInfo.getFileName(), pathToSave, fileMerge(convertHashMapToArray(chunksRestored)));
         } catch (IOException e) {
             e.printStackTrace();
-            System.err.println();
+            Log.logError("Failed saving file at " + fileInfo.getPathname());
         }
 
         // File no longer restoring

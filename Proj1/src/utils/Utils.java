@@ -26,13 +26,13 @@ public class Utils {
         try {
             digest = MessageDigest.getInstance("SHA-256");
         } catch (NoSuchAlgorithmException e) {
-            System.err.println("Hash algorithm not found: " + e.getMessage());
+            Log.logError("Hash algorithm not found: " + e.getMessage());
             return null;
         }
 
         byte[] hash = digest.digest(msg.getBytes(StandardCharsets.UTF_8));
         String hashedID = bytesToHex(hash);
-        System.out.println("" + hash.length + " : " + hashedID);
+        Log.logWarning("" + hash.length + " : " + hashedID);
         return hashedID;
     }
 

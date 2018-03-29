@@ -1,6 +1,8 @@
 package filesystem;
 
 
+import utils.Log;
+
 public class Chunk implements Comparable<Chunk> {
     private String fileID;
     private int chunkNo;
@@ -14,7 +16,7 @@ public class Chunk implements Comparable<Chunk> {
         this.data = data;
         this.replicationDegree = replicationDegree;
 
-        System.out.println("Created CHUNK " + fileID + " @" + chunkNo);
+        Log.logWarning("Created CHUNK " + fileID + " @" + chunkNo);
     }
 
     public String getFileID() {

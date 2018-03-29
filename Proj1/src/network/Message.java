@@ -1,5 +1,6 @@
 package network;
 
+import utils.Log;
 import utils.Utils;
 
 import java.io.*;
@@ -81,9 +82,9 @@ public class Message {
         byte[] bodyContent = new byte[readBytes];
 
         message.read(bodyContent, 0, readBytes);
-        System.out.println("data:" + dataLength);
-        System.out.println("headerLength:" + headerLength);
-        System.out.println("readBytes: " + readBytes);
+        Log.logWarning("data:" + dataLength);
+        Log.logWarning("headerLength:" + headerLength);
+        Log.logWarning("readBytes: " + readBytes);
         return bodyContent;
     }
 
@@ -132,7 +133,7 @@ public class Message {
 //    private void parseMessage(String msg) {
 //        //Split header from body ( \R -> CRLF)
 //        String[] msgSplit = msg.split("\\R\\R", 2);
-//        System.out.println("c3: " + msg.length());
+//        Log.logWarning("c3: " + msg.length());
 //        String header, body = null;
 //
 //        if (msgSplit.length == 0 || msgSplit.length > 2)
@@ -142,7 +143,7 @@ public class Message {
 //
 //        header = msgSplit[0];
 //
-//        System.out.println("header: " + header.length());
+//        Log.logWarning("header: " + header.length());
 //
 //        String headerCleaned = header.trim().replaceAll("\\s+", " ");
 //        String[] headerSplit = headerCleaned.split("\\s+");
@@ -150,9 +151,9 @@ public class Message {
 //        parseHeader(headerSplit);
 //
 //        if (body != null) {
-//            System.out.println("body: " + body.length());
+//            Log.logWarning("body: " + body.length());
 //            this.body = body.getBytes();
-//            System.out.println("parser:" + this.body.length);
+//            Log.logWarning("parser:" + this.body.length);
 //        }
 //    }
 

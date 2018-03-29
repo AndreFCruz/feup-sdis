@@ -6,6 +6,7 @@ import network.Message;
 import protocols.ProtocolSettings;
 import protocols.initiators.BackupInitiator;
 import service.Peer;
+import utils.Log;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicIntegerArray;
@@ -34,7 +35,7 @@ public class BackupChunkHelper implements Runnable {
             try {
                 parentPeer.sendMessage(Channel.ChannelType.MDB, msg);
             } catch (IOException e) {
-                System.err.println("ERROR: " + e.getMessage());
+                Log.logError(e.getMessage());
             }
 
             sleep(waitTime);

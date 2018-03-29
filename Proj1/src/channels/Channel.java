@@ -1,6 +1,7 @@
 package channels;
 
 import service.Peer;
+import utils.Log;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -43,7 +44,7 @@ public abstract class Channel implements Runnable {
         byte[] rbuf = new byte[MAX_MESSAGE_SIZE * 2];
         DatagramPacket packet = new DatagramPacket(rbuf, rbuf.length);
 
-        System.out.println("Channel Run!");
+        Log.logWarning("Channel Run!");
 
         // Loop waiting for messages
         while (true) {
@@ -54,11 +55,11 @@ public abstract class Channel implements Runnable {
                 e.printStackTrace();
             }
 
-            System.out.println("packet length: " + packet.getLength());
+            Log.logWarning("packet length: " + packet.getLength());
 
             //String msg = new String(packet.getData(), 0, packet.getLength());
-            //System.out.println("string length: " + msg.length());
-            //System.out.println(msg);
+            //Log.logWarning("string length: " + msg.length());
+            //Log.logWarning(msg);
 
             //this.parentPeer.addMsgToHandler(msg.trim());
             try {

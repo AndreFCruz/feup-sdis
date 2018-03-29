@@ -5,6 +5,7 @@ import protocols.Backup;
 import protocols.PeerData;
 import protocols.Restore;
 import service.Peer;
+import utils.Log;
 
 import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
@@ -42,11 +43,11 @@ public class Handler implements Runnable {
 
     private void dispatchMessage(Message msg) {
         if (msg == null) {
-            System.err.println("Null Message Received");
+            Log.logError("Null Message Received");
             return;
         }
 
-        System.out.println("R: " + msg.getHeaderAsString() + "|");
+        Log.logWarning("R: " + msg.getHeaderAsString() + "|");
         switch (msg.getType()) {
             case PUTCHUNK:
                 Backup backup = new Backup(parentPeer, msg);
@@ -60,11 +61,11 @@ public class Handler implements Runnable {
                 executor.execute(restore);
                 break;
             case CHUNK:
-                System.out.println("Chunk received");
+                Log.logWarning("Chunk received");
                 if (parentPeer.getFlagRestored(msg.getFileID())) {
                     parentPeer.addChunkToRestore(new Chunk(msg.getFileID(), msg.getChunkNo(), -1, msg.getBody()));
                 } else {
-                    System.out.println("Discard chunk");
+                    Log.logWarning("Discard chunk");
                 }
                 break;
             case REMOVED:

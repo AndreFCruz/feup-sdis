@@ -4,6 +4,7 @@ import channels.Channel;
 import filesystem.ChunkInfo;
 import network.Message;
 import service.Peer;
+import utils.Log;
 
 import java.io.IOException;
 import java.util.Random;
@@ -29,7 +30,7 @@ public class Backup implements Runnable {
         this.parentPeer = parentPeer;
         this.request = request;
 
-        System.out.println("Starting backup!");
+        Log.logWarning("Starting backup!");
     }
 
 
@@ -43,7 +44,7 @@ public class Backup implements Runnable {
         replicationDegree = request.getReplicationDegree();
 
         if (senderID == parentPeer.getID()) { // a peer never stores the chunks of its own files
-            System.out.println("Ignoring backup of own files");
+            Log.logWarning("Ignoring backup of own files");
             return;
         }
 
@@ -70,8 +71,6 @@ public class Backup implements Runnable {
     }
 
     private void sendConfirmationMsg() throws IOException {
-        System.out.println(parentPeer);
-
         String[] args = {
                 version,
                 Integer.toString(parentPeer.getID()),

@@ -11,6 +11,7 @@ import network.Handler;
 import protocols.PeerData;
 import protocols.initiators.BackupInitiator;
 import protocols.initiators.RestoreInitiator;
+import utils.Log;
 
 import java.io.File;
 import java.io.IOException;
@@ -57,7 +58,7 @@ public class Peer implements Service {
     public static void main(String args[]) {
 
 //		if (args.length != 2) {
-//			System.out.println("Usage: java Peer <mc:port> <mdb:port> <mdr:port>");
+//			Log.logWarning("Usage: java Peer <mc:port> <mdb:port> <mdr:port>");
 //			return;
 //		}
 
@@ -77,9 +78,9 @@ public class Peer implements Service {
             registry.rebind(args[0], stub);
             //registry.bind(args[0], stub);
 
-            System.err.println("Server ready");
+            Log.logError("Server ready");
         } catch (Exception e) {
-            System.err.println("Server exception: " + e.toString());
+            Log.logError("Server exception: " + e.toString());
             e.printStackTrace();
         }
 
@@ -97,7 +98,7 @@ public class Peer implements Service {
         
         executor = new ScheduledThreadPoolExecutor(10);
 
-        System.out.println("Peer " + id + " online!");
+        Log.logWarning("Peer " + id + " online!");
     }
 
     private void setupDispatcher() {
@@ -126,13 +127,13 @@ public class Peer implements Service {
             try {
                 sendMessage(channelType, message);
             } catch (IOException e) {
-                System.err.println("Error sending message to channel " + channelType + " - " + message.getHeaderAsString());
+                Log.logError("Error sending message to channel " + channelType + " - " + message.getHeaderAsString());
             }
         }, delay, unit);
     }
 
     public void sendMessage(ChannelType channelType, Message message) throws IOException {
-        System.out.println("S: " + message.getHeaderAsString() + "|");
+        Log.logWarning("S: " + message.getHeaderAsString() + "|");
 
         channels.get(channelType).sendMessage(message.getBytes());
     }

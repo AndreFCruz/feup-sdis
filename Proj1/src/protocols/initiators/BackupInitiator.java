@@ -8,6 +8,7 @@ import filesystem.SystemManager;
 import network.Message;
 import protocols.initiators.helpers.BackupChunkHelper;
 import service.Peer;
+import utils.Log;
 import utils.Utils;
 
 import java.io.File;
@@ -70,7 +71,7 @@ public class BackupInitiator implements Runnable {
         try {
             attr = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
         } catch (IOException e) {
-            System.err.println("Couldn't read file's metadata: " + e.getMessage());
+            Log.logError("Couldn't read file's metadata: " + e.getMessage());
             return null;
         }
 

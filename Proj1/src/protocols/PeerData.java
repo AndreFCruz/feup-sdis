@@ -1,6 +1,7 @@
 package protocols;
 
 import filesystem.Chunk;
+import utils.Log;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -42,9 +43,9 @@ public class PeerData {
 
     public void addChunksRestored(Chunk chunk) {
         if (chunksRestored.get(chunk.getFileID()).containsKey(Integer.toString(chunk.getChunkNo()))) {
-            System.out.println("Chunk already exist");
+            Log.logWarning("Chunk already exist");
         } else {
-            System.out.println("Adding chunk to merge");
+            Log.logWarning("Adding chunk to merge");
             chunksRestored.get(chunk.getFileID()).put(Integer.toString(chunk.getChunkNo()), chunk);
         }
 
@@ -69,7 +70,7 @@ public class PeerData {
     public Integer addChunkReplication(String fileID, int chunkNo) {
         if (! chunkReplication.containsKey(fileID))
             return null;
-        System.out.println("Incrementeing replication of " + fileID + " at " + chunkNo);
+        Log.logWarning("Incrementeing replication of " + fileID + " at " + chunkNo);
         return chunkReplication.get(fileID).addAndGet(chunkNo, 1);
     }
 
