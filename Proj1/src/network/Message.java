@@ -218,6 +218,7 @@ public class Message {
         PUTCHUNK,
         STORED,
         GETCHUNK,
+        REMOVED,
         CHUNK
     }
 

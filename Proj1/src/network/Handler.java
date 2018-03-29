@@ -67,6 +67,8 @@ public class Handler implements Runnable {
                     System.out.println("Discard chunk");
                 }
                 break;
+            case REMOVED:
+                break;
             default:
                 return;
 

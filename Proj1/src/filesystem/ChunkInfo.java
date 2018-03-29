@@ -5,18 +5,18 @@ import java.util.ArrayList;
 // TODO common subclass between Chunk and ChunkInfo, lots of replication
 public class ChunkInfo {
     private String fileID; // chunkID -> fileID/chunkNo
-    private String chunkNo;
+    private int chunkNo;
     private int size;
     private int replicationDegree;
     private ArrayList<String> mirrors; //Not sure if it is the right place to store this
 
     public ChunkInfo(int chunkNo, int replicationDegree) {
-        this.chunkNo = Integer.toString(chunkNo);
+        this.chunkNo = chunkNo;
         this.replicationDegree = replicationDegree;
 
     }
 
-    public ChunkInfo(String fileID, String chunkNo, int replicationDegree, int size) {
+    public ChunkInfo(String fileID, int chunkNo, int replicationDegree, int size) {
         this.fileID = fileID;
         this.chunkNo = chunkNo;
         this.replicationDegree = replicationDegree;
@@ -40,7 +40,7 @@ public class ChunkInfo {
         return fileID;
     }
 
-    public String getChunkNo() {
+    public int getChunkNo() {
         return chunkNo;
     }
 

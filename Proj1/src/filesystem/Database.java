@@ -1,21 +1,23 @@
 package filesystem;
 
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicIntegerArray;
 
 public class Database {
-    /**
-     * Contains files ready to be restored.
-     * Maps (pathname -> FileInfo)
-     */
-    private ConcurrentMap<String, FileInfo> restorableFiles;
 
     /**
-     * Contains backed up Chunks.
-     * Maps (fileID -> ChunkInfo)
+     * Contains files readye that were backed up locally,
+     * and may be restored.
+     * Maps (pathname -> FileInfo)
      */
-    private ConcurrentMap<String, ChunkInfo> chunksBackedUp;
+    private ConcurrentMap<String, FileInfo> filesBackedUp;
+
+    /**
+     * Contains backed up Chunks (on disk memory).
+     * Maps (fileID -> (ChunkNum -> Chunk))
+     */
+    private ConcurrentMap<String, ConcurrentHashMap<Integer, ChunkInfo>> chunksBackedUp;
 
     // TODO _inner_ String to Int, and _inner_ ConcurrentHashMap to ConcurrentSkipListMap
     /**
@@ -27,7 +29,7 @@ public class Database {
 
 
     public Database() {
-        restorableFiles = new ConcurrentHashMap<>();
+        filesBackedUp = new ConcurrentHashMap<>();
         chunksBackedUp = new ConcurrentHashMap<>();
         chunksRestored = new ConcurrentHashMap<>();
 
@@ -77,7 +79,7 @@ public class Database {
     }
 
     public boolean hasRestoreFinished(String pathName, String fileID) {
-        int numChunks = restorableFiles.get(pathName).getNumChunks();
+        int numChunks = filesBackedUp.get(pathName).getNumChunks();
         int chunksRestored = getChunksRestoredSize(fileID);
 
         return numChunks == chunksRestored;
@@ -88,66 +90,58 @@ public class Database {
      */
     //Backup
     public void addRestorableFile(String pathName, FileInfo fileInfo) {
-        if (!hasChunk(pathName)) {
-            restorableFiles.put(pathName, fileInfo);
-
-            saveDatabase();
-        }
+        filesBackedUp.put(pathName, fileInfo);
+        saveDatabase();
     }
 
     //delete
     public void removeRestorableFile(String pathName) {
-        restorableFiles.remove(pathName);
-
+        filesBackedUp.remove(pathName);
         saveDatabase();
     }
 
     public boolean hasFile(String pathName) {
-        return restorableFiles.containsKey(pathName);
+        return filesBackedUp.containsKey(pathName);
     }
 
     public FileInfo getFileInfo(String pathName) {
-        return restorableFiles.get(pathName);
+        return filesBackedUp.get(pathName);
     }
 
     /*
      *
      */
-    public boolean hasChunk(String chunkID) {
-        return chunksBackedUp.containsKey(chunkID);
+    public boolean hasChunk(String fileID, int chunkNo) {
+        Map<Integer, ChunkInfo> fileChunks = chunksBackedUp.get(fileID);
+        return fileChunks != null && fileChunks.containsKey(chunkNo);
     }
 
-    public void addChunk(String chunkID, ChunkInfo chunkInfo) {
-        if (!hasChunk(chunkID)) {
-            chunksBackedUp.put(chunkID, chunkInfo);
+    public void addChunk(ChunkInfo chunkInfo) {
+        String fileID = chunkInfo.getFileID();
+        int chunkNo = chunkInfo.getChunkNo();
 
-            saveDatabase();
-        }
-    }
+        Map<Integer, ChunkInfo> fileChunks;
+        fileChunks = chunksBackedUp.getOrDefault(fileID, new ConcurrentHashMap<>());
 
-    public void removeChunk(String chunkID) {
-        chunksBackedUp.remove(chunkID);
+        fileChunks.putIfAbsent(chunkNo, chunkInfo);
 
         saveDatabase();
     }
 
-    public void addChunkMirror(String chunkID, String peerID) {
-        if (hasChunk(chunkID) && !chunksBackedUp.get(chunkID).getMirrors().contains(peerID)) {
-            chunksBackedUp.get(chunkID).getMirrors().add(peerID);
-            saveDatabase();
-        }
+    public ChunkInfo getChunkInfo(String fileID, int chunkNo) {
+        Map<Integer, ChunkInfo> fileChunks = chunksBackedUp.get(fileID);
+
+        return fileChunks != null ? fileChunks.get(chunkNo) : null;
     }
 
-    public void removeChunkMirror(String chunkID, String peerID) {
-        chunksBackedUp.get(chunkID).removeMirror(peerID);
+    public void removeChunk(String fileID, int chunkNo) {
+        if (! chunksBackedUp.containsKey(fileID))
+            return;
+
+        chunksBackedUp.get(fileID).remove(chunkNo);
+        saveDatabase();
     }
 
-    public int getChunkReplicationDegree(String chunkID) {
-        return chunksBackedUp.get(chunkID).getReplicationDegree();
-    }
-
-    public int getChunkMirrorsSize(String chunkID) {
-        return chunksBackedUp.get(chunkID).getMirrors().size();
-    }
+    // TODO addChunkMirror, removeChunkMirror, getChunkMirrorsSize ?
 
 }

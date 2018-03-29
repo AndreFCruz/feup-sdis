@@ -201,12 +201,12 @@ public class Peer implements Service {
         return systemManager.getDatabase().getFileInfo(pathName);
     }
 
-    public void addChunkToDB(String chunkID, ChunkInfo chunkInfo) {
-        systemManager.getDatabase().addChunk(chunkID, chunkInfo);
+    public void addChunkToDB(ChunkInfo chunkInfo) {
+        systemManager.getDatabase().addChunk(chunkInfo);
     }
 
-    public boolean hasChunkFromDB(String chunkID) {
-        return systemManager.getDatabase().hasChunk(chunkID);
+    public boolean hasChunkFromDB(String fileID, int chunkNo) {
+        return systemManager.getDatabase().hasChunk(fileID, chunkNo);
     }
 
     public void setRestoring(boolean flag, String fileID) {
