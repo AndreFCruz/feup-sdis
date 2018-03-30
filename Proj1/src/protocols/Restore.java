@@ -7,17 +7,23 @@ import service.Peer;
 import utils.Log;
 
 import java.io.IOException;
+import java.util.Random;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
-public class Restore implements Runnable {
+public class Restore implements Runnable, PeerData.Observer {
 
     private Peer parentPeer;
     private Message request;
     private Database database;
+    private Random random;
+    private Future handler = null;
 
     public Restore(Peer parentPeer, Message request) {
         this.parentPeer = parentPeer;
         this.request = request;
         this.database = parentPeer.getDatabase();
+        this.random = new Random();
 
         Log.logWarning("Starting restore!");
     }
@@ -40,26 +46,45 @@ public class Restore implements Runnable {
         }
 
         byte[] chunkData = parentPeer.loadChunk(fileID, chunkNo);
+        sendMessageToMDR(request, chunkData);
 
-        try {
-            sendMessageToMDR(request, chunkData);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         Log.logWarning("Finished restore!");
-
     }
 
-    private void sendMessageToMDR(Message msg, byte[] chunkData) throws IOException {
+    private void sendMessageToMDR(Message request, byte[] chunkData) {
         String[] args = {
-                msg.getVersion(),
+                request.getVersion(),
                 Integer.toString(parentPeer.getID()),
-                msg.getFileID(),
-                Integer.toString(msg.getChunkNo())
+                request.getFileID(),
+                Integer.toString(request.getChunkNo())
         };
 
         Message msgToSend = new Message(Message.MessageType.CHUNK, args, chunkData);
 
-        parentPeer.sendMessage(Channel.ChannelType.MDR, msgToSend);
+        parentPeer.getPeerData().attachChunkObserver(this);
+        this.handler = parentPeer.sendDelayedMessage(
+                Channel.ChannelType.MDR,
+                msgToSend,
+                random.nextInt(ProtocolSettings.MAX_DELAY),
+                TimeUnit.MILLISECONDS
+        );
+
+        try {
+            this.handler.wait();
+            parentPeer.getPeerData().detachChunkObserver(this);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @Override
+    public void update(Message msg) {
+        if (this.handler == null)
+            return;
+        if (msg.getFileID().equals(request.getFileID()) && msg.getChunkNo() == request.getChunkNo()) {
+            this.handler.cancel(true);
+            Log.log("Cancelled CHUNK message, to avoid flooding host");
+        }
     }
 }

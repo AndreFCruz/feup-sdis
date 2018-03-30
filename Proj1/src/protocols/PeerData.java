@@ -1,14 +1,20 @@
 package protocols;
 
 import filesystem.Chunk;
+import network.Message;
 import utils.Log;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
 public class PeerData {
+    interface Observer {
+        void update(Message msg);
+    }
 
     /**
      * Contains number of confirmed STORE messages received,
@@ -23,10 +29,29 @@ public class PeerData {
      */
     private ConcurrentMap<String, ConcurrentSkipListMap<Integer, Chunk>> chunksRestored;
 
+    /**
+     * Collection of Observers of CHUNK messages.
+     * Used for Restore protocol.
+     */
+    private Collection<Observer> chunkObservers;
+
     public PeerData() {
         chunkReplication = new ConcurrentHashMap<>();
         chunksRestored = new ConcurrentHashMap<>();
+        chunkObservers = new HashSet<>();
+    }
 
+    public void attachChunkObserver(Observer observer) {
+        this.chunkObservers.add(observer);
+    }
+
+    public void detachChunkObserver(Observer observer) {
+        this.chunkObservers.remove(observer);
+    }
+
+    public void notifyChunkObservers(Message msg) {
+        for (Observer observer : chunkObservers)
+            observer.update(msg);
     }
 
     public void setFlagRestored(boolean flag, String fileID) {

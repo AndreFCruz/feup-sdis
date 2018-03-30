@@ -82,11 +82,16 @@ public class Handler implements Runnable {
 
     private void handleCHUNK(Message msg) {
         PeerData peerData = parentPeer.getPeerData();
-        if (peerData.getFlagRestored(msg.getFileID())) { // Restoring File ?
-            peerData.addChunkToRestore(new Chunk(msg.getFileID(), msg.getChunkNo(), msg.getBody()));
-        } else {
-            Log.logWarning("Discard chunk, it's not for me");
+
+        // Notify restore observers of new message
+        peerData.notifyChunkObservers(msg);
+
+        if (! peerData.getFlagRestored(msg.getFileID())) { // Restoring File ?
+            Log.logWarning("Discarded Chunk");
+            return;
         }
+
+        peerData.addChunkToRestore(new Chunk(msg.getFileID(), msg.getChunkNo(), msg.getBody()));
     }
 
     private void handlePUTCHUNK(Message msg) {
@@ -143,7 +148,7 @@ public class Handler implements Runnable {
     }
 
     public void pushMessage(byte[] data, int length) {
-        Message msgParsed = new Message(data, length); //create and parse the message
+        Message msgParsed = new Message(data, length); // create and parse the message
         msgQueue.add(msgParsed);
     }
 }

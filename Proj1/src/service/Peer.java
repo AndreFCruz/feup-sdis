@@ -117,8 +117,8 @@ public class Peer implements RemoteBackupService {
         channels.put(ChannelType.MDR, mdr);
     }
 
-    public void sendDelayedMessage(ChannelType channelType, Message message, long delay, TimeUnit unit) {
-        executor.schedule(() -> {
+    public Future sendDelayedMessage(ChannelType channelType, Message message, long delay, TimeUnit unit) {
+        return executor.schedule(() -> {
             try {
                 sendMessage(channelType, message);
             } catch (IOException e) {
