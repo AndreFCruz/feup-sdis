@@ -147,13 +147,7 @@ public class Peer implements RemoteBackupService {
     @Override
     public boolean restore(String pathname) {
         final Future handler;
-        try {
-            handler = executor.submit(new RestoreInitiator(PROTOCOL_VERSION, pathname, this));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            Log.logError("Failed RestoreInitiator");
-            return false;
-        }
+        handler = executor.submit(new RestoreInitiator(PROTOCOL_VERSION, pathname, this));
 
         executor.schedule(() -> {
             if (handler.cancel(true)) {
@@ -205,25 +199,6 @@ public class Peer implements RemoteBackupService {
         dispatcher.pushMessage(data, length);
     }
 
-    // DB WRAPPERS -- START
-    public void addRestorableFile(String pathName, FileInfo fileInfo) {
-        database.addRestorableFile(pathName, fileInfo);
-    }
-
-    public FileInfo getFileFromDB(String pathName) {
-        return database.getFileInfo(pathName);
-    }
-
-    public void addChunkToDB(ChunkInfo chunkInfo) {
-        database.addChunk(chunkInfo);
-    }
-
-    public void deleteFileToDB(String pathName) {
-        database.removeRestorableFile(pathName);
-    }
-
-    // DB WRAPPERS -- END
-
     public byte[] loadChunk(String fileID, int chunkNo) {
         return systemManager.loadChunk(fileID, chunkNo);
     }
@@ -239,6 +214,7 @@ public class Peer implements RemoteBackupService {
         return numChunks == chunksRestored;
     }
 
+    // PeerData Wrappers -- START
     public boolean getFlagRestored(String fileID) {
         return peerData.getFlagRestored(fileID);
     }
@@ -250,6 +226,7 @@ public class Peer implements RemoteBackupService {
     public ConcurrentMap<Integer, Chunk> getChunksRestored(String fileID) {
         return peerData.getChunksRestored(fileID);
     }
+    // PeerData Wrappers -- END
 
     public PeerData getPeerData() {
         return peerData;

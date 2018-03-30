@@ -84,7 +84,7 @@ public class Handler implements Runnable {
         Log.log("STORED " + msg.getChunkNo());
         if (database.hasChunk(msg.getFileID(), msg.getChunkNo()))
             database.addChunkMirror(msg.getFileID(), msg.getChunkNo(), msg.getSenderID());
-        else if (database.hasBackedUpFile(msg.getFileID()))
+        else if (database.hasBackedUpFileById(msg.getFileID()))
             parentPeer.getPeerData().addChunkReplication(msg.getFileID(), msg.getChunkNo());
     }
 

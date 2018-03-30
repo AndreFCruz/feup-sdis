@@ -1,6 +1,7 @@
 package protocols.initiators;
 
 import channels.Channel;
+import filesystem.Database;
 import filesystem.FileInfo;
 import network.Message;
 import service.Peer;
@@ -25,8 +26,9 @@ public class DeleteInitiator implements Runnable {
 
     @Override
     public void run() {
+        Database database = parentPeer.getDatabase();
         //Obtain info of the file from Database
-        FileInfo fileInfo = parentPeer.getFileFromDB(pathName);
+        FileInfo fileInfo = database.getFileInfoByPath(pathName);
         if (fileInfo == null) {
             Log.logError("File didn't exist! Aborting Delete!");
             return;
@@ -44,7 +46,7 @@ public class DeleteInitiator implements Runnable {
         }
 
         //Delete file from database
-        parentPeer.deleteFileToDB(pathName);
+        database.removeRestorableFileByPath(pathName);
         Log.logWarning("Finished deleteInitiator!");
     }
 

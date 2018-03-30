@@ -22,13 +22,6 @@ public class Backup implements Runnable {
     private Peer parentPeer;
     private Message request;
 
-    private byte[] chunkData;
-    private int replicationDegree;
-    private String fileID;
-    private int chunkNo;
-    private String version;
-    private int senderID;
-
     public Backup(Peer parentPeer, Message request) {
         this.parentPeer = parentPeer;
         this.request = request;
@@ -37,35 +30,32 @@ public class Backup implements Runnable {
 
     @Override
     public void run() {
-
-        version = request.getVersion();
-        senderID = request.getSenderID();
-        fileID = request.getFileID();
-        chunkNo = request.getChunkNo();
-        replicationDegree = request.getReplicationDegree();
+        int senderID = request.getSenderID();
+        String fileID = request.getFileID();
+        int chunkNo = request.getChunkNo();
+        int replicationDegree = request.getReplicationDegree();
 
         if (senderID == parentPeer.getID()) { // a peer never stores the chunks of its own files
 //            Log.logWarning("Ignoring backup of own files");
             return;
         }
 
-        chunkData = request.getBody();
+        byte[] chunkData = request.getBody();
 
-        String chunkPathname = parentPeer.getPath("chunks") + "/" + fileID;
-
+        String chunkPath = parentPeer.getPath("chunks") + "/" + fileID;
         createFolder(parentPeer.getPath("chunks") + "/" + fileID);
 
         SAVE_STATE ret = SAVE_STATE.FAILURE;
         try {
-            ret = saveFile(Integer.toString(chunkNo), chunkPathname, chunkData);
+            ret = saveFile(Integer.toString(chunkNo), chunkPath, chunkData);
             //save to database
-            parentPeer.addChunkToDB(new ChunkInfo(fileID, chunkNo, replicationDegree, chunkData.length));
+            parentPeer.getDatabase().addChunk((new ChunkInfo(fileID, chunkNo, replicationDegree, chunkData.length)));
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         if (ret == SAVE_STATE.SUCCESS) {
-            sendSTORED();
+            sendSTORED(request);
         } else { // Don't send STORED if chunk already existed (?)
             Log.logWarning("Chunk Backup: " + ret);
         }
@@ -73,12 +63,12 @@ public class Backup implements Runnable {
         Log.logWarning("Finished backup!");
     }
 
-    private void sendSTORED() {
+    private void sendSTORED(Message request) {
         String[] args = {
-                version,
+                Peer.PROTOCOL_VERSION,
                 Integer.toString(parentPeer.getID()),
-                fileID,
-                Integer.toString(chunkNo)
+                request.getFileID(),
+                Integer.toString(request.getChunkNo())
         };
 
         Message msg = new Message(Message.MessageType.STORED, args);

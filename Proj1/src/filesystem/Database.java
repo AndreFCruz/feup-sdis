@@ -18,6 +18,11 @@ public class Database implements Serializable {
     private ConcurrentMap<String, FileInfo> filesBackedUp;
 
     /**
+     * Maps (filePath -> FileInfo)
+     */
+    private ConcurrentMap<String, FileInfo> filesByPath;
+
+    /**
      * Contains backed up Chunks (on disk memory).
      * Maps (fileID -> (ChunkNum -> ChunkInfo))
      */
@@ -26,6 +31,7 @@ public class Database implements Serializable {
 
     public Database() {
         filesBackedUp = new ConcurrentHashMap<>();
+        filesByPath = new ConcurrentHashMap<>();
         chunksBackedUp = new ConcurrentHashMap<>();
     }
 
@@ -59,22 +65,27 @@ public class Database implements Serializable {
         return db;
     }
 
-    public void addRestorableFile(String fileID, FileInfo fileInfo) {
-        filesBackedUp.put(fileID, fileInfo);
+    public void addRestorableFile(FileInfo fileInfo) {
+        filesBackedUp.put(fileInfo.getFileID(), fileInfo);
+        filesByPath.put(fileInfo.getPathname(), fileInfo);
 //        saveDatabase();
     }
 
-    public void removeRestorableFile(String pathName) {
-        filesBackedUp.remove(pathName);
+    public void removeRestorableFileByPath(String pathName) {
+        filesByPath.remove(pathName);
 //        saveDatabase();
     }
 
-    public boolean hasBackedUpFile(String fileID) {
+    public boolean hasBackedUpFileById(String fileID) {
         return filesBackedUp.containsKey(fileID);
     }
 
-    public FileInfo getFileInfo(String pathName) {
-        return filesBackedUp.get(pathName);
+    public boolean hasBackedUpFileByPath(String path) {
+        return filesByPath.containsKey(path);
+    }
+
+    public FileInfo getFileInfoByPath(String pathName) {
+        return filesByPath.get(pathName);
     }
 
     // chunksBackedUp

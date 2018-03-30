@@ -74,7 +74,7 @@ public class BackupInitiator implements Runnable {
             Chunk chunk = chunks.get(i);
             chunkInfoArray[i] = new ChunkInfo(chunk.getChunkNo(), chunk.getReplicationDegree());
         }
-        parentPeer.addRestorableFile(fileID, new FileInfo(file, fileID, replicationDegree, chunkInfoArray));
+        parentPeer.getDatabase().addRestorableFile(new FileInfo(file, fileID, replicationDegree, chunkInfoArray));
     }
 
     private void joinWithThreads(List<Thread> threads) throws InterruptedException {

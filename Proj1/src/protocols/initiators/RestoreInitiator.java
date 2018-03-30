@@ -18,16 +18,16 @@ import static filesystem.SystemManager.saveFile;
 public class RestoreInitiator implements Runnable {
 
     private FileInfo fileInfo;
-    private String pathName;
+    private String filePath;
     private String version;
 
     private Peer parentPeer;
 
-    public RestoreInitiator(String version, String pathName, Peer parentPeer) throws FileNotFoundException {
+    public RestoreInitiator(String version, String filePath, Peer parentPeer) {
         this.version = version;
-        this.pathName = pathName;
+        this.filePath = filePath;
         this.parentPeer = parentPeer;
-        fileInfo = parentPeer.getFileFromDB(pathName);
+        fileInfo = parentPeer.getDatabase().getFileInfoByPath(filePath);
 
         Log.logWarning("Starting restoreInitiator!");
     }
@@ -49,7 +49,7 @@ public class RestoreInitiator implements Runnable {
         }
 
         //Log.logWarning("Waiting for restored chunks");
-        while (!parentPeer.hasRestoreFinished(pathName, fileInfo.getFileID())) {
+        while (!parentPeer.hasRestoreFinished(filePath, fileInfo.getFileID())) {
             //Probably this will kill the cpu :')
             //And need to ask again if lose some chunks
             // TODO sleep ?
