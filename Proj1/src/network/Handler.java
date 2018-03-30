@@ -46,8 +46,10 @@ public class Handler implements Runnable {
             return;
         }
 
-//        Log.logWarning("R: " + msg.toString());
+        if (msg.getSenderID() == parentPeer.getID())
+            return;
 
+//        Log.logWarning("R: " + msg.toString());
         switch (msg.getType()) {
             case PUTCHUNK:
                 Backup backup = new Backup(parentPeer, msg);
@@ -81,7 +83,7 @@ public class Handler implements Runnable {
 
     private void handleSTORED(Message msg) {
         Database database = parentPeer.getDatabase();
-        Log.log("STORED " + msg.getChunkNo());
+        Log.log("R: STORED " + msg.getChunkNo());
         if (database.hasChunk(msg.getFileID(), msg.getChunkNo()))
             database.addChunkMirror(msg.getFileID(), msg.getChunkNo(), msg.getSenderID());
         else if (database.hasBackedUpFileById(msg.getFileID()))
