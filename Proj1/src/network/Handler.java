@@ -13,7 +13,6 @@ import java.util.concurrent.*;
 
 public class Handler implements Runnable {
     private Peer parentPeer;
-    private PeerData peerData;
     private BlockingQueue<Message> msgQueue;
     private ScheduledExecutorService executor;
 
@@ -21,7 +20,6 @@ public class Handler implements Runnable {
 
     public Handler(Peer parentPeer) {
         this.parentPeer = parentPeer;
-        this.peerData = parentPeer.getPeerData();
         msgQueue = new LinkedBlockingQueue<>();
         executor = Executors.newScheduledThreadPool(5);
 
@@ -56,7 +54,7 @@ public class Handler implements Runnable {
                 executor.execute(backup);
                 break;
             case STORED:
-                peerData.addChunkReplication(msg.getFileID(), msg.getChunkNo());
+                handleSTORED(msg);
                 break;
             case GETCHUNK:
                 Restore restore = new Restore(parentPeer, msg);
@@ -70,7 +68,7 @@ public class Handler implements Runnable {
                 }
                 break;
             case REMOVED:
-                handleRemoved(msg);
+                handleREMOVED(msg);
                 break;
             case DELETE:
                 Delete delete = new Delete(parentPeer, msg);
@@ -81,7 +79,15 @@ public class Handler implements Runnable {
         }
     }
 
-    private void handleRemoved(Message msg) {
+    private void handleSTORED(Message msg) {
+        Database database = parentPeer.getDatabase();
+        if (database.hasChunk(msg.getFileID(), msg.getChunkNo()))
+            database.addChunkMirror(msg.getFileID(), msg.getChunkNo(), msg.getSenderID());
+        else if (database.hasBackedUpFile(msg.getFileID()))
+            parentPeer.getPeerData().addChunkReplication(msg.getFileID(), msg.getChunkNo());
+    }
+
+    private void handleREMOVED(Message msg) {
         Database database = parentPeer.getDatabase();
         String fileID = msg.getFileID();
         int chunkNo = msg.getChunkNo();

@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
 
 import static filesystem.SystemManager.fileSplit;
 
@@ -47,21 +47,16 @@ public class BackupInitiator implements Runnable {
 
         fileID = generateFileID(file);
         ArrayList<Chunk> chunks = fileSplit(fileData, fileID, replicationDegree);
-        HashMap<String, ChunkInfo> chunksInfo = new HashMap<>();
 
+        addRestorableFile(chunks);
         parentPeer.getPeerData().startChunkReplication(fileID, chunks.size());
 
-        Thread[] helperThreads = new Thread[chunks.size()];
-        for (int i = 0; i < chunks.size(); i++) {
-            Chunk chunk = chunks.get(i);
+        ArrayList<Thread> helperThreads = new ArrayList<>(chunks.size());
+        for (Chunk chunk : chunks) {
             Thread t = new Thread(new BackupChunkHelper(this, chunk));
-            helperThreads[i] = t;
+            helperThreads.add(t);
             t.start();
-            chunksInfo.put(Integer.toString(chunk.getChunkNo()), new ChunkInfo(chunk.getChunkNo(), chunk.getReplicationDegree()));
         }
-
-        parentPeer.addFileToDB(file.getPath(), new FileInfo(file, fileID, replicationDegree, chunksInfo));
-
 
         try {
             joinWithThreads(helperThreads);
@@ -74,7 +69,16 @@ public class BackupInitiator implements Runnable {
         Log.logWarning("Finished backupInitiator!");
     }
 
-    private void joinWithThreads(Thread[] threads) throws InterruptedException {
+    private void addRestorableFile(ArrayList<Chunk> chunks) {
+        ChunkInfo[] chunkInfoArray = new ChunkInfo[chunks.size()];
+        for (int i = 0; i < chunks.size(); i++) {
+            Chunk chunk = chunks.get(i);
+            chunkInfoArray[i] = new ChunkInfo(chunk.getChunkNo(), chunk.getReplicationDegree());
+        }
+        parentPeer.addRestorableFile(file.getPath(), new FileInfo(file, fileID, replicationDegree, chunkInfoArray));
+    }
+
+    private void joinWithThreads(List<Thread> threads) throws InterruptedException {
         for (Thread t : threads) {
             t.join();
         }

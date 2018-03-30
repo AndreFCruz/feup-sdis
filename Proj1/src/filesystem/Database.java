@@ -13,7 +13,7 @@ public class Database implements Serializable {
     /**
      * Contains local files that were backed up,
      * and may be restored.
-     * Maps (pathname -> FileInfo)
+     * Maps (fileID -> FileInfo)
      */
     private ConcurrentMap<String, FileInfo> filesBackedUp;
 
@@ -59,9 +59,8 @@ public class Database implements Serializable {
         return db;
     }
 
-    // filesBackedUp
-    public void addRestorableFile(String pathName, FileInfo fileInfo) {
-        filesBackedUp.put(pathName, fileInfo);
+    public void addRestorableFile(String fileID, FileInfo fileInfo) {
+        filesBackedUp.put(fileID, fileInfo);
 //        saveDatabase();
     }
 
@@ -70,8 +69,8 @@ public class Database implements Serializable {
 //        saveDatabase();
     }
 
-    public boolean hasFile(String pathName) {
-        return filesBackedUp.containsKey(pathName);
+    public boolean hasBackedUpFile(String fileID) {
+        return filesBackedUp.containsKey(fileID);
     }
 
     public FileInfo getFileInfo(String pathName) {
@@ -124,6 +123,7 @@ public class Database implements Serializable {
         return filesBackedUp.get(pathname).getNumChunks();
     }
 
+    // TODO Add mirror on STORED of local chunks
     public Boolean addChunkMirror(String fileID, int chunkNo, int peerID) {
         boolean ret;
         try {

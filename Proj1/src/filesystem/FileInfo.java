@@ -2,6 +2,7 @@ package filesystem;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Map;
 
 public class FileInfo {
 
@@ -10,16 +11,16 @@ public class FileInfo {
     private String fileName;
     private int numChunks;
     private int desiredReplicationDegree;
-    private HashMap<String, ChunkInfo> chunks; //ChunkNo -> ChunkInfo
+    private ChunkInfo[] chunks; //ChunkNo -> ChunkInfo
 
 
-    public FileInfo(File file, String fileID, int replicationDegree, HashMap<String, ChunkInfo> chunksInfo) {
+    public FileInfo(File file, String fileID, int replicationDegree, ChunkInfo[] chunkInfoArray) {
         this.fileID = fileID;
         this.fileName = file.getName();
         this.pathName = file.getPath();
-        this.numChunks = chunksInfo.size();
+        this.numChunks = chunkInfoArray.length;
         this.desiredReplicationDegree = replicationDegree;
-        this.chunks = chunksInfo;
+        this.chunks = chunkInfoArray;
     }
 
     public String getFileID() {
@@ -42,7 +43,7 @@ public class FileInfo {
         return desiredReplicationDegree;
     }
 
-    public HashMap<String, ChunkInfo> getChunks() {
+    public ChunkInfo[] getChunks() {
         return chunks;
     }
 }

@@ -11,24 +11,28 @@ public class Log {
     private static PrintStream logFile = System.err;
     private static DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss.SSS");
 
-    synchronized public static void logError(String msg) {
+    private static String getStandardHeader() {
         Date date = new Date();
+        return "" + Thread.currentThread().getId() + ", " + dateFormat.format(date) + ": ";
+    }
 
-        logFile.println("Error   @ " + dateFormat.format(date) + " : " + msg);
+    synchronized public static void logError(String msg) {
+
+        logFile.println("ERR  @ " + getStandardHeader() + msg);
         logFile.flush();
     }
 
     synchronized public static void logWarning(String msg) {
         Date date = new Date();
 
-        logFile.println("Warning @ " + dateFormat.format(date) + " : " + msg);
+        logFile.println("WARN @ " + getStandardHeader() + msg);
         logFile.flush();
     }
 
     synchronized public static void log(String msg) {
         Date date = new Date();
 
-        logFile.println("Log     @ " + dateFormat.format(date) + " : " + msg);
+        logFile.println("LOG  @ " + getStandardHeader() + msg);
         logFile.flush();
     }
 

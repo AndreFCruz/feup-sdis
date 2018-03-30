@@ -3,6 +3,7 @@ package protocols.initiators;
 import filesystem.ChunkInfo;
 import filesystem.Database;
 import filesystem.FileInfo;
+import filesystem.SystemManager;
 import service.Peer;
 import utils.Log;
 
@@ -38,7 +39,7 @@ public class RetrieveStateInitiator implements Runnable {
                     "\n FileID: " + file.getFileID() +
                     "\n Desired Replication: " + file.getDesiredReplicationDegree() +
                     "\n  Chunks:";
-            ArrayList<ChunkInfo> fileChunks = new ArrayList<>(file.getChunks().values());
+            ChunkInfo[] fileChunks = file.getChunks();
             for (ChunkInfo chunk : fileChunks) {
                 out += "\n   ChunkID:" + chunk.getChunkNo() +
                         "\n   Perceived Replication:" + chunk.getReplicationDegree(); //TODO:Update this value
@@ -61,8 +62,8 @@ public class RetrieveStateInitiator implements Runnable {
 
         //Storage capacity
         out += "\n\nStorage: " +
-                "\n Available memory: " + parentPeer.getSystemManager().getAvailableMemory() +
-                "\n Used memory: " + parentPeer.getSystemManager().getUsedMemory();
+                "\n Available memory: " + SystemManager.getAvailableMemory() +
+                "\n Used memory: " + SystemManager.getUsedMemory();
 
         System.out.println(out); //TODO: Retrieve to TestApp
         Log.logWarning("Finished retrieveStateInitiator!");
