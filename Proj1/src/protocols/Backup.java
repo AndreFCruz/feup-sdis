@@ -29,8 +29,6 @@ public class Backup implements Runnable {
     public Backup(Peer parentPeer, Message request) {
         this.parentPeer = parentPeer;
         this.request = request;
-
-        Log.logWarning("Starting backup!");
     }
 
 
@@ -44,7 +42,7 @@ public class Backup implements Runnable {
         replicationDegree = request.getReplicationDegree();
 
         if (senderID == parentPeer.getID()) { // a peer never stores the chunks of its own files
-            Log.logWarning("Ignoring backup of own files");
+//            Log.logWarning("Ignoring backup of own files");
             return;
         }
 

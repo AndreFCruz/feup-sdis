@@ -51,15 +51,33 @@ public class BackupInitiator implements Runnable {
 
         parentPeer.getPeerData().startChunkReplication(fileID, chunks.size());
 
-        for (Chunk chunk : chunks) {
-            new Thread(new BackupChunkHelper(this, chunk)).start();
+        Thread[] helperThreads = new Thread[chunks.size()];
+        for (int i = 0; i < chunks.size(); i++) {
+            Chunk chunk = chunks.get(i);
+            Thread t = new Thread(new BackupChunkHelper(this, chunk));
+            helperThreads[i] = t;
+            t.start();
             chunksInfo.put(Integer.toString(chunk.getChunkNo()), new ChunkInfo(chunk.getChunkNo(), chunk.getReplicationDegree()));
         }
 
         parentPeer.addFileToDB(file.getPath(), new FileInfo(file, fileID, replicationDegree, chunksInfo));
-        parentPeer.getPeerData().resetChunkReplication(fileID);
+
+
+        try {
+            joinWithThreads(helperThreads);
+            parentPeer.getPeerData().resetChunkReplication(fileID);
+        } catch (InterruptedException e) {
+            Log.logError("Backup: Failed join with helper threads");
+            e.printStackTrace();
+        }
 
         Log.logWarning("Finished backupInitiator!");
+    }
+
+    private void joinWithThreads(Thread[] threads) throws InterruptedException {
+        for (Thread t : threads) {
+            t.join();
+        }
     }
 
     private String generateFileID(File file) {

@@ -38,7 +38,9 @@ public class BackupChunkHelper implements Runnable {
         int waitTime = 1000; // wait time, in milliseconds
         Message msg = generatePutChunkMsg(chunk, protocolVersion);
 
-        for (int i = 0; i < ProtocolSettings.PUTCHUNK_RETRIES; ++i) {
+        Thread currentThread = Thread.currentThread();
+        for (int i = 0; i < ProtocolSettings.PUTCHUNK_RETRIES; i++) {
+            Log.log(currentThread.getId() + " i: " + i);
             if (isDesiredReplicationDegree()) {
                 Log.logWarning("Achieved desired replication at i=" + i);
                 break;
@@ -56,6 +58,7 @@ public class BackupChunkHelper implements Runnable {
     }
 
     protected boolean isDesiredReplicationDegree() {
+        Log.log("Current perceived replication: " + chunkReplication.get(chunk.getChunkNo()));
         return chunkReplication != null && chunkReplication.get(chunk.getChunkNo()) >= chunk.getReplicationDegree();
     }
 

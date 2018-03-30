@@ -48,7 +48,7 @@ public class Handler implements Runnable {
             return;
         }
 
-        Log.logWarning("R: " + msg.toString());
+//        Log.logWarning("R: " + msg.toString());
 
         switch (msg.getType()) {
             case PUTCHUNK:

@@ -64,12 +64,15 @@ public class PeerData {
     }
 
     public void startChunkReplication(String fileID, int numChunks) {
+        Log.log("Starting rep. log at key " + fileID);
         chunkReplication.putIfAbsent(fileID, new AtomicIntegerArray(numChunks));
     }
 
     public Integer addChunkReplication(String fileID, int chunkNo) {
-        if (!chunkReplication.containsKey(fileID))
+        if (!chunkReplication.containsKey(fileID)) {
+            Log.logWarning("addChunkReplication: key not found: " + fileID);
             return null;
+        }
 
         int replication = chunkReplication.get(fileID).addAndGet(chunkNo, 1);
         Log.logWarning("Incrementing replication of " + fileID + "/" + chunkNo + " to " + replication);
