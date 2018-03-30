@@ -39,6 +39,11 @@ public class BackupChunkHelper implements Runnable {
         Message msg = generatePutChunkMsg(chunk, protocolVersion);
 
         for (int i = 0; i < ProtocolSettings.PUTCHUNK_RETRIES; ++i) {
+            if (isDesiredReplicationDegree()) {
+                Log.logWarning("Achieved desired replication at i=" + i);
+                break;
+            }
+
             try {
                 parentPeer.sendMessage(Channel.ChannelType.MDB, msg);
             } catch (IOException e) {
@@ -46,9 +51,6 @@ public class BackupChunkHelper implements Runnable {
             }
 
             sleep(waitTime);
-            if (isDesiredReplicationDegree())
-                break;
-
             waitTime *= 2;
         }
     }

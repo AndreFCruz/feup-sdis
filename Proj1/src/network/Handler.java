@@ -3,30 +3,29 @@ package network;
 import filesystem.Chunk;
 import filesystem.ChunkInfo;
 import filesystem.Database;
-import protocols.Backup;
-import protocols.Delete;
-import protocols.PeerData;
-import protocols.Restore;
+import protocols.*;
 import protocols.initiators.helpers.RemovedChunkHelper;
 import service.Peer;
 import utils.Log;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.Random;
+import java.util.concurrent.*;
 
 public class Handler implements Runnable {
     private Peer parentPeer;
     private PeerData peerData;
     private BlockingQueue<Message> msgQueue;
-    private ExecutorService executor;
+    private ScheduledExecutorService executor;
+
+    private Random random;
 
     public Handler(Peer parentPeer) {
         this.parentPeer = parentPeer;
         this.peerData = parentPeer.getPeerData();
         msgQueue = new LinkedBlockingQueue<>();
-        executor = Executors.newFixedThreadPool(3); //TODO: Change this number
+        executor = Executors.newScheduledThreadPool(5);
+
+        this.random = new Random();
     }
 
     @Override
@@ -96,7 +95,12 @@ public class Handler implements Runnable {
 
         if (perceivedReplication < desiredReplication) {
             byte[] chunkData = parentPeer.loadChunk(fileID, chunkNo);
-            executor.execute(() -> new Thread(new RemovedChunkHelper(parentPeer, chunkInfo, chunkData)).start());
+
+            executor.schedule(
+                    new RemovedChunkHelper(parentPeer, chunkInfo, chunkData),
+                    this.random.nextInt(ProtocolSettings.MAX_DELAY + 1),
+                    TimeUnit.MILLISECONDS
+                    );
         }
     }
 
