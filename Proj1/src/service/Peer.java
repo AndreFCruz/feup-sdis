@@ -9,10 +9,7 @@ import filesystem.*;
 import network.Handler;
 import network.Message;
 import protocols.PeerData;
-import protocols.initiators.BackupInitiator;
-import protocols.initiators.DeleteInitiator;
-import protocols.initiators.ReclaimInitiator;
-import protocols.initiators.RestoreInitiator;
+import protocols.initiators.*;
 import utils.Log;
 
 import java.io.File;
@@ -179,7 +176,7 @@ public class Peer implements RemoteBackupService {
 
     @Override
     public void state() {
-
+        executor.execute(new RetrieveStateInitiator(this));
     }
 
     public int getID() {

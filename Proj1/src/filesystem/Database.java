@@ -167,4 +167,12 @@ public class Database implements Serializable {
     public Set<Integer> getFileChunksKey(String fileID) {
         return chunksBackedUp.get(fileID).keySet();
     }
+
+    public ConcurrentMap<String, FileInfo> getFilesBackedUp() {
+        return filesBackedUp;
+    }
+
+    public ConcurrentMap<String, ConcurrentMap<Integer, ChunkInfo>> getChunksBackedUp() {
+        return chunksBackedUp;
+    }
 }
