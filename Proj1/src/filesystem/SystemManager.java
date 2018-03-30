@@ -18,9 +18,9 @@ public class SystemManager {
 
     private static final String RESTORES = "restores/";
 
-    private long maxMemory;
+    private static long maxMemory;
 
-    private long usedMemory;
+    private static long usedMemory;
 
     private Peer parentPeer;
 
@@ -30,7 +30,7 @@ public class SystemManager {
 
     public SystemManager(Peer parentPeer, long maxMemory) {
         this.parentPeer = parentPeer;
-        this.maxMemory = maxMemory;
+        SystemManager.maxMemory = maxMemory;
 
         usedMemory = 0;
         rootPath = "fileSystem/Peer" + parentPeer.getID() + "/";
@@ -44,10 +44,12 @@ public class SystemManager {
         file.mkdirs();
     }
 
-    synchronized public static void saveFile(String fileName, String pathname, byte[] data) throws IOException {
+    synchronized public static boolean saveFile(String fileName, String pathname, byte[] data) throws IOException {
         FileOutputStream out = new FileOutputStream(pathname + "/" + fileName);
         out.write(data);
         out.close();
+
+        return SystemManager.increaseUsedMemory(data.length);
     }
 
     synchronized public static byte[] loadFile(File file) throws FileNotFoundException {
@@ -164,39 +166,6 @@ public class SystemManager {
         return database;
     }
 
-    public long getMaxMemory() {
-        return maxMemory;
-    }
-
-    public void setMaxMemory(int maxMemory) {
-        this.maxMemory = maxMemory;
-    }
-
-    public long getUsedMemory() {
-        return usedMemory;
-    }
-
-    public long getAvailableMemory() {
-        return maxMemory - usedMemory;
-    }
-
-    private void reduceUsedMemory(long n) {
-        usedMemory -= n;
-        if (usedMemory < 0) {
-            usedMemory = 0;
-            Log.logError("Used memory went below 0");
-        }
-    }
-
-    private boolean increaseUsedMemory(long n) {
-        if (usedMemory + n > maxMemory) {
-            Log.logWarning("Tried to surpass memory restrictions");
-            return false;
-        }
-        usedMemory += n;
-        return true;
-    }
-
     public void deleteChunk(String fileID, int chunkNo) {
         String chunkPath = getChunkPath(fileID, chunkNo);
         File file = new File(chunkPath);
@@ -207,5 +176,36 @@ public class SystemManager {
         database.removeChunk(fileID, chunkNo);
     }
 
+    public static long getMaxMemory() {
+        return maxMemory;
+    }
 
+    public static void setMaxMemory(int maxMemory) {
+        SystemManager.maxMemory = maxMemory;
+    }
+
+    public static long getUsedMemory() {
+        return SystemManager.usedMemory;
+    }
+
+    public static long getAvailableMemory() {
+        return maxMemory - usedMemory;
+    }
+
+    private static void reduceUsedMemory(long n) {
+        usedMemory -= n;
+        if (usedMemory < 0) {
+            usedMemory = 0;
+            Log.logError("Used memory went below 0");
+        }
+    }
+
+    private static boolean increaseUsedMemory(long n) {
+        if (usedMemory + n > maxMemory) {
+            Log.logWarning("Tried to surpass memory restrictions");
+            return false;
+        }
+        usedMemory += n;
+        return true;
+    }
 }

@@ -24,7 +24,8 @@ public class ReclaimInitiator implements Runnable {
 
     @Override
     public void run() {
-        while (systemManager.getAvailableMemory() < 0) {
+        while (SystemManager.getAvailableMemory() < 0) {
+            Log.logWarning("Available memory: " + SystemManager.getAvailableMemory());
             ChunkInfo chunkInfo = systemManager.getDatabase().getChunkForRemoval();
             byte[] chunkData = systemManager.loadChunk(chunkInfo.getFileID(), chunkInfo.getChunkNo());
             if (chunkData == null) // Confirm chunk exists
