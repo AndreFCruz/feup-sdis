@@ -34,17 +34,11 @@ public class RetrieveStateInitiator implements Runnable {
         //Obtain info of the chunks from Database
         ConcurrentMap<String, ConcurrentMap<Integer, ChunkInfo>> chunks = database.getChunksBackedUp();
 
-        ArrayList<ChunkInfo> chunksList = new ArrayList<>();
-        for (Map.Entry<String, ConcurrentMap<Integer, ChunkInfo>> outer : chunks.entrySet()) {
-            for (Map.Entry<Integer, ChunkInfo> inner : outer.getValue().entrySet()) {
-                chunksList.add(inner.getValue());
-            }
-        }
-
         //Save output string
         String out = "";
 
         //Loop to save the files
+        out += "\nFiles:\n";
         for(FileInfo file : files){
             out += "\nFile: " + file.getFileName() +
                     "\n Pathname: " + file.getPathname() +
@@ -59,15 +53,21 @@ public class RetrieveStateInitiator implements Runnable {
         }
 
         //Loop to save the chunks
-        for(ChunkInfo chunk : chunksList){ //TODO: Correct values
-            out += "\nChunk: " + chunk.getFileID() + 
-                    "\n ChunkID: " + chunk.getChunkNo() +
-                    "\n Size: " + chunk.getSize()/1000 +
-                    "\n Perceived Replication: " + chunk.getReplicationDegree();
+        out += "\n\nChunks:\n"; //TODO: Correct values
+        for (Map.Entry<String, ConcurrentMap<Integer, ChunkInfo>> outer : chunks.entrySet()) {
+            out += "\nFile: " + outer.getKey();
+            for (Map.Entry<Integer, ChunkInfo> inner : outer.getValue().entrySet()) {
+                ChunkInfo chunk = inner.getValue();
+                out += "\n Chunk: " +
+                        "\n  ChunkID: " + chunk.getChunkNo() +
+                        "\n  Size: " + chunk.getSize()/1000 +
+                        "\n  Perceived Replication: " + chunk.getReplicationDegree();
+            }
         }
 
+
         //Storage capacity
-        out += "\nStorage: "+
+        out += "\n\nStorage: "+
                 "\n Available memory: " + parentPeer.getSystemManager().getAvailableMemory() +
                 "\n Used memory: " + parentPeer.getSystemManager().getUsedMemory();
 
