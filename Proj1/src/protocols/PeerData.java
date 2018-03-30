@@ -41,7 +41,7 @@ public class PeerData {
         return chunksRestored.containsKey(fileID);
     }
 
-    public void addChunksRestored(Chunk chunk) {
+    public void addChunkToRestore(Chunk chunk) {
         Chunk ret = chunksRestored.get(chunk.getFileID()).putIfAbsent(chunk.getChunkNo(), chunk);
 
         if (ret != null) {

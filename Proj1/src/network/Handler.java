@@ -8,6 +8,8 @@ import protocols.initiators.helpers.RemovedChunkHelper;
 import service.Peer;
 import utils.Log;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.*;
 
@@ -15,14 +17,16 @@ public class Handler implements Runnable {
     private Peer parentPeer;
     private BlockingQueue<Message> msgQueue;
     private ScheduledExecutorService executor;
+    private Map<String, Map<Integer, Future>> backUpHandlers;
 
     private Random random;
 
     public Handler(Peer parentPeer) {
         this.parentPeer = parentPeer;
-        msgQueue = new LinkedBlockingQueue<>();
-        executor = Executors.newScheduledThreadPool(5);
+        this.msgQueue = new LinkedBlockingQueue<>();
+        this.executor = Executors.newScheduledThreadPool(5);
 
+        this.backUpHandlers = new HashMap<>();
         this.random = new Random();
     }
 
@@ -49,11 +53,10 @@ public class Handler implements Runnable {
         if (msg.getSenderID() == parentPeer.getID())
             return;
 
-//        Log.logWarning("R: " + msg.toString());
+        Log.logWarning("R: " + msg.getType() + msg.getChunkNo());
         switch (msg.getType()) {
             case PUTCHUNK:
-                Backup backup = new Backup(parentPeer, msg);
-                executor.execute(backup);
+                handlePUTCHUNK(msg);
                 break;
             case STORED:
                 handleSTORED(msg);
@@ -63,11 +66,7 @@ public class Handler implements Runnable {
                 executor.execute(restore);
                 break;
             case CHUNK:
-                if (parentPeer.getFlagRestored(msg.getFileID())) {
-                    parentPeer.addChunkToRestore(new Chunk(msg.getFileID(), msg.getChunkNo(), msg.getBody()));
-                } else {
-                    Log.logWarning("Discard chunk, it's not for me");
-                }
+                handleCHUNK(msg);
                 break;
             case REMOVED:
                 handleREMOVED(msg);
@@ -81,13 +80,37 @@ public class Handler implements Runnable {
         }
     }
 
+    private void handleCHUNK(Message msg) {
+        PeerData peerData = parentPeer.getPeerData();
+        if (peerData.getFlagRestored(msg.getFileID())) { // Restoring File ?
+            peerData.addChunkToRestore(new Chunk(msg.getFileID(), msg.getChunkNo(), msg.getBody()));
+        } else {
+            Log.logWarning("Discard chunk, it's not for me");
+        }
+    }
+
+    private void handlePUTCHUNK(Message msg) {
+        if (parentPeer.getDatabase().hasChunk(msg.getFileID(), msg.getChunkNo())) {
+            Map<Integer, Future> fileBackUpHandlers = backUpHandlers.get(msg.getFileID());
+            if (fileBackUpHandlers == null) return;
+
+            final Future handler = fileBackUpHandlers.get(msg.getChunkNo());
+            if (handler == null) return;
+            handler.cancel(true);
+            Log.log("Stopping chunk back up, due to received PUTCHUNK");
+        } else {
+            Backup backup = new Backup(parentPeer, msg);
+            executor.execute(backup);
+        }
+    }
+
     private void handleSTORED(Message msg) {
         Database database = parentPeer.getDatabase();
-        Log.log("R: STORED " + msg.getChunkNo());
-        if (database.hasChunk(msg.getFileID(), msg.getChunkNo()))
+        if (database.hasChunk(msg.getFileID(), msg.getChunkNo())) {
             database.addChunkMirror(msg.getFileID(), msg.getChunkNo(), msg.getSenderID());
-        else if (database.hasBackedUpFileById(msg.getFileID()))
+        } else if (database.hasBackedUpFileById(msg.getFileID())) {
             parentPeer.getPeerData().addChunkReplication(msg.getFileID(), msg.getChunkNo());
+        }
     }
 
     private void handleREMOVED(Message msg) {
@@ -108,14 +131,14 @@ public class Handler implements Runnable {
         if (perceivedReplication < desiredReplication) {
             byte[] chunkData = parentPeer.loadChunk(fileID, chunkNo);
 
-            executor.schedule(
+            Future handler = executor.schedule(
                     new RemovedChunkHelper(parentPeer, chunkInfo, chunkData),
                     this.random.nextInt(ProtocolSettings.MAX_DELAY + 1),
                     TimeUnit.MILLISECONDS
-                    );
-            // TODO should stop on PUTCHUNK ?
-            // -> save Future handler, for handler.cancel() on PUTCHUNK
-            // or remove handler from handler Map (?)
+            );
+
+            backUpHandlers.putIfAbsent(msg.getFileID(), new HashMap<>());
+            backUpHandlers.get(msg.getFileID()).put(msg.getChunkNo(), handler);
         }
     }
 

@@ -13,7 +13,6 @@ import protocols.initiators.*;
 import utils.Log;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -195,7 +194,7 @@ public class Peer implements RemoteBackupService {
         return pathname;
     }
 
-    public void addMsgToHandler(byte[] data, int length) throws IOException {
+    public void addMsgToHandler(byte[] data, int length) {
         dispatcher.pushMessage(data, length);
     }
 
@@ -213,20 +212,6 @@ public class Peer implements RemoteBackupService {
 
         return numChunks == chunksRestored;
     }
-
-    // PeerData Wrappers -- START
-    public boolean getFlagRestored(String fileID) {
-        return peerData.getFlagRestored(fileID);
-    }
-
-    public void addChunkToRestore(Chunk chunk) {
-        peerData.addChunksRestored(chunk);
-    }
-
-    public ConcurrentMap<Integer, Chunk> getChunksRestored(String fileID) {
-        return peerData.getChunksRestored(fileID);
-    }
-    // PeerData Wrappers -- END
 
     public PeerData getPeerData() {
         return peerData;

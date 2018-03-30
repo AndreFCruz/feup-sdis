@@ -49,12 +49,13 @@ public class RestoreInitiator implements Runnable {
 
         //Log.logWarning("Waiting for restored chunks");
         while (!parentPeer.hasRestoreFinished(filePath, fileInfo.getFileID())) {
-            //Probably this will kill the cpu :')
-            //And need to ask again if lose some chunks
+            Thread.yield();
             // TODO sleep ?
+            // Probably this will kill the cpu :')
         }
-//        Log.logWarning("Received all chunks");
-        ConcurrentMap<Integer, Chunk> chunksRestored = parentPeer.getChunksRestored(fileInfo.getFileID());
+
+        Log.logWarning("Received all chunks");
+        ConcurrentMap<Integer, Chunk> chunksRestored = parentPeer.getPeerData().getChunksRestored(fileInfo.getFileID());
         String pathToSave = parentPeer.getPath("restores");
 
         try {
