@@ -6,12 +6,11 @@ import network.Message;
 import service.Peer;
 import utils.Log;
 
-import java.io.IOException;
 import java.util.Random;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-public class Restore implements Runnable, PeerData.Observer {
+public class Restore implements Runnable, PeerData.MessageObserver {
 
     private Peer parentPeer;
     private Message request;

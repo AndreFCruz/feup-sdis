@@ -4,8 +4,6 @@ import filesystem.Chunk;
 import network.Message;
 import utils.Log;
 
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListMap;
@@ -13,7 +11,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
 public class PeerData {
-    interface Observer {
+    interface MessageObserver {
         void update(Message msg);
     }
 
@@ -34,7 +32,7 @@ public class PeerData {
      * Collection of Observers of CHUNK messages.
      * Used for Restore protocol.
      */
-    private ConcurrentSkipListSet<Observer> chunkObservers;
+    private ConcurrentSkipListSet<MessageObserver> chunkObservers;
 
     public PeerData() {
         chunkReplication = new ConcurrentHashMap<>();
@@ -42,16 +40,16 @@ public class PeerData {
         chunkObservers = new ConcurrentSkipListSet<>();
     }
 
-    public void attachChunkObserver(Observer observer) {
+    public void attachChunkObserver(MessageObserver observer) {
         this.chunkObservers.add(observer);
     }
 
-    public void detachChunkObserver(Observer observer) {
+    public void detachChunkObserver(MessageObserver observer) {
         this.chunkObservers.remove(observer);
     }
 
     public void notifyChunkObservers(Message msg) {
-        for (Observer observer : chunkObservers)
+        for (MessageObserver observer : chunkObservers)
             observer.update(msg);
     }
 
