@@ -54,20 +54,25 @@ public class Backup implements Runnable {
 
         createFolder(parentPeer.getPath("chunks") + "/" + fileID);
 
+        boolean success = false;
         try {
-            saveFile(Integer.toString(chunkNo), chunkPathname, chunkData);
+            success = saveFile(Integer.toString(chunkNo), chunkPathname, chunkData);
             //save to database
             parentPeer.addChunkToDB(new ChunkInfo(fileID, chunkNo, replicationDegree, chunkData.length));
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        sendConfirmationMsg();
+        if (! success) {
+            Log.logWarning("Did not backup Chunk, and did not send STORED: MAX MEMORY REACHED");
+        } else {
+            sendSTORED();
+        }
 
         Log.logWarning("Finished backup!");
     }
 
-    private void sendConfirmationMsg() {
+    private void sendSTORED() {
         String[] args = {
                 version,
                 Integer.toString(parentPeer.getID()),

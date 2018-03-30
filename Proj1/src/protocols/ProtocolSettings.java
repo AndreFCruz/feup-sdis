@@ -7,7 +7,7 @@ public class ProtocolSettings {
      */
     public static final int MAX_DELAY = 400;
 
-    public static final int MAX_SYSTEM_MEMORY = 100000;
+    public static final int MAX_SYSTEM_MEMORY = (int) Math.pow(10, 6) * 8; // 8MB
 
     public static final int PUTCHUNK_RETRIES = 5;
 

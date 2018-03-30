@@ -45,6 +45,10 @@ public class SystemManager {
     }
 
     synchronized public static boolean saveFile(String fileName, String pathname, byte[] data) throws IOException {
+        if (getAvailableMemory() < data.length) {
+            Log.logWarning("Not enough space for saveFile!");
+            return false;
+        }
         FileOutputStream out = new FileOutputStream(pathname + "/" + fileName);
         out.write(data);
         out.close();
@@ -206,6 +210,7 @@ public class SystemManager {
             return false;
         }
         usedMemory += n;
+        Log.logWarning("Used memory: " + usedMemory + " / " + maxMemory);
         return true;
     }
 }

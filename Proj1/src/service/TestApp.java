@@ -9,7 +9,7 @@ import java.rmi.registry.Registry;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TestApp {
+public class TestApp implements Runnable {
 
     private String peer_ap;
     private String sub_protocol;
@@ -18,6 +18,21 @@ public class TestApp {
 
     private Map<String, Runnable> handlers;
     private RemoteBackupService stub;
+
+    public static void main(String[] args) {
+        if (args.length < 2 || args.length > 4) {
+            Log.logWarning("Usage: java TestApp <peer_ap> <sub_protocol> <opnd_1> <opnd_2>");
+            return;
+        }
+
+        String peer_ap = args[0]; // peer access point
+        String sub_protocol = args[1];
+        String operand1 = args.length > 2 ? args[2] : null;
+        String operand2 = args.length > 3 ? args[3] : null;
+
+        TestApp app = new TestApp(peer_ap, sub_protocol, operand1, operand2);
+        new Thread(app).start();
+    }
 
     public TestApp(String peer_ap, String sub_protocol, String opnd_1, String opnd_2) {
         this.peer_ap = peer_ap;
@@ -34,26 +49,10 @@ public class TestApp {
 
     }
 
-    public static void main(String[] args) {
-        if (args.length < 2 || args.length > 4) {
-            Log.logWarning("Usage: java TestApp <peer_ap> <sub_protocol> <opnd_1> <opnd_2>");
-            return;
-        }
-
-        String peer_ap = args[0]; // peer access point
-        String sub_protocol = args[1];
-        String operand1 = args.length > 2 ? args[2] : null;
-        String operand2 = args.length > 3 ? args[3] : null;
-
-        TestApp app = new TestApp(peer_ap, sub_protocol, operand1, operand2);
-        app.handleRequest();
-    }
-
-    private void handleRequest() {
+    @Override
+    public void run() {
         initiateRMIStub();
-
         handlers.get(sub_protocol).run();
-        // Do something with response ?
     }
 
     private void initiateRMIStub() {
@@ -115,5 +114,4 @@ public class TestApp {
             Log.logError("Client exception: " + e.toString());
         }
     }
-
 }
