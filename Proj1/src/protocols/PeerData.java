@@ -4,6 +4,8 @@ import filesystem.Chunk;
 import network.Message;
 import utils.Log;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListMap;
@@ -32,12 +34,12 @@ public class PeerData {
      * Collection of Observers of CHUNK messages.
      * Used for Restore protocol.
      */
-    private ConcurrentSkipListSet<MessageObserver> chunkObservers;
+    private Collection<MessageObserver> chunkObservers;
 
     public PeerData() {
         chunkReplication = new ConcurrentHashMap<>();
         chunksRestored = new ConcurrentHashMap<>();
-        chunkObservers = new ConcurrentSkipListSet<>();
+        chunkObservers = Collections.newSetFromMap(new ConcurrentHashMap<>());
     }
 
     public void attachChunkObserver(MessageObserver observer) {
