@@ -136,12 +136,19 @@ public class Database implements Serializable {
         return ret;
     }
 
+    /**
+     * Removes the given peerID as a mirror of given chunk
+     * @param fileID The chunk's fileID
+     * @param chunkNo The chunk's id number
+     * @param peerID The peerID to be removed
+     * @return True if the peerID was a mirror, False if it wasn't, null if Chunk was not found
+     */
     public Boolean removeChunkMirror(String fileID, int chunkNo, int peerID) {
         boolean ret;
         try {
             ret = chunksBackedUp.get(fileID).get(chunkNo).removeMirror(peerID);
         } catch (NullPointerException e) {
-            Log.logError("removeChunkMirror " + e.getMessage());
+            Log.logWarning("(removeChunkMirror) Chunk not found: " + e.getMessage());
             return null;
         }
 

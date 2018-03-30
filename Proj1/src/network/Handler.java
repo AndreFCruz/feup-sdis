@@ -86,7 +86,10 @@ public class Handler implements Runnable {
         String fileID = msg.getFileID();
         int chunkNo = msg.getChunkNo();
 
-        database.removeChunkMirror(fileID, chunkNo, msg.getSenderID());
+        if (database.removeChunkMirror(fileID, chunkNo, msg.getSenderID()) == null) {
+            Log.logWarning("Ignoring REMOVED of non-local Chunk");
+            return;
+        }
 
         ChunkInfo chunkInfo = database.getChunkInfo(fileID, chunkNo);
 

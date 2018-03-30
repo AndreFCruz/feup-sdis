@@ -29,6 +29,11 @@ public class ChunkInfo {
         return replicationDegree;
     }
 
+    /**
+     * Removes the given peerID from the mirrors Set
+     * @param peerID
+     * @return True if the peerID was a mirror, False otherwise
+     */
     public boolean removeMirror(Integer peerID) {
         return mirrors.remove(peerID);
     }
