@@ -1,6 +1,7 @@
 package filesystem;
 
 import service.Peer;
+import utils.Log;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -178,5 +179,33 @@ public class SystemManager {
     public long getAvailableMemory() {
         return maxMemory - usedMemory;
     }
+
+    private void reduceUsedMemory(long n) {
+        usedMemory -= n;
+        if (usedMemory < 0) {
+            usedMemory = 0;
+            Log.logError("Used memory went below 0");
+        }
+    }
+
+    private boolean increaseUsedMemory(long n) {
+        if (usedMemory + n > maxMemory) {
+            Log.logWarning("Tried to surpass memory restrictions");
+            return false;
+        }
+        usedMemory += n;
+        return true;
+    }
+
+    public void deleteChunk(String fileID, int chunkNo) {
+        String chunkPath = getChunkPath(fileID, chunkNo);
+        File file = new File(chunkPath);
+
+        long chunkSize = file.length();
+        file.delete();
+        reduceUsedMemory(chunkSize);
+        database.removeChunk(fileID, chunkNo);
+    }
+
 
 }

@@ -1,6 +1,7 @@
 package protocols.initiators;
 
 import channels.Channel;
+import filesystem.Chunk;
 import filesystem.ChunkInfo;
 import filesystem.SystemManager;
 import network.Message;
@@ -24,7 +25,18 @@ public class ReclaimInitiator implements Runnable {
     @Override
     public void run() {
         while (systemManager.getAvailableMemory() < 0) {
-            // TODO get a random chunk
+            ChunkInfo chunkInfo = systemManager.getDatabase().getChunkForRemoval();
+            byte[] chunkData = systemManager.loadChunk(chunkInfo.getFileID(), chunkInfo.getChunkNo());
+            if (chunkData == null)
+                return;
+
+            systemManager.deleteChunk(chunkInfo.getFileID(), chunkInfo.getChunkNo());
+
+            try {
+                sendREMOVED(chunkInfo);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         Log.logWarning("Finished reclaimInitiator!");
@@ -45,6 +57,5 @@ public class ReclaimInitiator implements Runnable {
         Message msg = new Message(Message.MessageType.REMOVED, args);
         parentPeer.sendMessage(Channel.ChannelType.MC, msg);
     }
-
 
 }

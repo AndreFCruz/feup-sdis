@@ -101,6 +101,9 @@ public class Handler implements Runnable {
                     this.random.nextInt(ProtocolSettings.MAX_DELAY + 1),
                     TimeUnit.MILLISECONDS
                     );
+            // TODO should stop on PUTCHUNK ?
+            // -> save Future handler, for handler.cancel() on PUTCHUNK
+            // or remove handler from handler Map (?)
         }
     }
 

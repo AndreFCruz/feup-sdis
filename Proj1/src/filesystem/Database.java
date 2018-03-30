@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentMap;
 public class Database implements Serializable {
 
     /**
-     * Contains files that were backed up locally,
+     * Contains local files that were backed up,
      * and may be restored.
      * Maps (pathname -> FileInfo)
      */
@@ -174,5 +174,31 @@ public class Database implements Serializable {
 
     public ConcurrentMap<String, ConcurrentMap<Integer, ChunkInfo>> getChunksBackedUp() {
         return chunksBackedUp;
+    }
+
+    /**
+     * Getter for any one Chunk to be removed for reclaiming memory space.
+     * @return The chosen Chunk.
+     */
+    public ChunkInfo getChunkForRemoval() {
+        // Currently, chunk for removal is most backed-up chunk
+        return getMostBackedUpChunk();
+    }
+
+    private ChunkInfo getMostBackedUpChunk() {
+        ChunkInfo mostBackedUpChunk = null;
+        int maxMirroring = -1;
+
+        for (ConcurrentMap.Entry<String, ConcurrentMap<Integer, ChunkInfo>> fileEntry : chunksBackedUp.entrySet()) {
+            for (ConcurrentMap.Entry<Integer, ChunkInfo> chunkEntry : fileEntry.getValue().entrySet()) {
+                int numMirrors = chunkEntry.getValue().getNumMirrors();
+                if (numMirrors > maxMirroring) {
+                    maxMirroring = numMirrors;
+                    mostBackedUpChunk = chunkEntry.getValue();
+                }
+            }
+        }
+
+        return mostBackedUpChunk;
     }
 }
