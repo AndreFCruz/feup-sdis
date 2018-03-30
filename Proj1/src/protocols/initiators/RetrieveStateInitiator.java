@@ -1,19 +1,12 @@
 package protocols.initiators;
 
-import channels.Channel;
 import filesystem.ChunkInfo;
 import filesystem.Database;
 import filesystem.FileInfo;
-import network.Message;
 import service.Peer;
 import utils.Log;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
@@ -39,14 +32,14 @@ public class RetrieveStateInitiator implements Runnable {
 
         //Loop to save the files
         out += "\nFiles:\n";
-        for(FileInfo file : files){
+        for (FileInfo file : files) {
             out += "\nFile: " + file.getFileName() +
                     "\n Pathname: " + file.getPathname() +
                     "\n FileID: " + file.getFileID() +
                     "\n Desired Replication: " + file.getDesiredReplicationDegree() +
                     "\n  Chunks:";
             ArrayList<ChunkInfo> fileChunks = new ArrayList<>(file.getChunks().values());
-            for (ChunkInfo chunk: fileChunks){
+            for (ChunkInfo chunk : fileChunks) {
                 out += "\n   ChunkID:" + chunk.getChunkNo() +
                         "\n   Perceived Replication:" + chunk.getReplicationDegree(); //TODO:Update this value
             }
@@ -60,14 +53,14 @@ public class RetrieveStateInitiator implements Runnable {
                 ChunkInfo chunk = inner.getValue();
                 out += "\n Chunk: " +
                         "\n  ChunkID: " + chunk.getChunkNo() +
-                        "\n  Size: " + chunk.getSize()/1000 +
+                        "\n  Size: " + chunk.getSize() / 1000 +
                         "\n  Perceived Replication: " + chunk.getReplicationDegree();
             }
         }
 
 
         //Storage capacity
-        out += "\n\nStorage: "+
+        out += "\n\nStorage: " +
                 "\n Available memory: " + parentPeer.getSystemManager().getAvailableMemory() +
                 "\n Used memory: " + parentPeer.getSystemManager().getUsedMemory();
 
