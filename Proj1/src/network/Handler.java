@@ -81,6 +81,7 @@ public class Handler implements Runnable {
 
     private void handleSTORED(Message msg) {
         Database database = parentPeer.getDatabase();
+        Log.log("STORED " + msg.getChunkNo());
         if (database.hasChunk(msg.getFileID(), msg.getChunkNo()))
             database.addChunkMirror(msg.getFileID(), msg.getChunkNo(), msg.getSenderID());
         else if (database.hasBackedUpFile(msg.getFileID()))

@@ -12,6 +12,12 @@ import static protocols.ProtocolSettings.MAXCHUNK;
 
 public class SystemManager {
 
+    public enum SAVE_STATE {
+        EXISTS,
+        SUCCESS,
+        FAILURE
+    }
+
     public static final String FILES = "../files/";
 
     private static final String CHUNKS = "chunks/";
@@ -44,16 +50,16 @@ public class SystemManager {
         file.mkdirs();
     }
 
-    synchronized public static boolean saveFile(String fileName, String pathname, byte[] data) throws IOException {
+    synchronized public static SAVE_STATE saveFile(String fileName, String pathname, byte[] data) throws IOException {
         if (getAvailableMemory() < data.length) {
             Log.logWarning("Not enough space for saveFile!");
-            return false;
+            return SAVE_STATE.FAILURE;
         }
         String filePath = pathname + "/" + fileName;
         File file = new File(filePath);
         if (file.exists()) {
             Log.logWarning("File already exists");
-            return true;
+            return SAVE_STATE.EXISTS;
         }
 
         file.createNewFile();
@@ -61,7 +67,8 @@ public class SystemManager {
         out.write(data);
         out.close();
 
-        return SystemManager.increaseUsedMemory(data.length);
+        SystemManager.increaseUsedMemory(data.length);
+        return SAVE_STATE.SUCCESS;
     }
 
     synchronized public static byte[] loadFile(File file) throws FileNotFoundException {

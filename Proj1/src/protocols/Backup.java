@@ -2,7 +2,10 @@ package protocols;
 
 import channels.Channel;
 import filesystem.ChunkInfo;
+import filesystem.SystemManager;
+import filesystem.SystemManager.SAVE_STATE;
 import network.Message;
+import org.omg.PortableInterceptor.SUCCESSFUL;
 import service.Peer;
 import utils.Log;
 
@@ -52,19 +55,19 @@ public class Backup implements Runnable {
 
         createFolder(parentPeer.getPath("chunks") + "/" + fileID);
 
-        boolean success = false;
+        SAVE_STATE ret = SAVE_STATE.FAILURE;
         try {
-            success = saveFile(Integer.toString(chunkNo), chunkPathname, chunkData);
+            ret = saveFile(Integer.toString(chunkNo), chunkPathname, chunkData);
             //save to database
             parentPeer.addChunkToDB(new ChunkInfo(fileID, chunkNo, replicationDegree, chunkData.length));
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        if (! success) {
-            Log.logWarning("Did not backup Chunk, and did not send STORED: MAX MEMORY REACHED");
-        } else {
+        if (ret == SAVE_STATE.SUCCESS) {
             sendSTORED();
+        } else { // Don't send STORED if chunk already existed (?)
+            Log.logWarning("Chunk Backup: " + ret);
         }
 
         Log.logWarning("Finished backup!");

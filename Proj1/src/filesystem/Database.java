@@ -123,7 +123,6 @@ public class Database implements Serializable {
         return filesBackedUp.get(pathname).getNumChunks();
     }
 
-    // TODO Add mirror on STORED of local chunks
     public Boolean addChunkMirror(String fileID, int chunkNo, int peerID) {
         boolean ret;
         try {

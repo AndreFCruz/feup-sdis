@@ -24,7 +24,6 @@ public class BackupInitiator implements Runnable {
     private byte[] fileData;
     private int replicationDegree;
     private File file;
-    private String fileID;
     private Peer parentPeer;
     private String version;
 
@@ -45,10 +44,10 @@ public class BackupInitiator implements Runnable {
             e.printStackTrace();
         }
 
-        fileID = generateFileID(file);
+        String fileID = generateFileID(file);
         ArrayList<Chunk> chunks = fileSplit(fileData, fileID, replicationDegree);
 
-        addRestorableFile(chunks);
+        addRestorableFile(chunks, fileID);
         parentPeer.getPeerData().startChunkReplication(fileID, chunks.size());
 
         ArrayList<Thread> helperThreads = new ArrayList<>(chunks.size());
@@ -69,13 +68,13 @@ public class BackupInitiator implements Runnable {
         Log.logWarning("Finished backupInitiator!");
     }
 
-    private void addRestorableFile(ArrayList<Chunk> chunks) {
+    private void addRestorableFile(ArrayList<Chunk> chunks, String fileID) {
         ChunkInfo[] chunkInfoArray = new ChunkInfo[chunks.size()];
         for (int i = 0; i < chunks.size(); i++) {
             Chunk chunk = chunks.get(i);
             chunkInfoArray[i] = new ChunkInfo(chunk.getChunkNo(), chunk.getReplicationDegree());
         }
-        parentPeer.addRestorableFile(file.getPath(), new FileInfo(file, fileID, replicationDegree, chunkInfoArray));
+        parentPeer.addRestorableFile(fileID, new FileInfo(file, fileID, replicationDegree, chunkInfoArray));
     }
 
     private void joinWithThreads(List<Thread> threads) throws InterruptedException {
