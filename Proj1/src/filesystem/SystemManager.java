@@ -49,7 +49,15 @@ public class SystemManager {
             Log.logWarning("Not enough space for saveFile!");
             return false;
         }
-        FileOutputStream out = new FileOutputStream(pathname + "/" + fileName);
+        String filePath = pathname + "/" + fileName;
+        File file = new File(filePath);
+        if (file.exists()) {
+            Log.logWarning("File already exists");
+            return true;
+        }
+
+        file.createNewFile();
+        FileOutputStream out = new FileOutputStream(file, false);
         out.write(data);
         out.close();
 
