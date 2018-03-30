@@ -7,7 +7,7 @@ import filesystem.SystemManager;
 import service.Peer;
 import utils.Log;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
@@ -24,7 +24,7 @@ public class RetrieveStateInitiator implements Runnable {
     @Override
     public void run() {
         //Obtain info of the files from Database
-        ArrayList<FileInfo> files = new ArrayList<>(database.getFilesBackedUp().values());
+        Collection<FileInfo> files = database.getFilesBackedUp();
         //Obtain info of the chunks from Database
         ConcurrentMap<String, ConcurrentMap<Integer, ChunkInfo>> chunks = database.getChunksBackedUp();
 
@@ -35,7 +35,7 @@ public class RetrieveStateInitiator implements Runnable {
         out += "\nFiles:\n";
         for (FileInfo file : files) {
             out += "\nFile: " + file.getFileName() +
-                    "\n Pathname: " + file.getPathname() +
+                    "\n Pathname: " + file.getPath() +
                     "\n FileID: " + file.getFileID() +
                     "\n Desired Replication: " + file.getDesiredReplicationDegree() +
                     "\n  Chunks:";

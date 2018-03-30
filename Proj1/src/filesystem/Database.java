@@ -3,6 +3,7 @@ package filesystem;
 import utils.Log;
 
 import java.io.*;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -67,13 +68,18 @@ public class Database implements Serializable {
 
     public void addRestorableFile(FileInfo fileInfo) {
         filesBackedUp.put(fileInfo.getFileID(), fileInfo);
-        filesByPath.put(fileInfo.getPathname(), fileInfo);
+        filesByPath.put(fileInfo.getPath(), fileInfo);
 //        saveDatabase();
     }
 
-    public void removeRestorableFileByPath(String pathName) {
-        filesByPath.remove(pathName);
+    public void removeRestorableFile(FileInfo fileInfo) {
+        filesBackedUp.remove(fileInfo.getFileID());
+        filesByPath.remove(fileInfo.getPath());
 //        saveDatabase();
+    }
+
+    public void removeRestorableFileByPath(String path) {
+        removeRestorableFile(filesByPath.get(path));
     }
 
     public boolean hasBackedUpFileById(String fileID) {
@@ -130,8 +136,8 @@ public class Database implements Serializable {
 //        saveDatabase();
     }
 
-    public int getNumChunks(String pathname) {
-        return filesBackedUp.get(pathname).getNumChunks();
+    public int getNumChunksByFilePath(String path) {
+        return filesByPath.get(path).getNumChunks();
     }
 
     public Boolean addChunkMirror(String fileID, int chunkNo, int peerID) {
@@ -185,8 +191,8 @@ public class Database implements Serializable {
         return chunksBackedUp.get(fileID).keySet();
     }
 
-    public ConcurrentMap<String, FileInfo> getFilesBackedUp() {
-        return filesBackedUp;
+    public Collection<FileInfo> getFilesBackedUp() {
+        return filesBackedUp.values();
     }
 
     public ConcurrentMap<String, ConcurrentMap<Integer, ChunkInfo>> getChunksBackedUp() {

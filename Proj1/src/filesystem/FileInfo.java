@@ -31,7 +31,7 @@ public class FileInfo {
         return numChunks;
     }
 
-    public String getPathname() {
+    public String getPath() {
         return pathName;
     }
 

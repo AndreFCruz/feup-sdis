@@ -208,7 +208,7 @@ public class Peer implements RemoteBackupService {
     }
 
     public boolean hasRestoreFinished(String pathName, String fileID) {
-        int numChunks = database.getNumChunks(pathName);
+        int numChunks = database.getNumChunksByFilePath(pathName);
         int chunksRestored = peerData.getChunksRestoredSize(fileID);
 
         return numChunks == chunksRestored;

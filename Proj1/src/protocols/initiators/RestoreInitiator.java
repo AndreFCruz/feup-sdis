@@ -7,7 +7,6 @@ import network.Message;
 import service.Peer;
 import utils.Log;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentMap;
@@ -62,7 +61,7 @@ public class RestoreInitiator implements Runnable {
             saveFile(fileInfo.getFileName(), pathToSave, fileMerge(new ArrayList<>(chunksRestored.values())));
         } catch (IOException e) {
             e.printStackTrace();
-            Log.logError("Failed saving file at " + fileInfo.getPathname());
+            Log.logError("Failed saving file at " + fileInfo.getPath());
         }
 
         // File no longer restoring

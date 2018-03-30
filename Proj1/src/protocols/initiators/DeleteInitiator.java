@@ -13,12 +13,12 @@ import java.nio.file.Paths;
 
 public class DeleteInitiator implements Runnable {
     private String version;
-    private String pathName;
+    private String path;
     private Peer parentPeer;
 
-    public DeleteInitiator(String version, String pathName, Peer parentPeer) {
+    public DeleteInitiator(String version, String path, Peer parentPeer) {
         this.version = version;
-        this.pathName = pathName;
+        this.path = path;
         this.parentPeer = parentPeer;
 
         Log.logWarning("Starting deleteInitiator!");
@@ -28,7 +28,7 @@ public class DeleteInitiator implements Runnable {
     public void run() {
         Database database = parentPeer.getDatabase();
         //Obtain info of the file from Database
-        FileInfo fileInfo = database.getFileInfoByPath(pathName);
+        FileInfo fileInfo = database.getFileInfoByPath(path);
         if (fileInfo == null) {
             Log.logError("File didn't exist! Aborting Delete!");
             return;
@@ -40,13 +40,13 @@ public class DeleteInitiator implements Runnable {
         //Delete the file from fileSystem
         try {
             //TODO: Send delete messages 3/5 times with delay?
-            Files.delete(Paths.get(pathName));
+            Files.delete(Paths.get(path));
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         //Delete file from database
-        database.removeRestorableFileByPath(pathName);
+        database.removeRestorableFile(fileInfo);
         Log.logWarning("Finished deleteInitiator!");
     }
 
