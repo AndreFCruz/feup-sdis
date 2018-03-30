@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
 public class PeerData {
@@ -33,12 +34,12 @@ public class PeerData {
      * Collection of Observers of CHUNK messages.
      * Used for Restore protocol.
      */
-    private Collection<Observer> chunkObservers;
+    private ConcurrentSkipListSet<Observer> chunkObservers;
 
     public PeerData() {
         chunkReplication = new ConcurrentHashMap<>();
         chunksRestored = new ConcurrentHashMap<>();
-        chunkObservers = new HashSet<>();
+        chunkObservers = new ConcurrentSkipListSet<>();
     }
 
     public void attachChunkObserver(Observer observer) {
