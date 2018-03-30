@@ -40,6 +40,7 @@ public class ReclaimInitiator implements Runnable {
             }
         }
 
+        Log.logWarning("Available memory: " + SystemManager.getAvailableMemory());
         Log.logWarning("Finished reclaimInitiator!");
     }
 
