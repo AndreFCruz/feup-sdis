@@ -11,6 +11,11 @@ import static java.util.Arrays.copyOfRange;
 import static protocols.ProtocolSettings.MAX_CHUNK_SIZE;
 
 public class SystemManager {
+    public enum SAVE_STATE {
+        EXISTS,
+        SUCCESS,
+        FAILURE
+    }
 
     public static final String FILES = "../files/";
     private static final String CHUNKS = "chunks/";
@@ -28,8 +33,14 @@ public class SystemManager {
         usedMemory = 0;
         rootPath = "fileSystem/Peer" + parentPeer.getID() + "/";
 
-        initializeDatabase();
-        initializePeerFS();
+        initializePeerFileSystem();
+
+        try {
+            initializeDatabase();
+        } catch (IOException e) {
+            Log.logError("Failed DB construction");
+            e.printStackTrace();
+        }
     }
 
     public static void createFolder(String name) {
@@ -157,13 +168,13 @@ public class SystemManager {
         return true;
     }
 
-    private void initializeDatabase() {
+    private void initializeDatabase() throws IOException {
         File db = new File(rootPath + "db");
 
         if (db.exists()) {
             database = loadDatabase(db);
         } else {
-            database = new Database();
+            database = new Database(db.getAbsolutePath());
         }
     }
 
@@ -185,7 +196,7 @@ public class SystemManager {
         return chunkData;
     }
 
-    private void initializePeerFS() {
+    private void initializePeerFileSystem() {
         createFolder(rootPath + CHUNKS);
         createFolder(rootPath + RESTORES);
     }
@@ -214,11 +225,5 @@ public class SystemManager {
         file.delete();
         reduceUsedMemory(chunkSize);
         database.removeChunk(fileID, chunkNo);
-    }
-
-    public enum SAVE_STATE {
-        EXISTS,
-        SUCCESS,
-        FAILURE
     }
 }
