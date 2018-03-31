@@ -12,6 +12,10 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
 public class PeerData {
+    interface MessageObserver {
+        void update(Message msg);
+    }
+
     /**
      * Contains number of confirmed STORE messages received,
      * for Chunks of local files (from BackupInitiator).
@@ -106,7 +110,4 @@ public class PeerData {
         return chunkReplication.get(fileID);
     }
 
-    interface MessageObserver {
-        void update(Message msg);
-    }
 }

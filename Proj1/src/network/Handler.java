@@ -53,7 +53,7 @@ public class Handler implements Runnable {
         if (msg.getSenderID() == parentPeer.getID())
             return;
 
-        Log.logWarning("R: " + msg.getType() + msg.getChunkNo());
+        Log.logWarning("R: " + msg.getType() + " " + msg.getChunkNo());
         switch (msg.getType()) {
             case PUTCHUNK:
                 handlePUTCHUNK(msg);

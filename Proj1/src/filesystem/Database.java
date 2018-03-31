@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -37,27 +38,46 @@ public class Database implements Serializable {
      */
     private ConcurrentMap<String, Set<Integer>> filesToDelete;
 
+    private static ObjectOutputStream objectOutputStream; // is static to not be serialized with the class instance
 
-    public Database() {
+    /**
+     * Period between DB saves, in milliseconds
+     */
+    private final long SAVE_PERIOD = 1000;
+
+
+    Database(String savePath) throws IOException {
         filesBackedUp = new ConcurrentHashMap<>();
         filesByPath = new ConcurrentHashMap<>();
         chunksBackedUp = new ConcurrentHashMap<>();
         filesToDelete = new ConcurrentHashMap<>();
+
+        OutputStream out = new FileOutputStream(savePath);
+        objectOutputStream = new ObjectOutputStream(out);
+        setUpPeriodicSaves(SAVE_PERIOD);
     }
 
-    //Load and store database
-    synchronized public static void saveDatabase(final Database pDB, File file) {
-//        try {
-//            final ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(file));
-//            outputStream.writeObject(pDB);
-//            outputStream.close();
-//        } catch (final IOException pE) {
-//            Log.logError("Couldn't save database!");
-//            pE.printStackTrace();
-//        }
+    private void setUpPeriodicSaves(long save_period) {
+        Database db = this;
+        Timer timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                db.savePermanentState();
+            }
+        }, save_period, save_period);
     }
 
-    synchronized public static Database loadDatabase(File file) {
+    synchronized private void savePermanentState() {
+        try {
+            objectOutputStream.writeObject(this);
+        } catch (IOException e) {
+            Log.logError("Couldn't save database");
+            e.printStackTrace();
+        }
+    }
+
+    synchronized static Database loadDatabase(File file) {
         Database db = null;
 
         try {
@@ -88,13 +108,11 @@ public class Database implements Serializable {
     public void addRestorableFile(FileInfo fileInfo) {
         filesBackedUp.put(fileInfo.getFileID(), fileInfo);
         filesByPath.put(fileInfo.getPath(), fileInfo);
-//        saveDatabase();
     }
 
     public void removeRestorableFile(FileInfo fileInfo) {
         filesBackedUp.remove(fileInfo.getFileID());
         filesByPath.remove(fileInfo.getPath());
-//        saveDatabase();
     }
 
     public void removeRestorableFileByPath(String path) {
@@ -144,7 +162,6 @@ public class Database implements Serializable {
             return;
 
         chunksBackedUp.get(fileID).remove(chunkNo);
-//        saveDatabase();
     }
 
     public void removeFileBackedUp(String fileID) {
@@ -152,7 +169,6 @@ public class Database implements Serializable {
             return;
 
         chunksBackedUp.remove(fileID);
-//        saveDatabase();
     }
 
     public int getNumChunksByFilePath(String path) {
@@ -244,5 +260,12 @@ public class Database implements Serializable {
         }
 
         return mostBackedUpChunk;
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        savePermanentState();
+        objectOutputStream.close();
     }
 }
