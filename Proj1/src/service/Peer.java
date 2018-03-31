@@ -6,6 +6,7 @@ import channels.MChannel;
 import channels.MDBChannel;
 import channels.MDRChannel;
 import filesystem.*;
+import jdk.nashorn.internal.runtime.regexp.joni.Regex;
 import network.Handler;
 import network.Message;
 import protocols.PeerData;
@@ -20,8 +21,12 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static protocols.ProtocolSettings.MAX_SYSTEM_MEMORY;
+import static utils.Utils.getRegistry;
+import static utils.Utils.parseRMI;
 
 public class Peer implements RemoteBackupService {
 
@@ -46,14 +51,19 @@ public class Peer implements RemoteBackupService {
 
     private PeerData peerData;
 
-    private int id;
+    private final String protocolVersion;
+    private final int id;
+    private final String[] serverAccessPoint;
+
 //    private String protocolVersion;
 //    private String serverAccessPoint;
 //    private RemoteBackupService stub;
 //
 
-    public Peer(int id, String[] mcAddress, String[] mdbAddress, String[] mdrAddress) {
+    public Peer(String protocolVersion, int id, String[] serverAccessPoint, String[] mcAddress, String[] mdbAddress, String[] mdrAddress) {
+        this.protocolVersion = protocolVersion;
         this.id = id;
+        this.serverAccessPoint = serverAccessPoint;
 
         systemManager = new SystemManager(this, MAX_SYSTEM_MEMORY);
         database = systemManager.getDatabase();
@@ -67,27 +77,38 @@ public class Peer implements RemoteBackupService {
     }
 
     public static void main(String args[]) {
+        if (args.length != 6) {
+            System.out.println("Usage: java -classpath bin service.Peer" +
+                    " <protocol_version> <server_id> <service_access_point>" +
+                    " <mc:port> <mdb:port> <mdr:port>");
+            return;
+        }
 
-//		if (args.length != 2) {
-//			System.out.println("Usage: java Peer <mc:port> <mdb:port> <mdr:port>");
-//			return;
-//		}
+        // //host/name or   //host:port/name
 
-        String[] mcAddress = args[1].split(":");
-        String[] mdbAddress = args[2].split(":");
-        String[] mdrAddress = args[3].split(":");
+        String protocolVersion = args[0];
+        int serverID = Integer.parseInt(args[1]);
+
+        //Parse RMI address
+        String[] serviceAccessPoint = parseRMI(true, args[2]);
+        if (serviceAccessPoint == null) {
+            return;
+        }
+
+        String[] mcAddress = args[3].split(":");
+        String[] mdbAddress = args[4].split(":");
+        String[] mdrAddress = args[5].split(":");
 
         // Flag needed for systems that use IPv6 by default
         System.setProperty("java.net.preferIPv4Stack", "true");
 
         try {
-            Peer obj = new Peer(Integer.parseInt(args[0]), mcAddress, mdbAddress, mdrAddress);
+            Peer obj = new Peer(protocolVersion,serverID, serviceAccessPoint, mcAddress, mdbAddress, mdrAddress);
             RemoteBackupService stub = (RemoteBackupService) UnicastRemoteObject.exportObject(obj, 0);
 
-            // Bind the remote object's stub in the registry
-            Registry registry = LocateRegistry.getRegistry();
-            registry.rebind(args[0], stub);
-            //registry.bind(args[0], stub);
+            Registry registry = getRegistry(serviceAccessPoint);
+            registry.rebind(args[1], stub);
+            //registry.bind(args[1], stub);
 
             Log.logWarning("Server ready");
         } catch (Exception e) {

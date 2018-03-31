@@ -8,10 +8,15 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static utils.Utils.getRegistry;
+import static utils.Utils.parseRMI;
 
 public class TestApp implements Runnable {
 
-    private String peer_ap;
+    private String[] peer_ap;
     private String sub_protocol;
     private String opnd_1;
     private String opnd_2;
@@ -25,7 +30,11 @@ public class TestApp implements Runnable {
             return;
         }
 
-        String peer_ap = args[0]; // peer access point
+        String[] peer_ap = parseRMI(false, args[0]);
+        if (peer_ap == null) {
+            return;
+        }
+
         String sub_protocol = args[1];
         String operand1 = args.length > 2 ? args[2] : null;
         String operand2 = args.length > 3 ? args[3] : null;
@@ -34,7 +43,7 @@ public class TestApp implements Runnable {
         new Thread(app).start();
     }
 
-    public TestApp(String peer_ap, String sub_protocol, String opnd_1, String opnd_2) {
+    public TestApp(String[] peer_ap, String sub_protocol, String opnd_1, String opnd_2) {
         this.peer_ap = peer_ap;
         this.sub_protocol = sub_protocol;
         this.opnd_1 = opnd_1;
@@ -57,8 +66,8 @@ public class TestApp implements Runnable {
 
     private void initiateRMIStub() {
         try {
-            Registry registry = LocateRegistry.getRegistry(null);
-            stub = (RemoteBackupService) registry.lookup(peer_ap);
+            Registry registry = getRegistry(peer_ap);
+            stub = (RemoteBackupService) registry.lookup(peer_ap[2]);
         } catch (Exception e) {
             Log.logError("Error when opening RMI stub");
             e.printStackTrace();
