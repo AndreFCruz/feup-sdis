@@ -21,7 +21,7 @@ public class TCPServer implements Runnable {
 
     @Override
     public void run() {
-        while(run){
+        while (run) {
             handleTCPClient();
         }
     }
@@ -46,7 +46,7 @@ public class TCPServer implements Runnable {
 
     }
 
-    private void handleTCPClient(){
+    private void handleTCPClient() {
         try {
             Socket clientSocket = serverSocket.accept();
             Log.log("Received a TCPClient");

@@ -37,7 +37,7 @@ public class TCPClientHandler implements Runnable {
 
         System.out.println(msg.toString());
 
-        if(msg == null) {
+        if (msg == null) {
             Log.logError("Invalid CHUNK from TCP. Aborting!");
             return;
 

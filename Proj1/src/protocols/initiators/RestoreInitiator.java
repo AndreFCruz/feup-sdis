@@ -4,21 +4,17 @@ import channels.Channel;
 import filesystem.Chunk;
 import filesystem.FileInfo;
 import network.Message;
-import protocols.initiators.helpers.TCPClientHandler;
 import protocols.initiators.helpers.TCPServer;
 import service.Peer;
 import utils.Log;
 
 import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentMap;
 
 import static filesystem.SystemManager.fileMerge;
 import static filesystem.SystemManager.saveFile;
 import static protocols.ProtocolSettings.ENHANCEMENT_RESTORE;
-import static protocols.ProtocolSettings.TCPSERVER_PORT;
 
 public class RestoreInitiator implements Runnable {
 
@@ -49,16 +45,16 @@ public class RestoreInitiator implements Runnable {
         parentPeer.setRestoring(true, fileInfo.getFileID());
 
         //Start TCPServer if enhancement
-        if(version.equals(ENHANCEMENT_RESTORE)){
+        if (version.equals(ENHANCEMENT_RESTORE)) {
             initializeTCPServer();
         }
 
         //Log.logWarning("Sending GETCHUNK messages");
         // Send GETCHUNK to MC
         for (int i = 0; i < fileInfo.getNumChunks(); i++) {
-            if(version.equals(ENHANCEMENT_RESTORE)){
+            if (version.equals(ENHANCEMENT_RESTORE)) {
                 sendMessageToMC(Message.MessageType.ENH_GETCHUNK, i);
-            } else{
+            } else {
                 sendMessageToMC(Message.MessageType.GETCHUNK, i);
             }
         }
@@ -70,7 +66,7 @@ public class RestoreInitiator implements Runnable {
             // Probably this will kill the cpu :')
         }
 
-        if(version.equals(ENHANCEMENT_RESTORE)){
+        if (version.equals(ENHANCEMENT_RESTORE)) {
             closeTCPServer();
         }
 
