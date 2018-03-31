@@ -112,17 +112,20 @@ public class Handler implements Runnable {
     }
 
     private void handlePUTCHUNK(Message msg) {
-        if (parentPeer.getDatabase().hasChunk(msg.getFileID(), msg.getChunkNo())) {
+        Database database = parentPeer.getDatabase();
+        if (database.hasChunk(msg.getFileID(), msg.getChunkNo())) {
             Map<Integer, Future> fileBackUpHandlers = backUpHandlers.get(msg.getFileID());
             if (fileBackUpHandlers == null) return;
 
-            final Future handler = fileBackUpHandlers.get(msg.getChunkNo());
+            final Future handler = fileBackUpHandlers.remove(msg.getChunkNo());
             if (handler == null) return;
             handler.cancel(true);
             Log.log("Stopping chunk back up, due to received PUTCHUNK");
-        } else {
+        } else if (! database.hasBackedUpFileById(msg.getFileID())) {
             Backup backup = new Backup(parentPeer, msg);
             executor.execute(backup);
+        } else {
+            Log.log("Ignoring PUTCHUNK of own file");
         }
     }
 
