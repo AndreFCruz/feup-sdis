@@ -96,21 +96,15 @@ public class Database implements Serializable {
     }
 
     public void  addFileMirror(String fileID, int senderID) {
-        if (fileID == null) {
-            Log.logWarning("addFileMirror: received NULL fileID");
-            return;
-        }
-        Set<Integer> peers = filesToDelete.putIfAbsent(fileID, new ConcurrentSkipListSet<>());
+        filesToDelete.putIfAbsent(fileID, new ConcurrentSkipListSet<>());
+        Set<Integer> peers = filesToDelete.get(fileID);
         peers.add(senderID);
     }
 
     public void  deleteFileMirror(String fileID, int senderID) {
-        if (fileID == null) {
-            Log.logWarning("deleteFileMirror: received NULL fileID");
-            return;
-        }
         Set<Integer> peers = filesToDelete.get(fileID);
-        peers.remove(senderID);
+        if (peers != null)
+            peers.remove(senderID);
     }
 
     public void addRestorableFile(FileInfo fileInfo) {
