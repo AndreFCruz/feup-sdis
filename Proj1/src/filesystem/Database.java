@@ -3,9 +3,7 @@ package filesystem;
 import utils.Log;
 
 import java.io.*;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -31,6 +29,10 @@ public class Database implements Serializable {
 
     private ObjectOutputStream objectOutputStream;
 
+    private Timer timer;
+
+    private final long SAVE_PERIOD = 1000; /* Period between DB saves, in milliseconds */
+
 
     Database(String savePath) throws IOException {
         filesBackedUp = new ConcurrentHashMap<>();
@@ -39,6 +41,18 @@ public class Database implements Serializable {
 
         OutputStream out = new FileOutputStream(savePath);
         objectOutputStream = new ObjectOutputStream(out);
+        timer = new Timer();
+        setUpPeriodicSaves(SAVE_PERIOD);
+    }
+
+    private void setUpPeriodicSaves(long save_period) {
+        Database db = this;
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                db.savePermanentState();
+            }
+        }, save_period, save_period);
     }
 
     synchronized private void savePermanentState() {
