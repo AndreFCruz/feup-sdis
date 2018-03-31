@@ -52,7 +52,7 @@ public class Restore implements Runnable, PeerData.MessageObserver {
 
         if((request.getVersion().equals(ENHANCEMENT_RESTORE) && parentPeer.getVersion().equals(ENHANCEMENT_RESTORE))){
             sendMessageToTCP(request, chunkData);
-            //sendMessageToMDR(request, null);
+            sendMessageToMDR(request, null);
         } else {
             sendMessageToMDR(request, chunkData);
         }
