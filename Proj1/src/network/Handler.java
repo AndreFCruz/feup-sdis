@@ -65,6 +65,10 @@ public class Handler implements Runnable {
                 Restore restore = new Restore(parentPeer, msg);
                 executor.execute(restore);
                 break;
+            case ENH_GETCHUNK:
+                Restore restore_enh = new Restore(parentPeer, msg);
+                executor.execute(restore_enh);
+                break;
             case CHUNK:
                 handleCHUNK(msg);
                 break;
@@ -90,8 +94,8 @@ public class Handler implements Runnable {
             Log.logWarning("Discarded Chunk");
             return;
         }
-
-        peerData.addChunkToRestore(new Chunk(msg.getFileID(), msg.getChunkNo(), msg.getBody()));
+        if(msg.getBody() != null)
+            peerData.addChunkToRestore(new Chunk(msg.getFileID(), msg.getChunkNo(), msg.getBody()));
     }
 
     private void handlePUTCHUNK(Message msg) {
@@ -155,6 +159,7 @@ public class Handler implements Runnable {
             Log.logError(e.getMessage());
             return;
         }
+
         msgQueue.add(msgParsed);
     }
 }

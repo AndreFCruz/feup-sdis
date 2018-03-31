@@ -4,7 +4,10 @@ import utils.Utils;
 
 import java.io.*;
 
-public class Message {
+import static protocols.ProtocolSettings.TCPSERVER_PORT;
+import static utils.Utils.getIPV4Address;
+
+public class Message implements Serializable{
 
     private int numberArgs;
     //    Header
@@ -16,6 +19,8 @@ public class Message {
     private int replicationDegree;
     //    Body
     private byte[] body;
+    private String mTCPHost;
+    private int mTCPPort;
 
     //Constructor that handle received messages
     public Message(byte[] data, int length) throws Exception {
@@ -42,6 +47,11 @@ public class Message {
 
         if (type == MessageType.PUTCHUNK) {
             replicationDegree = Integer.parseInt(args[4]);
+        }
+
+        if(type == MessageType.ENH_GETCHUNK){
+            mTCPPort = TCPSERVER_PORT;
+            mTCPHost = getIPV4Address();
         }
     }
 
@@ -108,6 +118,10 @@ public class Message {
                 type = MessageType.REMOVED;
                 numberArgs = 5;
                 break;
+            case "ENH_GETCHUNK":
+                type = MessageType.ENH_GETCHUNK;
+                numberArgs = 6;
+                break;
             default:
                 return false;
         }
@@ -125,6 +139,12 @@ public class Message {
         if (type == MessageType.PUTCHUNK)
             replicationDegree = Integer.parseInt(headerSplit[5]);
 
+        if(type == MessageType.ENH_GETCHUNK){
+            String[] tcpAddress = headerSplit[5].split(":");
+            mTCPHost = tcpAddress[0];
+            mTCPPort = Integer.parseInt(tcpAddress[1]);
+        }
+
         return true;
     }
 
@@ -141,6 +161,10 @@ public class Message {
                 break;
             case DELETE:
                 str = type + " " + version + " " + senderID + " " + fileID + " " + Utils.CRLF + Utils.CRLF;
+                break;
+            case ENH_GETCHUNK:
+                str = type + " " + version + " " + senderID + " " + fileID + " " + chunkNo + " " +
+                        mTCPHost + ":" + mTCPPort + " " + Utils.CRLF + Utils.CRLF;
                 break;
             default:
                 str = type + " " + version + " " + senderID + " " + fileID + " " + chunkNo + " " + Utils.CRLF + Utils.CRLF;
@@ -199,6 +223,10 @@ public class Message {
             case DELETE:
                 str = type + " " + version + " " + senderID + " " + fileID;
                 break;
+            case ENH_GETCHUNK:
+                str = type + " " + version + " " + senderID + " " + fileID + " " + chunkNo + " " +
+                        mTCPHost + ":" + mTCPPort;
+                break;
             default:
                 str = type + " " + version + " " + senderID + " " + fileID + " " + chunkNo;
                 break;
@@ -207,12 +235,21 @@ public class Message {
         return str;
     }
 
+    public String getTCPHost() {
+        return mTCPHost;
+    }
+
+    public int getTCPPort() {
+        return mTCPPort;
+    }
+
     public enum MessageType {
         PUTCHUNK,
         STORED,
         GETCHUNK,
         REMOVED,
         DELETE,
+        ENH_GETCHUNK,
         CHUNK
     }
 }

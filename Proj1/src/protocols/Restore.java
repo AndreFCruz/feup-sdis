@@ -6,9 +6,13 @@ import network.Message;
 import service.Peer;
 import utils.Log;
 
+import java.io.*;
+import java.net.Socket;
 import java.util.Random;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+
+import static protocols.ProtocolSettings.ENHANCEMENT_RESTORE;
 
 public class Restore implements Runnable, PeerData.MessageObserver {
 
@@ -45,12 +49,19 @@ public class Restore implements Runnable, PeerData.MessageObserver {
         }
 
         byte[] chunkData = parentPeer.loadChunk(fileID, chunkNo);
-        sendMessageToMDR(request, chunkData);
+
+        if((request.getVersion().equals(ENHANCEMENT_RESTORE) && parentPeer.getVersion().equals(ENHANCEMENT_RESTORE))){
+            sendMessageToTCP(request, chunkData);
+            //sendMessageToMDR(request, null);
+        } else {
+            sendMessageToMDR(request, chunkData);
+        }
+
 
         Log.logWarning("Finished restore!");
     }
 
-    private void sendMessageToMDR(Message request, byte[] chunkData) {
+    private Message createMessage(Message request, byte[] chunkData){
         String[] args = {
                 request.getVersion(),
                 Integer.toString(parentPeer.getID()),
@@ -59,6 +70,35 @@ public class Restore implements Runnable, PeerData.MessageObserver {
         };
 
         Message msgToSend = new Message(Message.MessageType.CHUNK, args, chunkData);
+
+        return msgToSend;
+    }
+
+    private void sendMessageToTCP(Message request, byte[] chunkData) {
+        Message msgToSend = createMessage(request, chunkData);
+
+        String hostName = request.getTCPHost();
+        int portNumber = request.getTCPPort();
+        Log.log("TCPHost: " + hostName);
+        Log.log("TCPPort: " + portNumber);
+        Socket serverSocket;
+
+        try {
+            serverSocket = new Socket(hostName, portNumber);
+            Log.log("Connected to server");
+            ObjectOutputStream oos = new ObjectOutputStream(serverSocket.getOutputStream());
+            oos.writeObject(msgToSend);
+            oos.close();
+            serverSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Log.log("Send chunk");
+    }
+
+    private void sendMessageToMDR(Message request, byte[] chunkData) {
+        Message msgToSend = createMessage(request, chunkData);
 
         parentPeer.getPeerData().attachChunkObserver(this);
         this.handler = parentPeer.sendDelayedMessage(

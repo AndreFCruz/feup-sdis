@@ -4,15 +4,20 @@ import channels.Channel;
 import filesystem.Chunk;
 import filesystem.FileInfo;
 import network.Message;
+import protocols.initiators.helpers.TCPClientHandler;
 import service.Peer;
 import utils.Log;
 
 import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentMap;
 
 import static filesystem.SystemManager.fileMerge;
 import static filesystem.SystemManager.saveFile;
+import static protocols.ProtocolSettings.ENHANCEMENT_RESTORE;
+import static protocols.ProtocolSettings.TCPSERVER_PORT;
 
 public class RestoreInitiator implements Runnable {
 
@@ -21,6 +26,7 @@ public class RestoreInitiator implements Runnable {
     private String version;
 
     private Peer parentPeer;
+    private ServerSocket serverSocket;
 
     public RestoreInitiator(String version, String filePath, Peer parentPeer) {
         this.version = version;
@@ -41,19 +47,35 @@ public class RestoreInitiator implements Runnable {
         // Activate restore flag
         parentPeer.setRestoring(true, fileInfo.getFileID());
 
+        //Start TCPServer if enhancement
+        if(version.equals(ENHANCEMENT_RESTORE)){
+            initializeTCPServer();
+        }
+
         //Log.logWarning("Sending GETCHUNK messages");
         // Send GETCHUNK to MC
         for (int i = 0; i < fileInfo.getNumChunks(); i++) {
-            sendMessageToMC(i);
+            if(version.equals(ENHANCEMENT_RESTORE)){
+                sendMessageToMC(Message.MessageType.ENH_GETCHUNK, i);
+            } else{
+                sendMessageToMC(Message.MessageType.GETCHUNK, i);
+            }
         }
 
         //Log.logWarning("Waiting for restored chunks");
         while (!parentPeer.hasRestoreFinished(filePath, fileInfo.getFileID())) {
+            if(version.equals(ENHANCEMENT_RESTORE)){
+                handleTCPClient();
+            }
+
             Thread.yield();
             // TODO sleep ?
             // Probably this will kill the cpu :')
         }
 
+        if(version.equals(ENHANCEMENT_RESTORE)){
+            closeTCPServer();
+        }
         Log.logWarning("Received all chunks");
         ConcurrentMap<Integer, Chunk> chunksRestored = parentPeer.getPeerData().getChunksRestored(fileInfo.getFileID());
         String pathToSave = parentPeer.getPath("restores");
@@ -70,7 +92,37 @@ public class RestoreInitiator implements Runnable {
         Log.logWarning("Finished restoreInitiator!");
     }
 
-    private boolean sendMessageToMC(int chunkNo) {
+    private void closeTCPServer() {
+        try {
+            serverSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void initializeTCPServer() {
+        try {
+            serverSocket = new ServerSocket(TCPSERVER_PORT);
+            Log.log("Started TCPServer");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void handleTCPClient(){
+            try {
+                Socket clientSocket = serverSocket.accept();
+                Log.log("Received a TCPClient");
+                new Thread(new TCPClientHandler(parentPeer, clientSocket)).start();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+    }
+
+
+
+    private boolean sendMessageToMC(Message.MessageType type, int chunkNo) {
         String[] args = {
                 version,
                 Integer.toString(parentPeer.getID()),
@@ -78,7 +130,7 @@ public class RestoreInitiator implements Runnable {
                 Integer.toString(chunkNo),
         };
 
-        Message msg = new Message(Message.MessageType.GETCHUNK, args);
+        Message msg = new Message(type, args);
 
         try {
             parentPeer.sendMessage(Channel.ChannelType.MC, msg);
