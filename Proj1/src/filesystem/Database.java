@@ -27,7 +27,7 @@ public class Database implements Serializable {
      */
     private ConcurrentMap<String, ConcurrentMap<Integer, ChunkInfo>> chunksBackedUp;
 
-    private ObjectOutputStream objectOutputStream;
+    private static ObjectOutputStream objectOutputStream; // is static to not be serialized with the class instance
 
     /**
      * Period between DB saves, in milliseconds
