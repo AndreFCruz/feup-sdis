@@ -71,7 +71,7 @@ public class BackupInitiator implements Runnable {
             e.printStackTrace();
         }
 
-        Log.logWarning("Finished backupInitiator!");
+        Log.logWarning("Finished BackupInitiator!");
     }
 
     private boolean validBackup(int replicationDegree, int size) {

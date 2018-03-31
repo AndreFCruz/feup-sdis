@@ -38,7 +38,11 @@ public class Database implements Serializable {
      */
     private ConcurrentMap<String, Set<Integer>> filesToDelete;
 
-    private static ObjectOutputStream objectOutputStream; // is static to not be serialized with the class instance
+    /**
+     * Stream used to serialize this instance.
+     * Is static to not be serialized with the class instance.
+     */
+    private static ObjectOutputStream objectOutputStream;
 
     /**
      * Period between DB saves, in milliseconds
@@ -190,7 +194,7 @@ public class Database implements Serializable {
     }
 
     /**
-     * Removes the given peerID as a mirror of given chunk
+     * Removes the given peerID as a mirror of the specified chunk.
      *
      * @param fileID  The chunk's fileID
      * @param chunkNo The chunk's id number
