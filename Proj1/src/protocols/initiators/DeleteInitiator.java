@@ -34,9 +34,11 @@ public class DeleteInitiator implements Runnable {
             return;
         }
 
+        Log.logError("Vou enviar");
+
         //Send Delete message to MC channel
         sendMessageToMC(fileInfo);
-
+        Log.logError("Rip enviar");
         //Delete the file from fileSystem
         try {
             //TODO: Send delete messages 3/5 times with delay?

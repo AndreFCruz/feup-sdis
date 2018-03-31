@@ -42,7 +42,7 @@ public class Message implements Serializable{
         senderID = Integer.parseInt(args[1]);
         fileID = args[2];
 
-        if (type != MessageType.DELETE || type != MessageType.DELETED)
+        if (type != MessageType.DELETE && type != MessageType.DELETED)
             chunkNo = Integer.parseInt(args[3]);
 
         if (type == MessageType.PUTCHUNK) {
