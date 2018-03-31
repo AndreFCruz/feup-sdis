@@ -57,7 +57,6 @@ public class Restore implements Runnable, PeerData.MessageObserver {
             sendMessageToMDR(request, chunkData);
         }
 
-
         Log.logWarning("Finished restore!");
     }
 
@@ -79,8 +78,7 @@ public class Restore implements Runnable, PeerData.MessageObserver {
 
         String hostName = request.getTCPHost();
         int portNumber = request.getTCPPort();
-        Log.log("TCPHost: " + hostName);
-        Log.log("TCPPort: " + portNumber);
+
         Socket serverSocket;
 
         try {
@@ -94,7 +92,7 @@ public class Restore implements Runnable, PeerData.MessageObserver {
             e.printStackTrace();
         }
 
-        Log.log("Send chunk");
+        Log.log("Send chunk: " + msgToSend.getChunkNo());
     }
 
     private void sendMessageToMDR(Message request, byte[] chunkData) {

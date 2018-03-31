@@ -94,6 +94,7 @@ public class Handler implements Runnable {
             Log.logWarning("Discarded Chunk");
             return;
         }
+
         if(msg.getBody() != null)
             peerData.addChunkToRestore(new Chunk(msg.getFileID(), msg.getChunkNo(), msg.getBody()));
     }

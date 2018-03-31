@@ -159,7 +159,7 @@ public class Peer implements RemoteBackupService {
             if (handler.cancel(true)) {
                 Log.logWarning("RestoreInitiator was killed for lack of chunks.");
             }
-        }, 10, TimeUnit.SECONDS);
+        }, 20, TimeUnit.SECONDS);
         return true;
     }
 
@@ -216,6 +216,9 @@ public class Peer implements RemoteBackupService {
     public boolean hasRestoreFinished(String pathName, String fileID) {
         int numChunks = database.getNumChunksByFilePath(pathName);
         int chunksRestored = peerData.getChunksRestoredSize(fileID);
+
+        Log.log("numChunks: "+ numChunks);
+        Log.log("chunksRestored: "+ chunksRestored);
 
         return numChunks == chunksRestored;
     }
