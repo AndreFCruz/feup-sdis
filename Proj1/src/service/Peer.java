@@ -5,8 +5,8 @@ import channels.Channel.ChannelType;
 import channels.MChannel;
 import channels.MDBChannel;
 import channels.MDRChannel;
-import filesystem.*;
-import jdk.nashorn.internal.runtime.regexp.joni.Regex;
+import filesystem.Database;
+import filesystem.SystemManager;
 import network.Handler;
 import network.Message;
 import protocols.PeerData;
@@ -15,14 +15,14 @@ import utils.Log;
 
 import java.io.File;
 import java.io.IOException;
-import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import static protocols.ProtocolSettings.MAX_SYSTEM_MEMORY;
 import static utils.Utils.getRegistry;
@@ -30,28 +30,22 @@ import static utils.Utils.parseRMI;
 
 public class Peer implements RemoteBackupService {
 
+    private final String protocolVersion;
+    private final int id;
+    private final String[] serverAccessPoint;
     /**
      * Handler and Dispatcher for received messages
      */
     private Handler dispatcher;
-
     /**
      * Executor service responsible for scheduling delayed responses
      * and performing all sub-protocol tasks (backup, restore, ...).
      */
     private ScheduledExecutorService executor;
-
     private Map<ChannelType, Channel> channels;
-
     private SystemManager systemManager;
-
     private Database database;
-
     private PeerData peerData;
-
-    private final String protocolVersion;
-    private final int id;
-    private final String[] serverAccessPoint;
 
     public Peer(String protocolVersion, int id, String[] serverAccessPoint, String[] mcAddress, String[] mdbAddress, String[] mdrAddress) {
         this.protocolVersion = protocolVersion;
@@ -95,7 +89,7 @@ public class Peer implements RemoteBackupService {
         System.setProperty("java.net.preferIPv4Stack", "true");
 
         try {
-            Peer obj = new Peer(protocolVersion,serverID, serviceAccessPoint, mcAddress, mdbAddress, mdrAddress);
+            Peer obj = new Peer(protocolVersion, serverID, serviceAccessPoint, mcAddress, mdbAddress, mdrAddress);
             RemoteBackupService stub = (RemoteBackupService) UnicastRemoteObject.exportObject(obj, 0);
 
             Registry registry = getRegistry(serviceAccessPoint);
@@ -177,7 +171,7 @@ public class Peer implements RemoteBackupService {
     @Override
     public void reclaim(int space) {
         systemManager.setMaxMemory(space);
-        executor.execute(new ReclaimInitiator(protocolVersion,this));
+        executor.execute(new ReclaimInitiator(protocolVersion, this));
     }
 
     @Override

@@ -12,26 +12,13 @@ import static protocols.ProtocolSettings.MAXCHUNK;
 
 public class SystemManager {
 
-    public enum SAVE_STATE {
-        EXISTS,
-        SUCCESS,
-        FAILURE
-    }
-
     public static final String FILES = "../files/";
-
     private static final String CHUNKS = "chunks/";
-
     private static final String RESTORES = "restores/";
-
     private static long maxMemory;
-
     private static long usedMemory;
-
     private Peer parentPeer;
-
     private String rootPath;
-
     private Database database;
 
     public SystemManager(Peer parentPeer, long maxMemory) {
@@ -136,6 +123,40 @@ public class SystemManager {
         return outputStream.toByteArray();
     }
 
+    public static long getMaxMemory() {
+        return maxMemory;
+    }
+
+    public static void setMaxMemory(int maxMemory) {
+        SystemManager.maxMemory = maxMemory;
+    }
+
+    public static long getUsedMemory() {
+        return SystemManager.usedMemory;
+    }
+
+    public static long getAvailableMemory() {
+        return maxMemory - usedMemory;
+    }
+
+    private static void reduceUsedMemory(long n) {
+        usedMemory -= n;
+        if (usedMemory < 0) {
+            usedMemory = 0;
+            Log.logError("Used memory went below 0");
+        }
+    }
+
+    private static boolean increaseUsedMemory(long n) {
+        if (usedMemory + n > maxMemory) {
+            Log.logWarning("Tried to surpass memory restrictions");
+            return false;
+        }
+        usedMemory += n;
+        Log.logWarning("Used memory: " + usedMemory + " / " + maxMemory);
+        return true;
+    }
+
     private void initializeDatabase() {
         File db = new File(rootPath + "db");
 
@@ -195,37 +216,9 @@ public class SystemManager {
         database.removeChunk(fileID, chunkNo);
     }
 
-    public static long getMaxMemory() {
-        return maxMemory;
-    }
-
-    public static void setMaxMemory(int maxMemory) {
-        SystemManager.maxMemory = maxMemory;
-    }
-
-    public static long getUsedMemory() {
-        return SystemManager.usedMemory;
-    }
-
-    public static long getAvailableMemory() {
-        return maxMemory - usedMemory;
-    }
-
-    private static void reduceUsedMemory(long n) {
-        usedMemory -= n;
-        if (usedMemory < 0) {
-            usedMemory = 0;
-            Log.logError("Used memory went below 0");
-        }
-    }
-
-    private static boolean increaseUsedMemory(long n) {
-        if (usedMemory + n > maxMemory) {
-            Log.logWarning("Tried to surpass memory restrictions");
-            return false;
-        }
-        usedMemory += n;
-        Log.logWarning("Used memory: " + usedMemory + " / " + maxMemory);
-        return true;
+    public enum SAVE_STATE {
+        EXISTS,
+        SUCCESS,
+        FAILURE
     }
 }

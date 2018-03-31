@@ -1,7 +1,6 @@
 package protocols.initiators;
 
 import channels.Channel;
-import filesystem.Chunk;
 import filesystem.ChunkInfo;
 import filesystem.SystemManager;
 import network.Message;

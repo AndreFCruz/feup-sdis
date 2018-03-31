@@ -154,9 +154,10 @@ public class Database implements Serializable {
 
     /**
      * Removes the given peerID as a mirror of given chunk
-     * @param fileID The chunk's fileID
+     *
+     * @param fileID  The chunk's fileID
      * @param chunkNo The chunk's id number
-     * @param peerID The peerID to be removed
+     * @param peerID  The peerID to be removed
      * @return True if the peerID was a mirror, False if it wasn't, null if Chunk was not found
      */
     public Boolean removeChunkMirror(String fileID, int chunkNo, int peerID) {
@@ -201,6 +202,7 @@ public class Database implements Serializable {
 
     /**
      * Getter for any one Chunk to be removed for reclaiming memory space.
+     *
      * @return The chosen Chunk.
      */
     public ChunkInfo getChunkForRemoval() {

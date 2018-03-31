@@ -1,6 +1,5 @@
 package utils;
 
-import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
@@ -42,7 +41,7 @@ public class Utils {
         return hashedID;
     }
 
-    public static String getIPV4Address(){
+    public static String getIPV4Address() {
         String IP = null;
 
         try {
@@ -54,11 +53,11 @@ public class Utils {
         return IP;
     }
 
-    public static String[] parseRMI(boolean Server, String accessPoint){
+    public static String[] parseRMI(boolean Server, String accessPoint) {
         Pattern rmiPattern;
-        if(Server){
+        if (Server) {
             rmiPattern = Pattern.compile("//([\\w.]+)(?::(\\d+))?/(\\w+)?");
-        } else{
+        } else {
             rmiPattern = Pattern.compile("//([\\w.]+)(?::(\\d+))?/(\\w+)");
         }
 
@@ -74,12 +73,12 @@ public class Utils {
         return peer_ap;
     }
 
-    public static Registry getRegistry(String [] serviceAccessPoint){
+    public static Registry getRegistry(String[] serviceAccessPoint) {
         Registry registry = null;
         // Bind the remote object's stub in the registry
 
         try {
-            if(serviceAccessPoint[1] == null) {
+            if (serviceAccessPoint[1] == null) {
                 if (serviceAccessPoint[0] == "localhost") {
 
                     registry = LocateRegistry.getRegistry();
@@ -91,7 +90,7 @@ public class Utils {
                 if (serviceAccessPoint[0] == "localhost") {
                     registry = LocateRegistry.getRegistry(serviceAccessPoint[1]);
                 } else {
-                    registry = LocateRegistry.getRegistry(serviceAccessPoint[0],Integer.parseInt(serviceAccessPoint[1]));
+                    registry = LocateRegistry.getRegistry(serviceAccessPoint[0], Integer.parseInt(serviceAccessPoint[1]));
                 }
             }
         } catch (RemoteException e) {

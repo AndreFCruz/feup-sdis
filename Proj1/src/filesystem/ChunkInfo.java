@@ -31,6 +31,7 @@ public class ChunkInfo {
 
     /**
      * Removes the given peerID from the mirrors Set
+     *
      * @param peerID
      * @return True if the peerID was a mirror, False otherwise
      */

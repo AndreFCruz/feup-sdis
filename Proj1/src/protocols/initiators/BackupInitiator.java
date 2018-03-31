@@ -49,7 +49,7 @@ public class BackupInitiator implements Runnable {
         String fileID = generateFileID(file);
         ArrayList<Chunk> chunks = fileSplit(fileData, fileID, replicationDegree);
 
-        if(!validBackup(replicationDegree, chunks.size())){
+        if (!validBackup(replicationDegree, chunks.size())) {
             return;
         }
 
@@ -75,12 +75,12 @@ public class BackupInitiator implements Runnable {
     }
 
     private boolean validBackup(int replicationDegree, int size) {
-        if(replicationDegree > MAXREPLICATIONDEGREE) {
+        if (replicationDegree > MAXREPLICATIONDEGREE) {
             Log.logError("Backup: Failed replication degree greater than 9");
             return false;
         }
 
-        if(size > MAXFILESCHUNKS){
+        if (size > MAXFILESCHUNKS) {
             Log.logError("Backup: Failed file size greater than 64GB");
             return false;
         }

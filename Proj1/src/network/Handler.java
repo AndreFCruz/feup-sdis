@@ -86,7 +86,7 @@ public class Handler implements Runnable {
         // Notify restore observers of new message
         peerData.notifyChunkObservers(msg);
 
-        if (! peerData.getFlagRestored(msg.getFileID())) { // Restoring File ?
+        if (!peerData.getFlagRestored(msg.getFileID())) { // Restoring File ?
             Log.logWarning("Discarded Chunk");
             return;
         }

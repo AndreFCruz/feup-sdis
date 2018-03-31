@@ -4,12 +4,9 @@ import utils.Log;
 
 import java.io.File;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static utils.Utils.getRegistry;
 import static utils.Utils.parseRMI;
@@ -23,6 +20,21 @@ public class TestApp implements Runnable {
 
     private Map<String, Runnable> handlers;
     private RemoteBackupService stub;
+
+    public TestApp(String[] peer_ap, String sub_protocol, String opnd_1, String opnd_2) {
+        this.peer_ap = peer_ap;
+        this.sub_protocol = sub_protocol;
+        this.opnd_1 = opnd_1;
+        this.opnd_2 = opnd_2;
+
+        handlers = new HashMap<>();
+        handlers.put("BACKUP", this::handleBackup);
+        handlers.put("RESTORE", this::handleRestore);
+        handlers.put("DELETE", this::handleDelete);
+        handlers.put("RECLAIM", this::handleReclaim);
+        handlers.put("STATE", this::handleState);
+
+    }
 
     public static void main(String[] args) {
         if (args.length < 2 || args.length > 4) {
@@ -42,21 +54,6 @@ public class TestApp implements Runnable {
 
         TestApp app = new TestApp(peer_ap, sub_protocol, operand1, operand2);
         new Thread(app).start();
-    }
-
-    public TestApp(String[] peer_ap, String sub_protocol, String opnd_1, String opnd_2) {
-        this.peer_ap = peer_ap;
-        this.sub_protocol = sub_protocol;
-        this.opnd_1 = opnd_1;
-        this.opnd_2 = opnd_2;
-
-        handlers = new HashMap<>();
-        handlers.put("BACKUP", this::handleBackup);
-        handlers.put("RESTORE", this::handleRestore);
-        handlers.put("DELETE", this::handleDelete);
-        handlers.put("RECLAIM", this::handleReclaim);
-        handlers.put("STATE", this::handleState);
-
     }
 
     @Override

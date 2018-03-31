@@ -21,7 +21,7 @@ public class Message {
     public Message(byte[] data, int length) throws Exception {
         String header = extractHeader(data);
 
-        if(header.equals("") || !parseHeader(header)) {
+        if (header.equals("") || !parseHeader(header)) {
             throw new Exception("Invalid message...Ignoring it!");
         }
 

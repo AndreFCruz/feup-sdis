@@ -9,27 +9,20 @@ import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListMap;
-import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
 public class PeerData {
-    interface MessageObserver {
-        void update(Message msg);
-    }
-
     /**
      * Contains number of confirmed STORE messages received,
      * for Chunks of local files (from BackupInitiator).
      * Maps (fileID -> (ChunkNum -> NumStoresReceived))
      */
     private ConcurrentMap<String, AtomicIntegerArray> chunkReplication;
-
     /**
      * Contains the in-memory chunks restored.
      * Maps (fileID -> (ChunkNum -> Chunk))
      */
     private ConcurrentMap<String, ConcurrentSkipListMap<Integer, Chunk>> chunksRestored;
-
     /**
      * Collection of Observers of CHUNK messages.
      * Used for Restore protocol.
@@ -111,5 +104,9 @@ public class PeerData {
 
     public AtomicIntegerArray getChunkReplication(String fileID) {
         return chunkReplication.get(fileID);
+    }
+
+    interface MessageObserver {
+        void update(Message msg);
     }
 }
