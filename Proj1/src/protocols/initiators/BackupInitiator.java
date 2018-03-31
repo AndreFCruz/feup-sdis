@@ -17,9 +17,9 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 
-import static filesystem.SystemManager.fileSplit;
-import static protocols.ProtocolSettings.MAXFILESCHUNKS;
-import static protocols.ProtocolSettings.MAXREPLICATIONDEGREE;
+import static filesystem.SystemManager.splitFileInChunks;
+import static protocols.ProtocolSettings.MAX_NUM_CHUNKS;
+import static protocols.ProtocolSettings.MAX_REPLICATION_DEGREE;
 
 public class BackupInitiator implements Runnable {
 
@@ -47,7 +47,7 @@ public class BackupInitiator implements Runnable {
         }
 
         String fileID = generateFileID(file);
-        ArrayList<Chunk> chunks = fileSplit(fileData, fileID, replicationDegree);
+        ArrayList<Chunk> chunks = splitFileInChunks(fileData, fileID, replicationDegree);
 
         if (!validBackup(replicationDegree, chunks.size())) {
             return;
@@ -75,12 +75,12 @@ public class BackupInitiator implements Runnable {
     }
 
     private boolean validBackup(int replicationDegree, int size) {
-        if (replicationDegree > MAXREPLICATIONDEGREE) {
+        if (replicationDegree > MAX_REPLICATION_DEGREE) {
             Log.logError("Backup: Failed replication degree greater than 9");
             return false;
         }
 
-        if (size > MAXFILESCHUNKS) {
+        if (size > MAX_NUM_CHUNKS) {
             Log.logError("Backup: Failed file size greater than 64GB");
             return false;
         }

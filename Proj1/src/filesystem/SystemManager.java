@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 import static filesystem.Database.loadDatabase;
 import static java.util.Arrays.copyOfRange;
-import static protocols.ProtocolSettings.MAXCHUNK;
+import static protocols.ProtocolSettings.MAX_CHUNK_SIZE;
 
 public class SystemManager {
 
@@ -85,21 +85,21 @@ public class SystemManager {
         return chunks;
     }
 
-    public static ArrayList<Chunk> fileSplit(byte[] fileData, String fileID, int replicationDegree) {
+    public static ArrayList<Chunk> splitFileInChunks(byte[] fileData, String fileID, int replicationDegree) {
         ArrayList<Chunk> chunks = new ArrayList<>();
 
-        int numChunks = fileData.length / MAXCHUNK + 1;
+        int numChunks = fileData.length / MAX_CHUNK_SIZE + 1;
 
         for (int i = 0; i < numChunks; i++) {
             byte[] chunkData;
 
-            if (i == numChunks - 1 && fileData.length % MAXCHUNK == 0) {
+            if (i == numChunks - 1 && fileData.length % MAX_CHUNK_SIZE == 0) {
                 chunkData = new byte[0];
             } else if (i == numChunks - 1) {
-                int leftOverBytes = fileData.length - (i * MAXCHUNK);
-                chunkData = copyOfRange(fileData, i * MAXCHUNK, i * MAXCHUNK + leftOverBytes);
+                int leftOverBytes = fileData.length - (i * MAX_CHUNK_SIZE);
+                chunkData = copyOfRange(fileData, i * MAX_CHUNK_SIZE, i * MAX_CHUNK_SIZE + leftOverBytes);
             } else {
-                chunkData = copyOfRange(fileData, i * MAXCHUNK, i * MAXCHUNK + MAXCHUNK);
+                chunkData = copyOfRange(fileData, i * MAX_CHUNK_SIZE, i * MAX_CHUNK_SIZE + MAX_CHUNK_SIZE);
             }
 
             Chunk chunk = new Chunk(fileID, i, replicationDegree, chunkData);
