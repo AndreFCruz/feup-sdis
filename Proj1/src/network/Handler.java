@@ -91,6 +91,7 @@ public class Handler implements Runnable {
 
     private void handleDELETED(Message msg) {
         Database database = parentPeer.getDatabase();
+        
         if(msg.getVersion().equals(ENHANCEMENT_DELETE) && parentPeer.getVersion().equals(ENHANCEMENT_DELETE)){
             database.deleteFileMirror(msg.getFileID(), msg.getSenderID());
         }

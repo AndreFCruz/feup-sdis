@@ -1,5 +1,6 @@
 package network;
 
+import utils.Log;
 import utils.Utils;
 
 import java.io.*;
@@ -114,6 +115,10 @@ public class Message implements Serializable{
                 type = MessageType.DELETE;
                 numberArgs = 4;
                 break;
+            case "DELETED":
+                type = MessageType.DELETED;
+                numberArgs = 4;
+                break;
             case "REMOVED":
                 type = MessageType.REMOVED;
                 numberArgs = 5;
@@ -122,9 +127,6 @@ public class Message implements Serializable{
                 type = MessageType.ENH_GETCHUNK;
                 numberArgs = 6;
                 break;
-            case "DELETED":
-                type = MessageType.DELETED;
-                numberArgs = 4;
             default:
                 return false;
         }
