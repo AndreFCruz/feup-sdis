@@ -11,11 +11,11 @@ public class ProtocolSettings {
 
     public static final int PUTCHUNK_RETRIES = 5;
 
-    public static final int MAXCHUNK = 64000;
+    public static final int MAX_CHUNK_SIZE = 64000;
 
-    public static final int MAXREPLICATIONDEGREE = 9;
+    public static final int MAX_REPLICATION_DEGREE = 9;
 
-    public static final int MAXFILESCHUNKS = 1000000;
+    public static final int MAX_NUM_CHUNKS = 1000000;
 
     public static final int TCPSERVER_PORT = 4444;
 
