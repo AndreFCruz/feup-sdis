@@ -29,9 +29,10 @@ public class Database implements Serializable {
 
     private ObjectOutputStream objectOutputStream;
 
-    private Timer timer;
-
-    private final long SAVE_PERIOD = 1000; /* Period between DB saves, in milliseconds */
+    /**
+     * Period between DB saves, in milliseconds
+     */
+    private final long SAVE_PERIOD = 1000;
 
 
     Database(String savePath) throws IOException {
@@ -41,12 +42,12 @@ public class Database implements Serializable {
 
         OutputStream out = new FileOutputStream(savePath);
         objectOutputStream = new ObjectOutputStream(out);
-        timer = new Timer();
         setUpPeriodicSaves(SAVE_PERIOD);
     }
 
     private void setUpPeriodicSaves(long save_period) {
         Database db = this;
+        Timer timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
