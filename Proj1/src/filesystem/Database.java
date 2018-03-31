@@ -3,11 +3,13 @@ package filesystem;
 import utils.Log;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 public class Database implements Serializable {
 
@@ -29,11 +31,18 @@ public class Database implements Serializable {
      */
     private ConcurrentMap<String, ConcurrentMap<Integer, ChunkInfo>> chunksBackedUp;
 
+    /**
+     * Contains peerIDs to delete a file.
+     * Maps (fileID -> Array<PeerID>)
+     */
+    private ConcurrentMap<String, Set<Integer>> filesToDelete;
+
 
     public Database() {
         filesBackedUp = new ConcurrentHashMap<>();
         filesByPath = new ConcurrentHashMap<>();
         chunksBackedUp = new ConcurrentHashMap<>();
+        filesToDelete = new ConcurrentHashMap<>();
     }
 
     //Load and store database
@@ -64,6 +73,16 @@ public class Database implements Serializable {
         }
 
         return db;
+    }
+
+    public void  addFileMirror(String fileID, int senderID){
+        ConcurrentSkipListSet<Integer> peers = (ConcurrentSkipListSet<Integer>) filesToDelete.putIfAbsent(fileID, new ConcurrentSkipListSet<>());
+        peers.add(senderID);
+    }
+
+    public void  deleteFileMirror(String fileID, int senderID){
+        ConcurrentSkipListSet<Integer> peers = (ConcurrentSkipListSet<Integer>) filesToDelete.get(fileID);
+        peers.remove(senderID);
     }
 
     public void addRestorableFile(FileInfo fileInfo) {
