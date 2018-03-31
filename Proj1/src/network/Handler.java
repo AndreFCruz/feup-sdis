@@ -105,7 +105,7 @@ public class Handler implements Runnable {
             Map<Integer, Future> fileBackUpHandlers = backUpHandlers.get(msg.getFileID());
             if (fileBackUpHandlers == null) return;
 
-            final Future handler = fileBackUpHandlers.get(msg.getChunkNo());
+            final Future handler = fileBackUpHandlers.remove(msg.getChunkNo());
             if (handler == null) return;
             handler.cancel(true);
             Log.log("Stopping chunk back up, due to received PUTCHUNK");
