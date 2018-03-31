@@ -148,7 +148,13 @@ public class Handler implements Runnable {
     }
 
     public void pushMessage(byte[] data, int length) {
-        Message msgParsed = new Message(data, length); // create and parse the message
+        Message msgParsed; // create and parse the message
+        try {
+            msgParsed = new Message(data, length);
+        } catch (Exception e) {
+            Log.logError(e.getMessage());
+            return;
+        }
         msgQueue.add(msgParsed);
     }
 }

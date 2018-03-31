@@ -13,6 +13,10 @@ public class ProtocolSettings {
 
     public static final int MAXCHUNK = 64000;
 
+    public static final int MAXREPLICATIONDEGREE = 9;
+
+    public static final int MAXFILESCHUNKS = 1000000;
+
     public static final String ENHANCEMENT_BACKUP = "1.1";
 
     public static final String ENHANCEMENT_RESTORE = "1.2";

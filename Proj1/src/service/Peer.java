@@ -30,8 +30,6 @@ import static utils.Utils.parseRMI;
 
 public class Peer implements RemoteBackupService {
 
-    public static final String PROTOCOL_VERSION = "1.0";
-
     /**
      * Handler and Dispatcher for received messages
      */
@@ -54,11 +52,6 @@ public class Peer implements RemoteBackupService {
     private final String protocolVersion;
     private final int id;
     private final String[] serverAccessPoint;
-
-//    private String protocolVersion;
-//    private String serverAccessPoint;
-//    private RemoteBackupService stub;
-//
 
     public Peer(String protocolVersion, int id, String[] serverAccessPoint, String[] mcAddress, String[] mdbAddress, String[] mdrAddress) {
         this.protocolVersion = protocolVersion;
@@ -84,12 +77,11 @@ public class Peer implements RemoteBackupService {
             return;
         }
 
-        // //host/name or   //host:port/name
-
         String protocolVersion = args[0];
         int serverID = Integer.parseInt(args[1]);
 
         //Parse RMI address
+        //host/ or   //host:port/
         String[] serviceAccessPoint = parseRMI(true, args[2]);
         if (serviceAccessPoint == null) {
             return;
@@ -107,7 +99,7 @@ public class Peer implements RemoteBackupService {
             RemoteBackupService stub = (RemoteBackupService) UnicastRemoteObject.exportObject(obj, 0);
 
             Registry registry = getRegistry(serviceAccessPoint);
-            registry.rebind(args[1], stub);
+            registry.rebind(args[1], stub); //Only use rebind for development purposes
             //registry.bind(args[1], stub);
 
             Log.logWarning("Server ready");
@@ -160,14 +152,14 @@ public class Peer implements RemoteBackupService {
 
     @Override
     public String backup(File file, int replicationDegree) {
-        executor.execute(new BackupInitiator(PROTOCOL_VERSION, file, replicationDegree, this));
+        executor.execute(new BackupInitiator(protocolVersion, file, replicationDegree, this));
         return "backup command ok";
     }
 
     @Override
     public boolean restore(String pathname) {
         final Future handler;
-        handler = executor.submit(new RestoreInitiator(PROTOCOL_VERSION, pathname, this));
+        handler = executor.submit(new RestoreInitiator(protocolVersion, pathname, this));
 
         executor.schedule(() -> {
             if (handler.cancel(true)) {
@@ -179,18 +171,18 @@ public class Peer implements RemoteBackupService {
 
     @Override
     public void delete(String pathname) {
-        executor.execute(new DeleteInitiator("1.0", pathname, this));
+        executor.execute(new DeleteInitiator(protocolVersion, pathname, this));
     }
 
     @Override
     public void reclaim(int space) {
         systemManager.setMaxMemory(space);
-        executor.execute(new ReclaimInitiator(this));
+        executor.execute(new ReclaimInitiator(protocolVersion,this));
     }
 
     @Override
     public void state() {
-        executor.execute(new RetrieveStateInitiator(this));
+        executor.execute(new RetrieveStateInitiator(protocolVersion, this));
     }
 
     public int getID() {
@@ -246,4 +238,7 @@ public class Peer implements RemoteBackupService {
         return systemManager;
     }
 
+    public String getVersion() {
+        return protocolVersion;
+    }
 }

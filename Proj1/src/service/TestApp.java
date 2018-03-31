@@ -30,6 +30,7 @@ public class TestApp implements Runnable {
             return;
         }
 
+        //host/name or   //host:port/name
         String[] peer_ap = parseRMI(false, args[0]);
         if (peer_ap == null) {
             return;

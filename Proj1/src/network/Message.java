@@ -18,13 +18,12 @@ public class Message {
     private byte[] body;
 
     //Constructor that handle received messages
-    public Message(byte[] data, int length) { //TODO: Handle invalid messages
+    public Message(byte[] data, int length) throws Exception {
         String header = extractHeader(data);
 
-        String headerCleaned = header.trim().replaceAll("\\s+", " ");
-        String[] headerSplit = headerCleaned.split("\\s+");
-
-        parseHeader(headerSplit);
+        if(header.equals("") || !parseHeader(header)) {
+            throw new Exception("Invalid message...Ignoring it!");
+        }
 
         if (type == MessageType.PUTCHUNK || type == MessageType.CHUNK) {
             this.body = extractBody(data, header.length(), length);
@@ -60,11 +59,9 @@ public class Message {
         String header = "";
 
         try {
-            header = reader.readLine();
-            //TODO: Check if have two CRLF
+            header = reader.readLine(); //TODO: Check if have two CRLF
         } catch (IOException e) {
             e.printStackTrace();
-
         }
 
         return header;
@@ -81,7 +78,10 @@ public class Message {
         return bodyContent;
     }
 
-    private void parseHeader(String[] headerSplit) {
+    private boolean parseHeader(String header) {
+
+        String headerCleaned = header.trim().replaceAll("\\s+", " "); //More than one space between fields
+        String[] headerSplit = headerCleaned.split("\\s+"); //Split by space the header elements
 
         switch (headerSplit[0]) {
             case "PUTCHUNK":
@@ -109,11 +109,11 @@ public class Message {
                 numberArgs = 5;
                 break;
             default:
-                return;
+                return false;
         }
 
         if (headerSplit.length != numberArgs)
-            return;
+            return false;
 
         version = headerSplit[1];
         senderID = Integer.parseInt(headerSplit[2]);
@@ -125,6 +125,7 @@ public class Message {
         if (type == MessageType.PUTCHUNK)
             replicationDegree = Integer.parseInt(headerSplit[5]);
 
+        return true;
     }
 
     public MessageType getType() {

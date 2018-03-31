@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static filesystem.SystemManager.fileSplit;
+import static protocols.ProtocolSettings.MAXFILESCHUNKS;
+import static protocols.ProtocolSettings.MAXREPLICATIONDEGREE;
 
 public class BackupInitiator implements Runnable {
 
@@ -47,6 +49,10 @@ public class BackupInitiator implements Runnable {
         String fileID = generateFileID(file);
         ArrayList<Chunk> chunks = fileSplit(fileData, fileID, replicationDegree);
 
+        if(!validBackup(replicationDegree, chunks.size())){
+            return;
+        }
+
         addRestorableFile(chunks, fileID);
         parentPeer.getPeerData().startChunkReplication(fileID, chunks.size());
 
@@ -66,6 +72,20 @@ public class BackupInitiator implements Runnable {
         }
 
         Log.logWarning("Finished backupInitiator!");
+    }
+
+    private boolean validBackup(int replicationDegree, int size) {
+        if(replicationDegree > MAXREPLICATIONDEGREE) {
+            Log.logError("Backup: Failed replication degree greater than 9");
+            return false;
+        }
+
+        if(size > MAXFILESCHUNKS){
+            Log.logError("Backup: Failed file size greater than 64GB");
+            return false;
+        }
+
+        return true;
     }
 
     private void addRestorableFile(ArrayList<Chunk> chunks, String fileID) {

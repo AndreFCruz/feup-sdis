@@ -28,7 +28,7 @@ public class BackupChunkHelper implements Runnable {
     BackupChunkHelper(Peer parentPeer, Chunk chunk) {
         this.chunk = chunk;
         this.parentPeer = parentPeer;
-        this.protocolVersion = Peer.PROTOCOL_VERSION;
+        this.protocolVersion = parentPeer.getVersion();
         this.chunkReplication = null;
     }
 

@@ -65,7 +65,7 @@ public class Backup implements Runnable {
 
     private void sendSTORED(Message request) {
         String[] args = {
-                Peer.PROTOCOL_VERSION,
+                request.getVersion(),
                 Integer.toString(parentPeer.getID()),
                 request.getFileID(),
                 Integer.toString(request.getChunkNo())

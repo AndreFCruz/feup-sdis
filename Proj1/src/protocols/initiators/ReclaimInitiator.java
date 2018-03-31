@@ -14,10 +14,12 @@ public class ReclaimInitiator implements Runnable {
 
     private Peer parentPeer;
     private SystemManager systemManager;
+    private String version;
 
-    public ReclaimInitiator(Peer parentPeer) {
+    public ReclaimInitiator(String version, Peer parentPeer) {
         this.parentPeer = parentPeer;
         this.systemManager = parentPeer.getSystemManager();
+        this.version = version;
 
         Log.logWarning("Starting reclaimInitiator!");
     }
@@ -50,7 +52,7 @@ public class ReclaimInitiator implements Runnable {
 
     private void sendREMOVED(String fileID, int chunkNo) throws IOException {
         String args[] = {
-                Peer.PROTOCOL_VERSION,
+                version,
                 Integer.toString(parentPeer.getID()),
                 fileID,
                 Integer.toString(chunkNo)

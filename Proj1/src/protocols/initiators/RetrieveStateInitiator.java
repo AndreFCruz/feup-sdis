@@ -12,10 +12,12 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
 public class RetrieveStateInitiator implements Runnable {
+    private String version;
     private Peer parentPeer;
     private Database database;
 
-    public RetrieveStateInitiator(Peer parentPeer) {
+    public RetrieveStateInitiator(String version, Peer parentPeer) {
+        this.version = version;
         this.parentPeer = parentPeer;
         this.database = parentPeer.getDatabase();
         Log.logWarning("Starting retriveStateInitiator!");
