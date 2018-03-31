@@ -6,7 +6,8 @@ import network.Message;
 import service.Peer;
 import utils.Log;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Random;
 import java.util.concurrent.Future;
@@ -50,9 +51,9 @@ public class Restore implements Runnable, PeerData.MessageObserver {
 
         byte[] chunkData = parentPeer.loadChunk(fileID, chunkNo);
 
-        if((request.getVersion().equals(ENHANCEMENT_RESTORE) && parentPeer.getVersion().equals(ENHANCEMENT_RESTORE))){
+        if ((request.getVersion().equals(ENHANCEMENT_RESTORE) && parentPeer.getVersion().equals(ENHANCEMENT_RESTORE))) {
             sendMessageToTCP(request, chunkData);
-            //sendMessageToMDR(request, null);
+            sendMessageToMDR(request, null);
         } else {
             sendMessageToMDR(request, chunkData);
         }
@@ -60,7 +61,7 @@ public class Restore implements Runnable, PeerData.MessageObserver {
         Log.logWarning("Finished restore!");
     }
 
-    private Message createMessage(Message request, byte[] chunkData){
+    private Message createMessage(Message request, byte[] chunkData) {
         String[] args = {
                 request.getVersion(),
                 Integer.toString(parentPeer.getID()),
