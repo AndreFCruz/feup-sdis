@@ -42,7 +42,7 @@ public class Message implements Serializable{
         senderID = Integer.parseInt(args[1]);
         fileID = args[2];
 
-        if (type != MessageType.DELETE)
+        if (type != MessageType.DELETE || type != MessageType.DELETED)
             chunkNo = Integer.parseInt(args[3]);
 
         if (type == MessageType.PUTCHUNK) {
@@ -122,6 +122,9 @@ public class Message implements Serializable{
                 type = MessageType.ENH_GETCHUNK;
                 numberArgs = 6;
                 break;
+            case "DELETED":
+                type = MessageType.DELETED;
+                numberArgs = 4;
             default:
                 return false;
         }
@@ -160,6 +163,7 @@ public class Message implements Serializable{
                 str = type + " " + version + " " + senderID + " " + fileID + " " + chunkNo + " " + replicationDegree + " " + Utils.CRLF + Utils.CRLF;
                 break;
             case DELETE:
+            case DELETED:
                 str = type + " " + version + " " + senderID + " " + fileID + " " + Utils.CRLF + Utils.CRLF;
                 break;
             case ENH_GETCHUNK:
@@ -221,6 +225,7 @@ public class Message implements Serializable{
                 str = type + " " + version + " " + senderID + " " + fileID + " " + chunkNo;
                 break;
             case DELETE:
+            case DELETED:
                 str = type + " " + version + " " + senderID + " " + fileID;
                 break;
             case ENH_GETCHUNK:
@@ -250,6 +255,7 @@ public class Message implements Serializable{
         REMOVED,
         DELETE,
         ENH_GETCHUNK,
+        DELETED,
         CHUNK
     }
 }

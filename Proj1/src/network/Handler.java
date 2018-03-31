@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.*;
 
+import static protocols.ProtocolSettings.ENHANCEMENT_DELETE;
+
 public class Handler implements Runnable {
     private Peer parentPeer;
     private BlockingQueue<Message> msgQueue;
@@ -79,8 +81,18 @@ public class Handler implements Runnable {
                 Delete delete = new Delete(parentPeer, msg);
                 executor.execute(delete);
                 break;
+            case DELETED:
+                handleDELETED(msg);
+                break;
             default:
                 return;
+        }
+    }
+
+    private void handleDELETED(Message msg) {
+        Database database = parentPeer.getDatabase();
+        if(msg.getVersion().equals(ENHANCEMENT_DELETE) && parentPeer.getVersion().equals(ENHANCEMENT_DELETE)){
+            database.deleteFileMirror(msg.getFileID(), msg.getSenderID());
         }
     }
 
@@ -123,7 +135,7 @@ public class Handler implements Runnable {
             database.addChunkMirror(msg.getFileID(), msg.getChunkNo(), msg.getSenderID());
         } else if (database.hasBackedUpFileById(msg.getFileID())) {
             parentPeer.getPeerData().addChunkReplication(msg.getFileID(), msg.getChunkNo());
-            database.addFileMirror(msg.getFileID(), msg.getSenderID());
+            database.addFileMirror(msg.getFileID(), msg.getSenderID()); //Only used to delete enh
         }
     }
 
