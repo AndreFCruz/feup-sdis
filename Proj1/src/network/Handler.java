@@ -135,7 +135,7 @@ public class Handler implements Runnable {
             database.addChunkMirror(msg.getFileID(), msg.getChunkNo(), msg.getSenderID());
         } else if (database.hasBackedUpFileById(msg.getFileID())) {
             parentPeer.getPeerData().addChunkReplication(msg.getFileID(), msg.getChunkNo());
-            database.addFileMirror(msg.getFileID(), msg.getSenderID()); //Only used to delete enh
+            database.addFileMirror(msg.getFileID(), msg.getSenderID());
         }
     }
 

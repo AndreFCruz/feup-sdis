@@ -58,7 +58,7 @@ public class BackupChunkHelper implements Runnable {
     }
 
     protected boolean isDesiredReplicationDegree() {
-        Log.log("Current perceived replication: " + chunkReplication.get(chunk.getChunkNo()));
+        Log.log("Current perceived replication of " + chunk.getChunkNo() + ": " + chunkReplication.get(chunk.getChunkNo()));
         return chunkReplication != null && chunkReplication.get(chunk.getChunkNo()) >= chunk.getReplicationDegree();
     }
 
