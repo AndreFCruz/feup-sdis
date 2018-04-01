@@ -76,8 +76,8 @@ public class SystemManager {
     }
 
     synchronized public static byte[] loadFile(String pathname) throws FileNotFoundException {
-        InputStream inputStream = null;
-        long fileSize = 0;
+        InputStream inputStream;
+        long fileSize;
         byte[] data = null;
 
         try {
