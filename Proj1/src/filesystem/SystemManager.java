@@ -4,6 +4,10 @@ import service.Peer;
 import utils.Log;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 
 import static filesystem.Database.loadDatabase;
@@ -44,8 +48,11 @@ public class SystemManager {
     }
 
     public static void createFolder(String name) {
-        File file = new File(name);
-        file.mkdirs();
+        try {
+            Files.createDirectories(Paths.get(name));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     synchronized public static SAVE_STATE saveFile(String fileName, String pathname, byte[] data) throws IOException {
@@ -54,14 +61,13 @@ public class SystemManager {
             return SAVE_STATE.FAILURE;
         }
         String filePath = pathname + "/" + fileName;
-        File file = new File(filePath);
-        if (file.exists()) {
+
+        if (Files.exists(Paths.get(filePath))) {
             Log.logWarning("File already exists");
             return SAVE_STATE.EXISTS;
         }
 
-        file.createNewFile();
-        FileOutputStream out = new FileOutputStream(file, false);
+        OutputStream out = Files.newOutputStream(Paths.get(filePath));
         out.write(data);
         out.close();
 
@@ -69,10 +75,21 @@ public class SystemManager {
         return SAVE_STATE.SUCCESS;
     }
 
-    synchronized public static byte[] loadFile(File file) throws FileNotFoundException {
-        FileInputStream inputStream = new FileInputStream(file);
+    synchronized public static byte[] loadFile(String pathname) throws FileNotFoundException {
+        InputStream inputStream = null;
+        long fileSize = 0;
+        byte[] data = null;
 
-        byte[] data = new byte[(int) file.length()];
+        try {
+            inputStream = Files.newInputStream(Paths.get(pathname));
+            fileSize = getFileSize(Paths.get(pathname));
+        } catch (IOException e) {
+//            e.printStackTrace();
+            Log.logError("File not found!");
+            return data;
+        }
+
+        data = new byte[(int) fileSize];
 
         try {
             inputStream.read(data);
@@ -84,11 +101,20 @@ public class SystemManager {
         return data;
     }
 
+    public static long getFileSize(Path filepath){
+        BasicFileAttributes attr = null;
+        try {
+            attr = Files.readAttributes(filepath, BasicFileAttributes.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return attr.size();
+    }
     public static ArrayList<Chunk> loadChunks(String pathname, int numberOfChunks) throws FileNotFoundException {
         ArrayList<Chunk> chunks = new ArrayList<>();
 
         for (int i = 0; i <= numberOfChunks; i++) {
-            byte[] data = loadFile(new File(pathname + "/" + i));
+            byte[] data = loadFile(pathname + "/" + i);
             Chunk chunk = new Chunk("", i, 1, data);
             chunks.add(chunk);
         }
@@ -188,7 +214,7 @@ public class SystemManager {
 
         try {
             //load chunk data
-            chunkData = loadFile(new File(chunkPath));
+            chunkData = loadFile(chunkPath);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -219,10 +245,14 @@ public class SystemManager {
 
     public void deleteChunk(String fileID, int chunkNo) {
         String chunkPath = getChunkPath(fileID, chunkNo);
-        File file = new File(chunkPath);
+        Path path = Paths.get(chunkPath);
 
-        long chunkSize = file.length();
-        file.delete();
+        long chunkSize = getFileSize(path);
+        try {
+            Files.delete(path);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         reduceUsedMemory(chunkSize);
         database.removeChunk(fileID, chunkNo);
     }

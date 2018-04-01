@@ -148,8 +148,8 @@ public class Peer implements RemoteBackupService {
     }
 
     @Override
-    public String backup(File file, int replicationDegree) {
-        executor.execute(new BackupInitiator(protocolVersion, file, replicationDegree, this));
+    public String backup(String pathname, int replicationDegree) {
+        executor.execute(new BackupInitiator(protocolVersion, pathname, replicationDegree, this));
         return "backup command ok";
     }
 
