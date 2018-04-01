@@ -99,7 +99,7 @@ public class Handler implements Runnable {
     private void handleCHUNK(Message msg) {
         PeerData peerData = parentPeer.getPeerData();
 
-        // Notify restore observers of new message
+        // Notify RESTORE observers of new CHUNK message
         peerData.notifyChunkObservers(msg);
 
         if (!peerData.getFlagRestored(msg.getFileID())) { // Restoring File ?
@@ -130,6 +130,9 @@ public class Handler implements Runnable {
     }
 
     private void handleSTORED(Message msg) {
+        // Notify BACKUP observers of new STORED message
+        parentPeer.getPeerData().notifyStoredObservers(msg);
+
         Database database = parentPeer.getDatabase();
         if (database.hasChunk(msg.getFileID(), msg.getChunkNo())) {
             database.addChunkMirror(msg.getFileID(), msg.getChunkNo(), msg.getSenderID());

@@ -33,10 +33,26 @@ public class PeerData {
      */
     private Collection<MessageObserver> chunkObservers;
 
+    private Collection<MessageObserver> storedObservers;
+
     public PeerData() {
         chunkReplication = new ConcurrentHashMap<>();
         chunksRestored = new ConcurrentHashMap<>();
         chunkObservers = Collections.newSetFromMap(new ConcurrentHashMap<>());
+        storedObservers = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    }
+
+    public void attachStoredObserver(MessageObserver observer) {
+        this.storedObservers.add(observer);
+    }
+
+    public void detachStoredObserver(MessageObserver observer) {
+        this.storedObservers.remove(observer);
+    }
+
+    public void notifyStoredObservers(Message msg) {
+        for (MessageObserver observer : storedObservers)
+            observer.update(msg);
     }
 
     public void attachChunkObserver(MessageObserver observer) {
