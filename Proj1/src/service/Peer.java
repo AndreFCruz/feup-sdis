@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 import static protocols.ProtocolSettings.ENHANCEMENT_DELETE;
 import static protocols.ProtocolSettings.MAX_SYSTEM_MEMORY;
+import static protocols.ProtocolSettings.checkPeerEnhancement;
 import static utils.Utils.getRegistry;
 import static utils.Utils.parseRMI;
 
@@ -205,7 +206,7 @@ public class Peer implements RemoteBackupService {
     }
 
     private void sendUPMessage() {
-        if(getVersion().equals(ENHANCEMENT_DELETE)){
+        if(checkPeerEnhancement(ENHANCEMENT_DELETE, this)){
             //wait for server ready
             String[] args = {
                     getVersion(),

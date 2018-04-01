@@ -1,5 +1,8 @@
 package protocols;
 
+import network.Message;
+import service.Peer;
+
 public class ProtocolSettings {
 
     /**
@@ -26,5 +29,18 @@ public class ProtocolSettings {
     public static final String ENHANCEMENT_DELETE = "1.3";
 
     public static final String ENHANCEMENT_ALL = "2.0";
+
+    public static boolean checkEnhancement(String type, Message request, Peer parentPeer) {
+        return (
+                (request.getVersion().equals(type) || request.getVersion().equals(ENHANCEMENT_ALL))
+                        &&
+                        (parentPeer.getVersion().equals(type) || parentPeer.getVersion().equals(ENHANCEMENT_ALL))
+        );
+
+    }
+
+    public static boolean checkPeerEnhancement(String type, Peer parentPeer) {
+        return (parentPeer.getVersion().equals(type) || parentPeer.getVersion().equals(ENHANCEMENT_ALL));
+    }
 
 }

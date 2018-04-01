@@ -13,7 +13,9 @@ import java.util.Random;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import static protocols.ProtocolSettings.ENHANCEMENT_BACKUP;
 import static protocols.ProtocolSettings.ENHANCEMENT_RESTORE;
+import static protocols.ProtocolSettings.checkEnhancement;
 
 public class Restore implements Runnable, PeerData.MessageObserver {
 
@@ -51,7 +53,7 @@ public class Restore implements Runnable, PeerData.MessageObserver {
 
         byte[] chunkData = parentPeer.loadChunk(fileID, chunkNo);
 
-        if (request.getVersion().equals(ENHANCEMENT_RESTORE) && parentPeer.getVersion().equals(ENHANCEMENT_RESTORE)) {
+        if (checkEnhancement(ENHANCEMENT_RESTORE, request, parentPeer)) {
             sendMessageToTCP(request, chunkData);
             sendMessageToMDR(request, null);
         } else {

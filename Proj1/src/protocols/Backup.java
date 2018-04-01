@@ -18,6 +18,7 @@ import static filesystem.SystemManager.createFolder;
 import static filesystem.SystemManager.saveFile;
 import static protocols.ProtocolSettings.ENHANCEMENT_BACKUP;
 import static protocols.ProtocolSettings.MAX_DELAY;
+import static protocols.ProtocolSettings.checkEnhancement;
 
 public class Backup implements Runnable, PeerData.MessageObserver {
 
@@ -57,7 +58,7 @@ public class Backup implements Runnable, PeerData.MessageObserver {
         String chunkPath = parentPeer.getPath("chunks") + "/" + fileID;
         createFolder(parentPeer.getPath("chunks") + "/" + fileID);
 
-        if (parentPeer.getVersion().equals(ENHANCEMENT_BACKUP) && request.getVersion().equals(ENHANCEMENT_BACKUP)) {
+        if (checkEnhancement(ENHANCEMENT_BACKUP, request, parentPeer)) {
             handleEnhancedRequest(fileID, chunkNo, replicationDegree, chunkData, chunkPath);
         } else {
             handleStandardRequest(fileID, chunkNo, replicationDegree, chunkData, chunkPath);

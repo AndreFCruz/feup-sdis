@@ -12,7 +12,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Set;
 
+import static protocols.ProtocolSettings.ENHANCEMENT_BACKUP;
 import static protocols.ProtocolSettings.ENHANCEMENT_DELETE;
+import static protocols.ProtocolSettings.checkEnhancement;
 
 public class Delete implements Runnable {
 
@@ -55,7 +57,7 @@ public class Delete implements Runnable {
             e.printStackTrace();
         }
 
-        if(request.getVersion().equals(ENHANCEMENT_DELETE) && parentPeer.getVersion().equals(ENHANCEMENT_DELETE)){
+        if (checkEnhancement(ENHANCEMENT_DELETE, request, parentPeer)){
             sendMessageToMC(request);
         }
 

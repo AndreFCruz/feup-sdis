@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.concurrent.*;
 
 import static protocols.ProtocolSettings.ENHANCEMENT_DELETE;
+import static protocols.ProtocolSettings.checkEnhancement;
 
 public class Handler implements Runnable {
     private Peer parentPeer;
@@ -98,7 +99,7 @@ public class Handler implements Runnable {
     }
 
     private void handleUP(Message msg) {
-        if(msg.getVersion().equals(ENHANCEMENT_DELETE) && parentPeer.getVersion().equals(ENHANCEMENT_DELETE)){
+        if(checkEnhancement(ENHANCEMENT_DELETE, msg, parentPeer)){
             executor.execute(new DeleteEnhHelper(msg, parentPeer));
         }
     }
@@ -106,7 +107,7 @@ public class Handler implements Runnable {
     private void handleDELETED(Message msg) {
         Database database = parentPeer.getDatabase();
 
-        if(msg.getVersion().equals(ENHANCEMENT_DELETE) && parentPeer.getVersion().equals(ENHANCEMENT_DELETE)){
+        if(checkEnhancement(ENHANCEMENT_DELETE, msg, parentPeer)){
             database.deleteFileMirror(msg.getFileID(), msg.getSenderID());
         }
     }
