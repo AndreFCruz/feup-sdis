@@ -119,8 +119,13 @@ public class Handler implements Runnable {
             return;
         }
 
-        if(msg.getBody() != null)
+        if(msg.getBody() != null){
             peerData.addChunkToRestore(new Chunk(msg.getFileID(), msg.getChunkNo(), msg.getBody()));
+            Log.logError("OK");
+        } else {
+            Log.logError("Error");
+        }
+
     }
 
     private void handlePUTCHUNK(Message msg) {

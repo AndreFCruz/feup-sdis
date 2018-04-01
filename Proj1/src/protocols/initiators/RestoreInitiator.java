@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentMap;
 import static filesystem.SystemManager.fileMerge;
 import static filesystem.SystemManager.saveFile;
 import static protocols.ProtocolSettings.ENHANCEMENT_RESTORE;
+import static protocols.ProtocolSettings.TCPSERVER_PORT;
 import static protocols.ProtocolSettings.isPeerCompatibleWithEnhancement;
 
 public class RestoreInitiator implements Runnable {
@@ -103,6 +104,7 @@ public class RestoreInitiator implements Runnable {
                 Integer.toString(parentPeer.getID()),
                 fileInfo.getFileID(),
                 Integer.toString(chunkNo),
+                Integer.toString(parentPeer.getID() + TCPSERVER_PORT)
         };
 
         Message msg = new Message(type, args);

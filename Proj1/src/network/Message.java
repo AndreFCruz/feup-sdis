@@ -56,7 +56,7 @@ public class Message implements Serializable{
         }
 
         if(type == MessageType.ENH_GETCHUNK){
-            mTCPPort = TCPSERVER_PORT;
+            mTCPPort = Integer.parseInt(args[4]);
             mTCPHost = getIPV4Address();
         }
     }
