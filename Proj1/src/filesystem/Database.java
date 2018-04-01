@@ -49,6 +49,8 @@ public class Database implements Serializable {
      */
     private final long SAVE_PERIOD = 1000;
 
+    private String savePath;
+
 
     Database(String savePath) throws IOException {
         filesBackedUp = new ConcurrentHashMap<>();
@@ -60,6 +62,8 @@ public class Database implements Serializable {
     }
 
     public void setUpDatabase(String savePath) throws IOException {
+        this.savePath = savePath;
+
         OutputStream out = new FileOutputStream(savePath);
         objectOutputStream = new ObjectOutputStream(out);
 
@@ -79,7 +83,8 @@ public class Database implements Serializable {
 
     synchronized private void savePermanentState() {
         try {
-            objectOutputStream.reset();
+            File file = new File(this.savePath);
+            file.delete();
             objectOutputStream.writeObject(this);
         } catch (IOException e) {
             Log.logError("Couldn't save database");
@@ -87,24 +92,19 @@ public class Database implements Serializable {
         }
     }
 
-    synchronized static Database loadDatabase(File file) throws IOException {
-        Database db = null;
+    synchronized static Database loadDatabase(File file) throws IOException, ClassNotFoundException {
+        Database db;
 
-        try {
-            FileInputStream fileIn = new FileInputStream(file);
-            final ObjectInputStream inputStream = new ObjectInputStream(fileIn);
-            db = (Database) inputStream.readObject();
-            inputStream.close();
-            fileIn.close();
-        } catch (final IOException pE) {
-            Log.logError("Couldn't load database!");
-            pE.printStackTrace();
-        } catch (ClassNotFoundException pE) {
-            Log.logError("Class was removed since last execution!?");
-            pE.printStackTrace();
-        }
+        FileInputStream fileIn = new FileInputStream(file);
+        final ObjectInputStream inputStream = new ObjectInputStream(fileIn);
+        db = (Database) inputStream.readObject();
+        inputStream.close();
+        fileIn.close();
 
-        db.setUpDatabase(file.getAbsolutePath());
+        if (db != null)
+            db.setUpDatabase(file.getAbsolutePath());
+        else
+            Log.logError("Error initializing DB from file");
 
         return db;
     }
