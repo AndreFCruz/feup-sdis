@@ -90,9 +90,11 @@ public class Database implements Serializable {
         Database db = null;
 
         try {
-            final ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(file));
+            FileInputStream fileIn = new FileInputStream(file);
+            final ObjectInputStream inputStream = new ObjectInputStream(fileIn);
             db = (Database) inputStream.readObject();
             inputStream.close();
+            fileIn.close();
         } catch (final IOException pE) {
             Log.logError("Couldn't load database!");
             pE.printStackTrace();
