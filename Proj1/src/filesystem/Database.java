@@ -56,12 +56,17 @@ public class Database implements Serializable {
         chunksBackedUp = new ConcurrentHashMap<>();
         filesToDelete = new ConcurrentHashMap<>();
 
-        OutputStream out = new FileOutputStream(savePath);
-        objectOutputStream = new ObjectOutputStream(out);
-        setUpPeriodicSaves(SAVE_PERIOD);
+        setUpDatabase(savePath);
     }
 
-    private void setUpPeriodicSaves(long save_period) {
+    public void setUpDatabase(String savePath) throws IOException {
+        OutputStream out = new FileOutputStream(savePath);
+        objectOutputStream = new ObjectOutputStream(out);
+
+        setUpPeriodicSaves();
+    }
+
+    private void setUpPeriodicSaves() {
         Database db = this;
         Timer timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
@@ -69,7 +74,7 @@ public class Database implements Serializable {
             public void run() {
                 db.savePermanentState();
             }
-        }, save_period, save_period);
+        }, SAVE_PERIOD, SAVE_PERIOD);
     }
 
     synchronized private void savePermanentState() {
@@ -81,7 +86,7 @@ public class Database implements Serializable {
         }
     }
 
-    synchronized static Database loadDatabase(File file) {
+    synchronized static Database loadDatabase(File file) throws IOException {
         Database db = null;
 
         try {
@@ -95,6 +100,8 @@ public class Database implements Serializable {
             Log.logError("Class was removed since last execution!?");
             pE.printStackTrace();
         }
+
+        db.setUpDatabase(file.getAbsolutePath());
 
         return db;
     }
@@ -168,8 +175,6 @@ public class Database implements Serializable {
         fileChunks.putIfAbsent(chunkNo, chunkInfo);
 
         chunksBackedUp.putIfAbsent(fileID, fileChunks);
-
-//        saveDatabase();
     }
 
     public ChunkInfo getChunkInfo(String fileID, int chunkNo) {
