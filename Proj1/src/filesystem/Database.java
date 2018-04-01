@@ -50,13 +50,13 @@ public class Database implements Serializable {
     private final long SAVE_PERIOD = 1000;
 
 
-    Database(String savePath) {
+    Database(String savePath) throws IOException {
         filesBackedUp = new ConcurrentHashMap<>();
         filesByPath = new ConcurrentHashMap<>();
         chunksBackedUp = new ConcurrentHashMap<>();
         filesToDelete = new ConcurrentHashMap<>();
 
-        setUpPeriodicSaves();
+        setUpDatabase(savePath);
     }
 
     public void setUpDatabase(String savePath) throws IOException {
