@@ -1,25 +1,21 @@
 package network;
 
-import channels.Channel;
 import filesystem.Chunk;
 import filesystem.ChunkInfo;
 import filesystem.Database;
 import protocols.*;
-import protocols.initiators.DeleteInitiator;
 import protocols.initiators.helpers.DeleteEnhHelper;
 import protocols.initiators.helpers.RemovedChunkHelper;
 import service.Peer;
 import utils.Log;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 import java.util.concurrent.*;
 
 import static protocols.ProtocolSettings.ENHANCEMENT_DELETE;
-import static protocols.ProtocolSettings.checkEnhancement;
+import static protocols.ProtocolSettings.isCompatibleWithEnhancement;
 
 public class Handler implements Runnable {
     private Peer parentPeer;
@@ -99,7 +95,7 @@ public class Handler implements Runnable {
     }
 
     private void handleUP(Message msg) {
-        if(checkEnhancement(ENHANCEMENT_DELETE, msg, parentPeer)){
+        if(isCompatibleWithEnhancement(ENHANCEMENT_DELETE, msg, parentPeer)){
             executor.execute(new DeleteEnhHelper(msg, parentPeer));
         }
     }
@@ -107,7 +103,7 @@ public class Handler implements Runnable {
     private void handleDELETED(Message msg) {
         Database database = parentPeer.getDatabase();
 
-        if(checkEnhancement(ENHANCEMENT_DELETE, msg, parentPeer)){
+        if(isCompatibleWithEnhancement(ENHANCEMENT_DELETE, msg, parentPeer)){
             database.deleteFileMirror(msg.getFileID(), msg.getSenderID());
         }
     }

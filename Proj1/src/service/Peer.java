@@ -13,7 +13,6 @@ import protocols.PeerData;
 import protocols.initiators.*;
 import utils.Log;
 
-import java.io.File;
 import java.io.IOException;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
@@ -26,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 
 import static protocols.ProtocolSettings.ENHANCEMENT_DELETE;
 import static protocols.ProtocolSettings.MAX_SYSTEM_MEMORY;
-import static protocols.ProtocolSettings.checkPeerEnhancement;
+import static protocols.ProtocolSettings.isPeerCompatibleWithEnhancement;
 import static utils.Utils.getRegistry;
 import static utils.Utils.parseRMI;
 
@@ -206,7 +205,7 @@ public class Peer implements RemoteBackupService {
     }
 
     private void sendUPMessage() {
-        if(checkPeerEnhancement(ENHANCEMENT_DELETE, this)){
+        if(isPeerCompatibleWithEnhancement(ENHANCEMENT_DELETE, this)){
             //wait for server ready
             String[] args = {
                     getVersion(),

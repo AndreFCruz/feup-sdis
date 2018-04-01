@@ -30,17 +30,14 @@ public class ProtocolSettings {
 
     public static final String ENHANCEMENT_ALL = "2.0";
 
-    public static boolean checkEnhancement(String type, Message request, Peer parentPeer) {
-        return (
-                (request.getVersion().equals(type) || request.getVersion().equals(ENHANCEMENT_ALL))
-                        &&
-                        (parentPeer.getVersion().equals(type) || parentPeer.getVersion().equals(ENHANCEMENT_ALL))
-        );
+    public static boolean isCompatibleWithEnhancement(String enhancedVersion, Message request, Peer peer) {
+        return ((request.getVersion().equals(enhancedVersion) || request.getVersion().equals(ENHANCEMENT_ALL)) &&
+                (peer.getVersion().equals(enhancedVersion) || peer.getVersion().equals(ENHANCEMENT_ALL)));
 
     }
 
-    public static boolean checkPeerEnhancement(String type, Peer parentPeer) {
-        return (parentPeer.getVersion().equals(type) || parentPeer.getVersion().equals(ENHANCEMENT_ALL));
+    public static boolean isPeerCompatibleWithEnhancement(String enhancedVersion, Peer peer) {
+        return (peer.getVersion().equals(enhancedVersion) || peer.getVersion().equals(ENHANCEMENT_ALL));
     }
 
 }
