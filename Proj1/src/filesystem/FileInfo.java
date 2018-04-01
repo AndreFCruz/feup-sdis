@@ -3,10 +3,11 @@ package filesystem;
 import utils.Log;
 
 import java.io.File;
+import java.io.Serializable;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class FileInfo {
+public class FileInfo implements Serializable {
 
     private String fileID; // hashed through sha256
     private String pathName;

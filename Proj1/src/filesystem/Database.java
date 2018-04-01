@@ -79,6 +79,7 @@ public class Database implements Serializable {
 
     synchronized private void savePermanentState() {
         try {
+            objectOutputStream.reset();
             objectOutputStream.writeObject(this);
         } catch (IOException e) {
             Log.logError("Couldn't save database");
