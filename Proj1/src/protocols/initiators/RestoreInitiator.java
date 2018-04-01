@@ -16,7 +16,7 @@ import static filesystem.SystemManager.fileMerge;
 import static filesystem.SystemManager.saveFile;
 import static protocols.ProtocolSettings.ENHANCEMENT_RESTORE;
 import static protocols.ProtocolSettings.TCPSERVER_PORT;
-import static protocols.ProtocolSettings.checkPeerEnhancement;
+import static protocols.ProtocolSettings.isPeerCompatibleWithEnhancement;
 
 public class RestoreInitiator implements Runnable {
 
@@ -47,14 +47,14 @@ public class RestoreInitiator implements Runnable {
         parentPeer.setRestoring(true, fileInfo.getFileID());
 
         //Start TCPServer if enhancement
-        if (checkPeerEnhancement(ENHANCEMENT_RESTORE, parentPeer)) {
+        if (isPeerCompatibleWithEnhancement(ENHANCEMENT_RESTORE, parentPeer)) {
             initializeTCPServer();
         }
 
         //Log.logWarning("Sending GETCHUNK messages");
         // Send GETCHUNK to MC
         for (int i = 0; i < fileInfo.getNumChunks(); i++) {
-            if (checkPeerEnhancement(ENHANCEMENT_RESTORE, parentPeer)) {
+            if (isPeerCompatibleWithEnhancement(ENHANCEMENT_RESTORE, parentPeer)) {
                 sendMessageToMC(Message.MessageType.ENH_GETCHUNK, i);
             } else {
                 sendMessageToMC(Message.MessageType.GETCHUNK, i);
@@ -68,7 +68,7 @@ public class RestoreInitiator implements Runnable {
             // Probably this will kill the cpu :')
         }
 
-        if (checkPeerEnhancement(ENHANCEMENT_RESTORE, parentPeer)) {
+        if (isPeerCompatibleWithEnhancement(ENHANCEMENT_RESTORE, parentPeer)) {
             closeTCPServer();
         }
 

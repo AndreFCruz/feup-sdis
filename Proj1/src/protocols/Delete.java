@@ -2,7 +2,6 @@ package protocols;
 
 import channels.Channel;
 import filesystem.Database;
-import filesystem.FileInfo;
 import network.Message;
 import service.Peer;
 import utils.Log;
@@ -12,9 +11,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Set;
 
-import static protocols.ProtocolSettings.ENHANCEMENT_BACKUP;
 import static protocols.ProtocolSettings.ENHANCEMENT_DELETE;
-import static protocols.ProtocolSettings.checkEnhancement;
+import static protocols.ProtocolSettings.isCompatibleWithEnhancement;
 
 public class Delete implements Runnable {
 
@@ -57,7 +55,7 @@ public class Delete implements Runnable {
             e.printStackTrace();
         }
 
-        if (checkEnhancement(ENHANCEMENT_DELETE, request, parentPeer)){
+        if (isCompatibleWithEnhancement(ENHANCEMENT_DELETE, request, parentPeer)){
             sendMessageToMC(request);
         }
 
