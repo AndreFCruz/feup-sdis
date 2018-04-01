@@ -2,7 +2,6 @@ package protocols;
 
 import channels.Channel;
 import filesystem.ChunkInfo;
-import filesystem.SystemManager;
 import filesystem.SystemManager.SAVE_STATE;
 import network.Message;
 import service.Peer;
@@ -17,6 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 import static filesystem.SystemManager.createFolder;
 import static filesystem.SystemManager.saveFile;
+import static protocols.ProtocolSettings.ENHANCEMENT_BACKUP;
 import static protocols.ProtocolSettings.MAX_DELAY;
 
 public class Backup implements Runnable, PeerData.MessageObserver {
@@ -57,9 +57,30 @@ public class Backup implements Runnable, PeerData.MessageObserver {
         String chunkPath = parentPeer.getPath("chunks") + "/" + fileID;
         createFolder(parentPeer.getPath("chunks") + "/" + fileID);
 
+        if (parentPeer.getVersion().equals(ENHANCEMENT_BACKUP) && request.getVersion().equals(ENHANCEMENT_BACKUP)) {
+            handleEnhancedRequest(fileID, chunkNo, replicationDegree, chunkData, chunkPath);
+        } else {
+            handleStandardRequest(fileID, chunkNo, replicationDegree, chunkData, chunkPath);
+        }
+
+        Log.log("Finished backup!");
+    }
+
+    private void handleStandardRequest(String fileID, int chunkNo, int replicationDegree, byte[] chunkData, String chunkPath) {
+        boolean success = saveChunk(fileID, chunkNo, replicationDegree, chunkData, chunkPath);
+        if (success) {
+            sendDelayedSTORED(request);
+        }
+    }
+
+    private void handleEnhancedRequest(String fileID, int chunkNo, int replicationDegree, byte[] chunkData, String chunkPath) {
         parentPeer.getPeerData().attachStoredObserver(this);
+
         this.handler = scheduledExecutor.schedule(
-                () -> saveChunk(fileID, chunkNo, replicationDegree, chunkData, chunkPath),
+                () -> {
+                    boolean success = saveChunk(fileID, chunkNo, replicationDegree, chunkData, chunkPath);
+                    if (success) sendSTORED(request);
+                },
                 this.random.nextInt(MAX_DELAY + 1),
                 TimeUnit.MILLISECONDS
         );
@@ -70,36 +91,30 @@ public class Backup implements Runnable, PeerData.MessageObserver {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
-        Log.log("Finished backup!");
     }
 
-    private void saveChunk(String fileID, int chunkNo, int replicationDegree, byte[] chunkData, String chunkPath) {
-        SAVE_STATE ret = SAVE_STATE.FAILURE;
+    private boolean saveChunk(String fileID, int chunkNo, int replicationDegree, byte[] chunkData, String chunkPath) {
+        SAVE_STATE ret;
         try {
             ret = saveFile(Integer.toString(chunkNo), chunkPath, chunkData);
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
         }
 
         if (ret == SAVE_STATE.SUCCESS) {
             //save to database
-            sendSTORED(request);
             parentPeer.getDatabase().addChunk((new ChunkInfo(fileID, chunkNo, replicationDegree, chunkData.length)));
         } else { // Don't send STORED if chunk already existed (?)
             Log.logWarning("Chunk Backup: " + ret);
+            return false;
         }
+
+        return true;
     }
 
     private void sendSTORED(Message request) {
-        String[] args = {
-                request.getVersion(),
-                Integer.toString(parentPeer.getID()),
-                request.getFileID(),
-                Integer.toString(request.getChunkNo())
-        };
-
-        Message msg = new Message(Message.MessageType.STORED, args);
+        Message msg = makeSTORED(request);
 
         try {
             parentPeer.sendMessage(Channel.ChannelType.MC, msg);
@@ -107,6 +122,28 @@ public class Backup implements Runnable, PeerData.MessageObserver {
             Log.logError("Failed message construction");
             e.printStackTrace();
         }
+    }
+
+    private void sendDelayedSTORED(Message request) {
+        Message msg = makeSTORED(request);
+
+        parentPeer.sendDelayedMessage(
+                Channel.ChannelType.MC,
+                msg,
+                random.nextInt(MAX_DELAY + 1),
+                TimeUnit.MILLISECONDS
+        );
+    }
+
+    private Message makeSTORED(Message request) {
+        String[] args = {
+                request.getVersion(),
+                Integer.toString(parentPeer.getID()),
+                request.getFileID(),
+                Integer.toString(request.getChunkNo())
+        };
+
+        return new Message(Message.MessageType.STORED, args);
     }
 
     @Override

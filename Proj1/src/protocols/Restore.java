@@ -51,7 +51,7 @@ public class Restore implements Runnable, PeerData.MessageObserver {
 
         byte[] chunkData = parentPeer.loadChunk(fileID, chunkNo);
 
-        if ((request.getVersion().equals(ENHANCEMENT_RESTORE) && parentPeer.getVersion().equals(ENHANCEMENT_RESTORE))) {
+        if (request.getVersion().equals(ENHANCEMENT_RESTORE) && parentPeer.getVersion().equals(ENHANCEMENT_RESTORE)) {
             sendMessageToTCP(request, chunkData);
             sendMessageToMDR(request, null);
         } else {
