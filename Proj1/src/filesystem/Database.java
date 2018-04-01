@@ -289,10 +289,10 @@ public class Database implements Serializable {
 
     @Override
     protected void finalize() throws Throwable {
-        super.finalize();
         savePermanentState();
         objectOutputStream.close();
+        super.finalize();
     }
-
+    
 
 }
