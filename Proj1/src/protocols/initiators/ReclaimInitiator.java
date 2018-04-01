@@ -30,11 +30,8 @@ public class ReclaimInitiator implements Runnable {
             ChunkInfo chunkInfo = systemManager.getDatabase().getChunkForRemoval();
             byte[] chunkData = systemManager.loadChunk(chunkInfo.getFileID(), chunkInfo.getChunkNo());
             if (chunkData == null){ // Confirm chunk exists
-                systemManager.getDatabase().removeChunk(chunkInfo.getFileID(), chunkInfo.getChunkNo());
-                //TODO: check this bug
                 continue;
             }
-
 
             systemManager.deleteChunk(chunkInfo.getFileID(), chunkInfo.getChunkNo());
 

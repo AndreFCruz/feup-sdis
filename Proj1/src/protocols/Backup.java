@@ -46,13 +46,13 @@ public class Backup implements Runnable {
         SAVE_STATE ret = SAVE_STATE.FAILURE;
         try {
             ret = saveFile(Integer.toString(chunkNo), chunkPath, chunkData);
-            //save to database
-            parentPeer.getDatabase().addChunk((new ChunkInfo(fileID, chunkNo, replicationDegree, chunkData.length)));
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         if (ret == SAVE_STATE.SUCCESS) {
+            //save to database
+            parentPeer.getDatabase().addChunk((new ChunkInfo(fileID, chunkNo, replicationDegree, chunkData.length)));
             sendSTORED(request);
         } else { // Don't send STORED if chunk already existed (?)
             Log.logWarning("Chunk Backup: " + ret);

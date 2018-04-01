@@ -182,6 +182,7 @@ public class Database implements Serializable {
         if (!chunksBackedUp.containsKey(fileID))
             return;
 
+        Log.log("Apaguei! " + fileID + " " +chunkNo);
         chunksBackedUp.get(fileID).remove(chunkNo);
     }
 
