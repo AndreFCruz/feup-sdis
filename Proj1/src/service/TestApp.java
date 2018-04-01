@@ -3,6 +3,7 @@ package service;
 import utils.Log;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 import java.util.HashMap;
@@ -73,11 +74,10 @@ public class TestApp implements Runnable {
     }
 
     private void handleBackup() {
-        File file = new File(this.opnd_1);
-        Log.logWarning("BACKING UP file at \"" + file.getAbsolutePath() + "\"");
+        Log.logWarning("BACKING UP file at \"" + Paths.get(this.opnd_1) + "\"");
 
         try {
-            stub.backup(file, Integer.parseInt(this.opnd_2));
+            stub.backup(this.opnd_1, Integer.parseInt(this.opnd_2));
         } catch (RemoteException e) {
             Log.logError("Client exception: " + e.toString());
         }

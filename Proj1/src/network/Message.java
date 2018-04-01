@@ -1,7 +1,9 @@
 package network;
 
+import utils.Log;
 import utils.Utils;
 
+import java.awt.*;
 import java.io.*;
 
 import static protocols.ProtocolSettings.TCPSERVER_PORT;
@@ -40,6 +42,10 @@ public class Message implements Serializable{
         this.type = type;
         version = args[0];
         senderID = Integer.parseInt(args[1]);
+
+        if(type == MessageType.UP)
+            return;
+
         fileID = args[2];
 
         if (type != MessageType.DELETE && type != MessageType.DELETED)
@@ -114,6 +120,10 @@ public class Message implements Serializable{
                 type = MessageType.DELETE;
                 numberArgs = 4;
                 break;
+            case "DELETED":
+                type = MessageType.DELETED;
+                numberArgs = 4;
+                break;
             case "REMOVED":
                 type = MessageType.REMOVED;
                 numberArgs = 5;
@@ -122,9 +132,10 @@ public class Message implements Serializable{
                 type = MessageType.ENH_GETCHUNK;
                 numberArgs = 6;
                 break;
-            case "DELETED":
-                type = MessageType.DELETED;
-                numberArgs = 4;
+            case "UP":
+                type = MessageType.UP;
+                numberArgs = 3;
+                break;
             default:
                 return false;
         }
@@ -134,6 +145,10 @@ public class Message implements Serializable{
 
         version = headerSplit[1];
         senderID = Integer.parseInt(headerSplit[2]);
+
+        if(type == MessageType.UP)
+            return true;
+
         fileID = headerSplit[3];
 
         if (numberArgs > 4)
@@ -169,6 +184,9 @@ public class Message implements Serializable{
             case ENH_GETCHUNK:
                 str = type + " " + version + " " + senderID + " " + fileID + " " + chunkNo + " " +
                         mTCPHost + ":" + mTCPPort + " " + Utils.CRLF + Utils.CRLF;
+                break;
+            case UP:
+                str = type + " " + version + " " + senderID + " " + Utils.CRLF + Utils.CRLF;
                 break;
             default:
                 str = type + " " + version + " " + senderID + " " + fileID + " " + chunkNo + " " + Utils.CRLF + Utils.CRLF;
@@ -232,6 +250,9 @@ public class Message implements Serializable{
                 str = type + " " + version + " " + senderID + " " + fileID + " " + chunkNo + " " +
                         mTCPHost + ":" + mTCPPort;
                 break;
+            case UP:
+                str = type + " " + version + " " + senderID;
+                break;
             default:
                 str = type + " " + version + " " + senderID + " " + fileID + " " + chunkNo;
                 break;
@@ -256,6 +277,7 @@ public class Message implements Serializable{
         DELETE,
         ENH_GETCHUNK,
         DELETED,
+        UP,
         CHUNK
     }
 }

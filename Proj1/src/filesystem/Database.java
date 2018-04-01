@@ -105,6 +105,21 @@ public class Database implements Serializable {
         peers.add(senderID);
     }
 
+    public Set<String> getFilesToDelete(int senderID){
+        Set<String> files = new ConcurrentSkipListSet<>();
+
+        for (Map.Entry<String, Set<Integer>> outer : filesToDelete.entrySet()) {
+            for (Integer inner : outer.getValue()) {
+                if(inner == senderID){
+                    files.add(outer.getKey());
+                    break;
+                }
+            }
+        }
+
+        return files;
+    }
+
     public void  deleteFileMirror(String fileID, int senderID) {
         Set<Integer> peers = filesToDelete.get(fileID);
         if (peers != null)
@@ -167,6 +182,7 @@ public class Database implements Serializable {
         if (!chunksBackedUp.containsKey(fileID))
             return;
 
+        Log.log("Apaguei! " + fileID + " " +chunkNo);
         chunksBackedUp.get(fileID).remove(chunkNo);
     }
 
@@ -179,6 +195,10 @@ public class Database implements Serializable {
 
     public int getNumChunksByFilePath(String path) {
         return filesByPath.get(path).getNumChunks();
+    }
+
+    public String getFileInfoByFileID(String fileID) {
+        return filesBackedUp.get(fileID).getPath();
     }
 
     public Boolean addChunkMirror(String fileID, int chunkNo, int peerID) {
@@ -270,8 +290,10 @@ public class Database implements Serializable {
 
     @Override
     protected void finalize() throws Throwable {
-        super.finalize();
         savePermanentState();
         objectOutputStream.close();
+        super.finalize();
     }
+    
+
 }

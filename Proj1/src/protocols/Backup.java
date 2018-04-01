@@ -83,6 +83,8 @@ public class Backup implements Runnable, PeerData.MessageObserver {
         }
 
         if (ret == SAVE_STATE.SUCCESS) {
+            //save to database
+            parentPeer.getDatabase().addChunk((new ChunkInfo(fileID, chunkNo, replicationDegree, chunkData.length)));
             sendSTORED(request);
             parentPeer.getDatabase().addChunk((new ChunkInfo(fileID, chunkNo, replicationDegree, chunkData.length)));
         } else { // Don't send STORED if chunk already existed (?)

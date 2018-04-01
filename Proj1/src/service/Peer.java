@@ -24,6 +24,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import static protocols.ProtocolSettings.ENHANCEMENT_DELETE;
 import static protocols.ProtocolSettings.MAX_SYSTEM_MEMORY;
 import static utils.Utils.getRegistry;
 import static utils.Utils.parseRMI;
@@ -59,6 +60,8 @@ public class Peer implements RemoteBackupService {
         setupDispatcher();
 
         executor = new ScheduledThreadPoolExecutor(10);
+
+        sendUPMessage();
 
         Log.logWarning("Peer " + id + " online!");
     }
@@ -145,8 +148,8 @@ public class Peer implements RemoteBackupService {
     }
 
     @Override
-    public String backup(File file, int replicationDegree) {
-        executor.execute(new BackupInitiator(protocolVersion, file, replicationDegree, this));
+    public String backup(String pathname, int replicationDegree) {
+        executor.execute(new BackupInitiator(protocolVersion, pathname, replicationDegree, this));
         return "backup command ok";
     }
 
@@ -199,6 +202,25 @@ public class Peer implements RemoteBackupService {
 
         }
         return pathname;
+    }
+
+    private void sendUPMessage() {
+        if(getVersion().equals(ENHANCEMENT_DELETE)){
+            //wait for server ready
+            String[] args = {
+                    getVersion(),
+                    Integer.toString(getID()),
+            };
+
+            Message msg = new Message(Message.MessageType.UP, args);
+
+            try {
+                sendMessage(Channel.ChannelType.MC, msg);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
     }
 
     public void addMsgToHandler(byte[] data, int length) {
