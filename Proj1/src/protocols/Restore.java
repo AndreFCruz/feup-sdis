@@ -64,7 +64,7 @@ public class Restore implements Runnable, PeerData.MessageObserver {
 
     private Message createMessage(Message request, byte[] chunkData) {
         String[] args = {
-                request.getVersion(),
+                parentPeer.getVersion(),
                 Integer.toString(parentPeer.getID()),
                 request.getFileID(),
                 Integer.toString(request.getChunkNo())

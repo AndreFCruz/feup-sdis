@@ -65,7 +65,7 @@ public class Delete implements Runnable {
 
     private boolean sendMessageToMC(Message request) {
         String[] args = {
-                request.getVersion(),
+                parentPeer.getVersion(),
                 Integer.toString(parentPeer.getID()),
                 request.getFileID()
         };

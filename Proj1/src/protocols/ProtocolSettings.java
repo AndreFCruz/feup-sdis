@@ -40,4 +40,8 @@ public class ProtocolSettings {
         return (peer.getVersion().equals(enhancedVersion) || peer.getVersion().equals(ENHANCEMENT_ALL));
     }
 
+    public static boolean isMessageCompatibleWithEnhancement(String enhancedVersion, Message msg) {
+        return (msg.getVersion().equals(enhancedVersion) || msg.getVersion().equals(ENHANCEMENT_ALL));
+    }
+
 }

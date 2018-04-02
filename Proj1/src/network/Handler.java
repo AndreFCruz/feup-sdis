@@ -14,8 +14,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.*;
 
-import static protocols.ProtocolSettings.ENHANCEMENT_DELETE;
-import static protocols.ProtocolSettings.isCompatibleWithEnhancement;
+import static protocols.ProtocolSettings.*;
 
 public class Handler implements Runnable {
     private Peer parentPeer;
@@ -119,11 +118,9 @@ public class Handler implements Runnable {
             return;
         }
 
-        if(msg.getBody() != null){
+
+        if(!isMessageCompatibleWithEnhancement(ENHANCEMENT_RESTORE, msg)){
             peerData.addChunkToRestore(new Chunk(msg.getFileID(), msg.getChunkNo(), msg.getBody()));
-            Log.logError("OK");
-        } else {
-            Log.logError("Error");
         }
 
     }

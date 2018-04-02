@@ -138,7 +138,7 @@ public class Backup implements Runnable, PeerData.MessageObserver {
 
     private Message makeSTORED(Message request) {
         String[] args = {
-                request.getVersion(),
+                parentPeer.getVersion(),
                 Integer.toString(parentPeer.getID()),
                 request.getFileID(),
                 Integer.toString(request.getChunkNo())
