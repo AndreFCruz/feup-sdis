@@ -70,11 +70,11 @@ public class Database extends PermanentStateClass {
 
     public Set<String> getFilesToDelete(int senderID) {
         Set<String> files = new ConcurrentSkipListSet<>();
-
         for (Map.Entry<String, Set<Integer>> fileMirrorEntry : fileMirrors.entrySet()) {
             for (Integer mirrorID : fileMirrorEntry.getValue()) {
-                if (mirrorID == senderID) {
-                    files.add(fileMirrorEntry.getKey());
+                String fileID = fileMirrorEntry.getKey();
+                if (mirrorID == senderID && filesToDelete.contains(fileID)) {
+                    files.add(fileID);
                     break;
                 }
             }
