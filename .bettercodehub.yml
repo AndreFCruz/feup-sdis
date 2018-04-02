@@ -4,3 +4,6 @@ exclude:
 
 languages:
 - java
+
+component_depth: 4
+
