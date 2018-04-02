@@ -98,7 +98,7 @@ public class Peer implements RemoteBackupService {
             registry.rebind(args[1], stub); //Only use rebind for development purposes
             //registry.bind(args[1], stub);
 
-            Log.logWarning("Server ready!");
+            Log.log("Server ready!");
         } catch (Exception e) {
             Log.logError("Server exception: " + e.toString());
         }
@@ -252,4 +252,5 @@ public class Peer implements RemoteBackupService {
     public String getVersion() {
         return protocolVersion;
     }
+
 }

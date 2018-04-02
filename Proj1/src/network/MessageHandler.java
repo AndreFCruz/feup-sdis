@@ -41,4 +41,5 @@ public abstract class MessageHandler implements Runnable {
 
         msgQueue.add(msgParsed);
     }
+
 }

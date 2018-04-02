@@ -46,7 +46,7 @@ public class ConcreteMessageHandler extends MessageHandler {
             return;
 
         //Print received messages
-        Log.logWarning("R: " + msg.toString());
+        Log.log("R: " + msg.toString());
 
         switch (msg.getType()) {
             case PUTCHUNK:
@@ -105,7 +105,6 @@ public class ConcreteMessageHandler extends MessageHandler {
         peerData.notifyChunkObservers(msg);
 
         if (!peerData.getFlagRestored(msg.getFileID())) { // Restoring File
-            Log.log("Discarded ChunkData");
             return;
         }
 

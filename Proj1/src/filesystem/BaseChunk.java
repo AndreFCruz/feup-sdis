@@ -1,6 +1,8 @@
 package filesystem;
 
-public class BaseChunk {
+import java.io.Serializable;
+
+public class BaseChunk implements Serializable {
     private String fileID;
     private int chunkNo;
     private Integer replicationDegree;

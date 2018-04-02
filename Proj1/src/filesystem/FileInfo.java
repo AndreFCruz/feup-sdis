@@ -5,8 +5,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class FileInfo implements Serializable {
+    private static final long serialVersionUID = 4L;
 
-    private String fileID; // hashed through sha256
+    private String fileID;
     private String pathName;
     private String fileName;
     private int numChunks;
@@ -14,11 +15,11 @@ public class FileInfo implements Serializable {
     private ChunkInfo[] chunks; //ChunkNo -> ChunkInfo
 
 
-    public FileInfo(String pathName, String fileID, int replicationDegree, ChunkInfo[] chunkInfoArray) {
+    public FileInfo(String filePath, String fileID, int replicationDegree, ChunkInfo[] chunkInfoArray) {
         this.fileID = fileID;
-        Path filepath = Paths.get(pathName);
-        this.fileName = filepath.getFileName().toString();
-        this.pathName = filepath.toString();
+        Path path = Paths.get(filePath);
+        this.fileName = path.getFileName().toString();
+        this.pathName = path.toString();
 
         this.numChunks = chunkInfoArray.length;
         this.desiredReplicationDegree = replicationDegree;

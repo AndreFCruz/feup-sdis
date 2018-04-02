@@ -73,7 +73,7 @@ public class TestApp implements Runnable {
     }
 
     private void handleBackup() {
-        Log.logWarning("BACKING UP file at \"" + Paths.get(this.opnd_1) + "\"");
+        Log.log("BACKING UP file at \"" + Paths.get(this.opnd_1) + "\"");
 
         try {
             stub.backup(this.opnd_1, Integer.parseInt(this.opnd_2));
@@ -83,7 +83,7 @@ public class TestApp implements Runnable {
     }
 
     private void handleDelete() {
-        Log.logWarning("DELETING file \"" + opnd_1 + "\"");
+        Log.log("DELETING file \"" + opnd_1 + "\"");
 
         try {
             stub.delete(this.opnd_1);
@@ -93,7 +93,7 @@ public class TestApp implements Runnable {
     }
 
     private void handleRestore() {
-        Log.logWarning("RESTORING file \"" + opnd_1 + "\"");
+        Log.log("RESTORING file \"" + opnd_1 + "\"");
 
         try {
             stub.restore(opnd_1);
@@ -103,7 +103,7 @@ public class TestApp implements Runnable {
     }
 
     private void handleReclaim() {
-        Log.logWarning("RECLAIMING disk space: \"" + opnd_1 + "\"");
+        Log.log("RECLAIMING disk space: \"" + opnd_1 + "\"");
 
         try {
             stub.reclaim(Integer.parseInt(opnd_1));
@@ -113,7 +113,7 @@ public class TestApp implements Runnable {
     }
 
     private void handleState() {
-        Log.logWarning("This is my state :D");
+        Log.log("This is my state :D");
         try {
             stub.state();
         } catch (RemoteException e) {

@@ -1,10 +1,10 @@
 package filesystem;
 
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ChunkInfo extends BaseChunk implements Serializable {
+public class ChunkInfo extends BaseChunk {
+    private static final long serialVersionUID = 3L;
 
     private int size;
     private Set<Integer> mirrors;
