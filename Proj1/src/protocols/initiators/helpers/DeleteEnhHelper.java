@@ -17,6 +17,8 @@ public class DeleteEnhHelper implements Runnable {
     public DeleteEnhHelper(Message request, Peer parentPeer) {
         this.request = request;
         this.parentPeer = parentPeer;
+
+        Log.log("Starting DeleteEnhHelper");
     }
 
     @Override
@@ -24,8 +26,10 @@ public class DeleteEnhHelper implements Runnable {
         Database database = parentPeer.getDatabase();
         Set<String> filesToDelete = database.getFilesToDelete(request.getSenderID());
 
-        if (filesToDelete.isEmpty())
+        if (filesToDelete.isEmpty()) {
+            Log.log("No files to delete for peer " + request.getSenderID());
             return;
+        }
 
         for (String fileID : filesToDelete) {
             sendDELETE(fileID);

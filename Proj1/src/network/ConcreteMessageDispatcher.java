@@ -14,17 +14,18 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.*;
 
+import static network.Message.MessageType.*;
 import static protocols.ProtocolSettings.*;
 
-public class ConcreteMessageHandler extends MessageHandler {
-    private Peer parentPeer;
+public class ConcreteMessageDispatcher extends AbstractMessageDispatcher {
     private ScheduledExecutorService executor;
+
     private Map<String, Map<Integer, Future>> backUpHandlers;
 
     private Random random;
 
-    public ConcreteMessageHandler(Peer parentPeer) {
-        super();
+    public ConcreteMessageDispatcher(Peer parentPeer) {
+        super(parentPeer);
 
         this.parentPeer = parentPeer;
         this.executor = Executors.newScheduledThreadPool(5);
@@ -33,55 +34,16 @@ public class ConcreteMessageHandler extends MessageHandler {
         this.random = new Random();
     }
 
-    @Override
-    protected void dispatchMessage(Message msg) {
-        //Ignoring invalid messages
-        if (msg == null) {
-            Log.logError("Null message received!");
-            return;
-        }
+    private void handleGETCHUNK(Message msg) {
+        Restore restore_enh = new Restore(parentPeer, msg);
+        executor.execute(restore_enh);
+    }
 
-        // Ignoring own messages
-        if (msg.getSenderID() == parentPeer.getID())
-            return;
+    private void handleDELETE(Message msg) {
+        parentPeer.getDatabase().addToFilesToDelete(msg.getFileID());
 
-        //Print received messages
-        Log.log("R: " + msg.toString());
-
-        switch (msg.getType()) {
-            case PUTCHUNK:
-                handlePUTCHUNK(msg);
-                break;
-            case STORED:
-                handleSTORED(msg);
-                break;
-            case GETCHUNK:
-                Restore restore = new Restore(parentPeer, msg);
-                executor.execute(restore);
-                break;
-            case ENH_GETCHUNK:
-                Restore restore_enh = new Restore(parentPeer, msg);
-                executor.execute(restore_enh);
-                break;
-            case CHUNK:
-                handleCHUNK(msg);
-                break;
-            case REMOVED:
-                handleREMOVED(msg);
-                break;
-            case DELETE:
-                Delete delete = new Delete(parentPeer, msg);
-                executor.execute(delete);
-                break;
-            case DELETED:
-                handleDELETED(msg);
-                break;
-            case UP:
-                handleUP(msg);
-                break;
-            default:
-                return;
-        }
+        Delete delete = new Delete(parentPeer, msg);
+        executor.execute(delete);
     }
 
     private void handleUP(Message msg) {
@@ -115,6 +77,7 @@ public class ConcreteMessageHandler extends MessageHandler {
 
     private void handlePUTCHUNK(Message msg) {
         Database database = parentPeer.getDatabase();
+        database.removeFromFilesToDelete(msg.getFileID());
 
         if (database.hasChunk(msg.getFileID(), msg.getChunkNo())) {
             // If chunk is backed up by parentPeer, notify
@@ -176,4 +139,18 @@ public class ConcreteMessageHandler extends MessageHandler {
             backUpHandlers.get(msg.getFileID()).put(msg.getChunkNo(), handler);
         }
     }
+
+    @Override
+    protected void setupMessageHandlers() {
+        addMessageHandler(PUTCHUNK, (Message msg) -> handlePUTCHUNK(msg));
+        addMessageHandler(STORED, (Message msg) -> handleSTORED(msg));
+        addMessageHandler(GETCHUNK, (Message msg) -> handleGETCHUNK(msg));
+        addMessageHandler(ENH_GETCHUNK, (Message msg) -> handleGETCHUNK(msg));
+        addMessageHandler(CHUNK, (Message msg) -> handleCHUNK(msg));
+        addMessageHandler(REMOVED, (Message msg) -> handleREMOVED(msg));
+        addMessageHandler(DELETE, (Message msg) -> handleDELETE(msg));
+        addMessageHandler(DELETED, (Message msg) -> handleDELETED(msg));
+        addMessageHandler(UP, (Message msg) -> handleUP(msg));
+    }
+
 }

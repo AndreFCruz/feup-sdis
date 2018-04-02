@@ -3,6 +3,7 @@ package filesystem;
 import utils.Log;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -36,13 +37,30 @@ public class Database extends PermanentStateClass {
      */
     private ConcurrentMap<String, Set<Integer>> fileMirrors;
 
+    /**
+     * Contains fileIDs of files that were deleted on the peer's network.
+     * DELETE -> add fileID to Set
+     * PUTCHUNK -> remove fileID from Set
+     */
+    private Set<String> filesToDelete;
+
     Database(String savePath) {
         filesBackedUp = new ConcurrentHashMap<>();
         filesByPath = new ConcurrentHashMap<>();
         chunksBackedUp = new ConcurrentHashMap<>();
+
         fileMirrors = new ConcurrentHashMap<>();
+        filesToDelete = new HashSet<>();
 
         this.setUp(savePath);
+    }
+
+    public boolean addToFilesToDelete(String fileID) {
+        return filesToDelete.add(fileID);
+    }
+
+    public boolean removeFromFilesToDelete(String fileID) {
+        return  filesToDelete.remove(fileID);
     }
 
     public void addFileMirror(String fileID, int senderID) {
@@ -52,11 +70,11 @@ public class Database extends PermanentStateClass {
 
     public Set<String> getFilesToDelete(int senderID) {
         Set<String> files = new ConcurrentSkipListSet<>();
-
         for (Map.Entry<String, Set<Integer>> fileMirrorEntry : fileMirrors.entrySet()) {
             for (Integer mirrorID : fileMirrorEntry.getValue()) {
-                if (mirrorID == senderID) {
-                    files.add(fileMirrorEntry.getKey());
+                String fileID = fileMirrorEntry.getKey();
+                if (mirrorID == senderID && filesToDelete.contains(fileID)) {
+                    files.add(fileID);
                     break;
                 }
             }

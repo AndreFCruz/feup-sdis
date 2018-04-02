@@ -7,9 +7,9 @@ import channels.MDBChannel;
 import channels.MDRChannel;
 import filesystem.Database;
 import filesystem.SystemManager;
-import network.ConcreteMessageHandler;
+import network.ConcreteMessageDispatcher;
 import network.Message;
-import network.MessageHandler;
+import network.AbstractMessageDispatcher;
 import protocols.PeerData;
 import protocols.initiators.*;
 import utils.Log;
@@ -34,7 +34,7 @@ public class Peer implements RemoteBackupService {
     private final int id;
     private final String[] serverAccessPoint;
 
-    private MessageHandler messageHandler;
+    private AbstractMessageDispatcher messageDispatcher;
     private Map<ChannelType, Channel> channels;
 
     /**
@@ -106,8 +106,8 @@ public class Peer implements RemoteBackupService {
 
     private void setupMessageHandler() {
         peerData = new PeerData();
-        messageHandler = new ConcreteMessageHandler(this);
-        new Thread(messageHandler).start();
+        messageDispatcher = new ConcreteMessageDispatcher(this);
+        new Thread(messageDispatcher).start();
     }
 
     private void setupChannels(String[] mcAddress, String[] mdbAddress, String[] mdrAddress) {
@@ -136,7 +136,7 @@ public class Peer implements RemoteBackupService {
     }
 
     public void sendMessage(ChannelType channelType, Message message) throws IOException {
-        Log.logWarning("S: " + message.toString());
+        Log.log("S: " + message.toString());
 
         channels.get(channelType).sendMessage(message.getBytes());
     }
@@ -219,7 +219,7 @@ public class Peer implements RemoteBackupService {
     }
 
     public void addMsgToHandler(byte[] data, int length) {
-        messageHandler.pushMessage(data, length);
+        messageDispatcher.pushMessage(data, length);
     }
 
     public byte[] loadChunk(String fileID, int chunkNo) {

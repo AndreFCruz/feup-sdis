@@ -34,6 +34,8 @@ public class DeleteInitiator implements Runnable {
             return;
         }
 
+        database.addToFilesToDelete(fileInfo.getFileID());
+
         //Send Delete message to MC channel
         sendMessageToMC(fileInfo);
 
