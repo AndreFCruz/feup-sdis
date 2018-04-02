@@ -3,25 +3,29 @@
 # Distributed backup service
 
 ## How to run
+From the Project's root folder:
 
-- To compile in LINUX:
-	- using a terminal, navigate to the project's root folder and type "sh compile.sh"
-	- after that run "sh rmi.sh" to start rmiregistry
-	
-- To run the peer:
-	- open a terminal, navigate to the project's root folder and type "sh peer.sh <version> <id>"
+- To compile in LINUX/UNIX: using a terminal, navigate to the project's root folder and run the 'compile.sh' script:
+  > sh compile.sh
+
+- To start the RMI registry run the 'rmi.sh' script:
+  > sh rmi.sh
+
+- To start a peer, use the 'peer.sh' script:
+  > sh peer.sh <protocol_version> <peer_id>
+
+(_e.g._ ```sh peer.sh 2.0 1```)
 
 - To run the TestApp:
 	- open a terminal, navigate to the project's root folder and type "sh xxxx.sh" (xxxx -> backup or restore or delete or state)
 	
-- To clear the peers files:
-	- open a terminal, navigate to the project's root folder and type "sh clearFileSystem.sh"
+- To clear the peers' file system, run the 'clearFilesystem.sh' script:
+  > sh clearFilesystem.sh
 	
 	
 ## How to compile
 
-The project can be compiled using the *javac* command, using script compile.sh 
-
+The project can be compiled as usual with the ```javac``` command, or by running ```sh compile.sh``` from the project's root folder.
 
 ## How to run
 
