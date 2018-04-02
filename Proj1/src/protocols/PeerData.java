@@ -12,6 +12,11 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
 public class PeerData {
+
+    interface MessageObserver {
+        void update(Message msg);
+    }
+
     /**
      * Contains number of confirmed STORE messages received,
      * for Chunks of local files (from BackupInitiator).
@@ -79,9 +84,9 @@ public class PeerData {
         Chunk ret = chunksRestored.get(chunk.getFileID()).putIfAbsent(chunk.getChunkNo(), chunk);
 
         if (ret != null) {
-            Log.logWarning("Chunk already exists");
+            Log.logWarning("Chunk already exists!");
         } else {
-            Log.logWarning("Adding chunk to merge");
+            Log.logWarning("Adding chunk to merge!");
         }
     }
 
@@ -119,10 +124,6 @@ public class PeerData {
 
     public AtomicIntegerArray getChunkReplication(String fileID) {
         return chunkReplication.get(fileID);
-    }
-
-    interface MessageObserver {
-        void update(Message msg);
     }
 
 }

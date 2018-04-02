@@ -1,5 +1,6 @@
 package network;
 
+import utils.Log;
 import utils.Utils;
 
 import java.io.*;
@@ -7,6 +8,18 @@ import java.io.*;
 import static utils.Utils.getIPV4Address;
 
 public class Message implements Serializable {
+
+    public enum MessageType {
+        PUTCHUNK,
+        STORED,
+        GETCHUNK,
+        REMOVED,
+        DELETE,
+        ENH_GETCHUNK,
+        DELETED,
+        UP,
+        CHUNK
+    }
 
     private int numberArgs;
     //    Header
@@ -72,7 +85,7 @@ public class Message implements Serializable {
         String header = "";
 
         try {
-            header = reader.readLine(); //TODO: Check if have two CRLF
+            header = reader.readLine();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -193,14 +206,18 @@ public class Message implements Serializable {
         return str;
     }
 
-    public byte[] getBytes() throws IOException {
+    public byte[] getBytes() {
 
         byte header[] = getHeaderAsString().getBytes();
 
         if (body != null) {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            outputStream.write(header);
-            outputStream.write(body);
+            try {
+                outputStream.write(header);
+                outputStream.write(body);
+            } catch (IOException e) {
+                Log.logError("Couldn't create message byte[] to send!");
+            }
             return outputStream.toByteArray();
 
         } else
@@ -266,15 +283,4 @@ public class Message implements Serializable {
         return mTCPPort;
     }
 
-    public enum MessageType {
-        PUTCHUNK,
-        STORED,
-        GETCHUNK,
-        REMOVED,
-        DELETE,
-        ENH_GETCHUNK,
-        DELETED,
-        UP,
-        CHUNK
-    }
 }

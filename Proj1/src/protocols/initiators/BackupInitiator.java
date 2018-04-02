@@ -41,11 +41,7 @@ public class BackupInitiator implements Runnable {
 
     @Override
     public void run() {
-        try {
-            fileData = SystemManager.loadFile(pathname);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        fileData = SystemManager.loadFile(pathname);
 
         String fileID = generateFileID(pathname);
         ArrayList<Chunk> chunks = splitFileInChunks(fileData, fileID, replicationDegree);
@@ -69,7 +65,6 @@ public class BackupInitiator implements Runnable {
             parentPeer.getPeerData().resetChunkReplication(fileID);
         } catch (InterruptedException e) {
             Log.logError("Backup: Failed join with helper threads");
-            e.printStackTrace();
         }
 
         Log.logWarning("Finished BackupInitiator!");

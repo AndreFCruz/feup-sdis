@@ -35,22 +35,18 @@ public class ReclaimInitiator implements Runnable {
 
             systemManager.deleteChunk(chunkInfo.getFileID(), chunkInfo.getChunkNo());
 
-            try {
-                sendREMOVED(chunkInfo);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            sendREMOVED(chunkInfo);
         }
 
         Log.logWarning("Available memory: " + SystemManager.getAvailableMemory());
         Log.logWarning("Finished reclaimInitiator!");
     }
 
-    private void sendREMOVED(ChunkInfo chunkInfo) throws IOException {
+    private void sendREMOVED(ChunkInfo chunkInfo) {
         sendREMOVED(chunkInfo.getFileID(), chunkInfo.getChunkNo());
     }
 
-    private void sendREMOVED(String fileID, int chunkNo) throws IOException {
+    private void sendREMOVED(String fileID, int chunkNo) {
         String args[] = {
                 version,
                 Integer.toString(parentPeer.getID()),
@@ -59,7 +55,11 @@ public class ReclaimInitiator implements Runnable {
         };
 
         Message msg = new Message(Message.MessageType.REMOVED, args);
-        parentPeer.sendMessage(Channel.ChannelType.MC, msg);
+        try {
+            parentPeer.sendMessage(Channel.ChannelType.MC, msg);
+        } catch (IOException e) {
+            Log.logError("Couldn't send message to multicast channel!");
+        }
     }
 
 }

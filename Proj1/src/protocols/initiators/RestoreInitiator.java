@@ -49,7 +49,6 @@ public class RestoreInitiator implements Runnable {
             initializeTCPServer();
         }
 
-        //Log.logWarning("Sending GETCHUNK messages");
         // Send GETCHUNK to MC
         for (int i = 0; i < fileInfo.getNumChunks(); i++) {
             if (isPeerCompatibleWithEnhancement(ENHANCEMENT_RESTORE, parentPeer)) {
@@ -59,11 +58,8 @@ public class RestoreInitiator implements Runnable {
             }
         }
 
-        //Log.logWarning("Waiting for restored chunks");
         while (!parentPeer.hasRestoreFinished(filePath, fileInfo.getFileID())) {
             Thread.yield();
-            // TODO sleep ?
-            // Probably this will kill the cpu :')
         }
 
         if (isPeerCompatibleWithEnhancement(ENHANCEMENT_RESTORE, parentPeer)) {
@@ -77,7 +73,6 @@ public class RestoreInitiator implements Runnable {
         try {
             saveFile(fileInfo.getFileName(), pathToSave, fileMerge(new ArrayList<>(chunksRestored.values())));
         } catch (IOException e) {
-            e.printStackTrace();
             Log.logError("Failed saving file at " + fileInfo.getPath());
         }
 
@@ -96,7 +91,7 @@ public class RestoreInitiator implements Runnable {
     }
 
 
-    private boolean sendMessageToMC(Message.MessageType type, int chunkNo) {
+    private void sendMessageToMC(Message.MessageType type, int chunkNo) {
         String[] args = {
                 version,
                 Integer.toString(parentPeer.getID()),
@@ -110,11 +105,8 @@ public class RestoreInitiator implements Runnable {
         try {
             parentPeer.sendMessage(Channel.ChannelType.MC, msg);
         } catch (IOException e) {
-            e.printStackTrace();
-            return false;
+            Log.logError("Couldn't send message to multicast channel!");
         }
-
-        return true;
     }
 
 }

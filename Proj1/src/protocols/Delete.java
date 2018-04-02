@@ -52,7 +52,7 @@ public class Delete implements Runnable {
         try {
             Files.delete(Paths.get(path + "/" + fileID));
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.logError("Couldn't delete the file");
         }
 
         if (isCompatibleWithEnhancement(ENHANCEMENT_DELETE, request, parentPeer)) {
@@ -63,7 +63,7 @@ public class Delete implements Runnable {
         Log.logWarning("Finished delete!");
     }
 
-    private boolean sendMessageToMC(Message request) {
+    private void sendMessageToMC(Message request) {
         String[] args = {
                 parentPeer.getVersion(),
                 Integer.toString(parentPeer.getID()),
@@ -75,11 +75,8 @@ public class Delete implements Runnable {
         try {
             parentPeer.sendMessage(Channel.ChannelType.MC, msg);
         } catch (IOException e) {
-            e.printStackTrace();
-            return false;
+            Log.logError("Couldn't send message to multicast channel!");
         }
-
-        return true;
     }
 
 }

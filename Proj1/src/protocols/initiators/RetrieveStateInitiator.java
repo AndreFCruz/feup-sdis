@@ -20,7 +20,8 @@ public class RetrieveStateInitiator implements Runnable {
         this.version = version;
         this.parentPeer = parentPeer;
         this.database = parentPeer.getDatabase();
-        Log.logWarning("Starting retriveStateInitiator!");
+
+        Log.logWarning("Starting retrieveStateInitiator!");
     }
 
     @Override

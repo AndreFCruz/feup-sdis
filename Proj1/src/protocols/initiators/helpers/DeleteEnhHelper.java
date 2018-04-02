@@ -4,6 +4,7 @@ import channels.Channel;
 import filesystem.Database;
 import network.Message;
 import service.Peer;
+import utils.Log;
 
 import java.io.IOException;
 import java.util.Set;
@@ -45,7 +46,7 @@ public class DeleteEnhHelper implements Runnable {
         try {
             parentPeer.sendMessage(Channel.ChannelType.MC, msg);
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.logError("Couldn't send message to multicast channel!");
         }
     }
 }
