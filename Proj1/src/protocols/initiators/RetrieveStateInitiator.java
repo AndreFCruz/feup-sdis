@@ -54,7 +54,7 @@ public class RetrieveStateInitiator implements Runnable {
             out += "\nFile: " + outer.getKey();
             for (Map.Entry<Integer, ChunkInfo> inner : outer.getValue().entrySet()) {
                 ChunkInfo chunk = inner.getValue();
-                out += "\n Chunk: " +
+                out += "\n ChunkData: " +
                         "\n  ChunkID: " + chunk.getChunkNo() +
                         "\n  Size: " + chunk.getSize() / 1000 +
                         "\n  Perceived Replication: " + chunk.getNumMirrors();

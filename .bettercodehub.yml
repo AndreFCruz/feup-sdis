@@ -1,9 +1,5 @@
-exclude:
-- /TP1/.*
-- /TP2/.*
 
 languages:
 - java
 
 component_depth: 4
-

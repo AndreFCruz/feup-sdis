@@ -111,7 +111,7 @@ public class Backup implements Runnable, PeerData.MessageObserver {
                     parentPeer.getID()
             );
         } else { // Don't send STORED if chunk already existed
-            Log.logWarning("Chunk Backup: " + ret);
+            Log.logWarning("ChunkData Backup: " + ret);
             return false;
         }
 

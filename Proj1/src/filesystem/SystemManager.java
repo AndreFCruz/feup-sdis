@@ -131,20 +131,8 @@ public class SystemManager {
         return attr.size();
     }
 
-    public static ArrayList<Chunk> loadChunks(String pathname, int numberOfChunks) {
-        ArrayList<Chunk> chunks = new ArrayList<>();
-
-        for (int i = 0; i <= numberOfChunks; i++) {
-            byte[] data = loadFile(pathname + "/" + i);
-            Chunk chunk = new Chunk("", i, 1, data);
-            chunks.add(chunk);
-        }
-
-        return chunks;
-    }
-
-    public static ArrayList<Chunk> splitFileInChunks(byte[] fileData, String fileID, int replicationDegree) {
-        ArrayList<Chunk> chunks = new ArrayList<>();
+    public static ArrayList<ChunkData> splitFileInChunks(byte[] fileData, String fileID, int replicationDegree) {
+        ArrayList<ChunkData> chunks = new ArrayList<>();
 
         int numChunks = fileData.length / MAX_CHUNK_SIZE + 1;
 
@@ -160,14 +148,14 @@ public class SystemManager {
                 chunkData = copyOfRange(fileData, i * MAX_CHUNK_SIZE, i * MAX_CHUNK_SIZE + MAX_CHUNK_SIZE);
             }
 
-            Chunk chunk = new Chunk(fileID, i, replicationDegree, chunkData);
+            ChunkData chunk = new ChunkData(fileID, i, replicationDegree, chunkData);
             chunks.add(chunk);
         }
 
         return chunks;
     }
 
-    public static byte[] fileMerge(ArrayList<Chunk> chunks) {
+    public static byte[] fileMerge(ArrayList<ChunkData> chunks) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         for (int i = 0; i < chunks.size(); i++) {

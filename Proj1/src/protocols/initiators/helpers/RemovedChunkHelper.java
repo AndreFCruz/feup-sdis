@@ -1,6 +1,6 @@
 package protocols.initiators.helpers;
 
-import filesystem.Chunk;
+import filesystem.ChunkData;
 import filesystem.ChunkInfo;
 import service.Peer;
 
@@ -8,7 +8,7 @@ public class RemovedChunkHelper extends BackupChunkHelper {
     private ChunkInfo chunkInfo;
 
     public RemovedChunkHelper(Peer parentPeer, ChunkInfo chunkInfo, byte[] chunkData) {
-        super(parentPeer, new Chunk(chunkInfo, chunkData));
+        super(parentPeer, new ChunkData(chunkInfo, chunkData));
 
         this.chunkInfo = chunkInfo;
     }

@@ -37,7 +37,6 @@ public class Utils {
 
         byte[] hash = digest.digest(msg.getBytes(StandardCharsets.UTF_8));
         String hashedID = bytesToHex(hash);
-        Log.logWarning("" + hash.length + " : " + hashedID);
         return hashedID;
     }
 

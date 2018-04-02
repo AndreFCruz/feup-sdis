@@ -163,14 +163,14 @@ public class Database extends PermanentStateClass {
      * @param fileID  The chunk's fileID
      * @param chunkNo The chunk's id number
      * @param peerID  The peerID to be removed
-     * @return True if the peerID was a mirror, False if it wasn't, null if Chunk was not found
+     * @return True if the peerID was a mirror, False if it wasn't, null if ChunkData was not found
      */
     public Boolean removeChunkMirror(String fileID, int chunkNo, int peerID) {
         boolean ret;
         try {
             ret = chunksBackedUp.get(fileID).get(chunkNo).removeMirror(peerID);
         } catch (NullPointerException e) {
-            Log.logError("(removeChunkMirror) Chunk not found: " + e.getMessage());
+            Log.logError("(removeChunkMirror) ChunkData not found: " + e.getMessage());
             return null;
         }
 
@@ -202,9 +202,9 @@ public class Database extends PermanentStateClass {
     }
 
     /**
-     * Getter for any one Chunk to be removed for reclaiming memory space.
+     * Getter for any one ChunkData to be removed for reclaiming memory space.
      *
-     * @return The chosen Chunk.
+     * @return The chosen ChunkData.
      */
     public ChunkInfo getChunkForRemoval() {
         // Currently, chunk for removal is most backed-up chunk

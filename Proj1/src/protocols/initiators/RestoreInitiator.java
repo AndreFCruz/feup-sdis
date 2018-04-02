@@ -1,7 +1,7 @@
 package protocols.initiators;
 
 import channels.Channel;
-import filesystem.Chunk;
+import filesystem.ChunkData;
 import filesystem.FileInfo;
 import network.Message;
 import protocols.initiators.helpers.TCPServer;
@@ -66,7 +66,7 @@ public class RestoreInitiator implements Runnable {
         }
 
         Log.logWarning("Received all chunks");
-        ConcurrentMap<Integer, Chunk> chunksRestored = parentPeer.getPeerData().getChunksRestored(fileInfo.getFileID());
+        ConcurrentMap<Integer, ChunkData> chunksRestored = parentPeer.getPeerData().getChunksRestored(fileInfo.getFileID());
         String pathToSave = parentPeer.getPath("restores");
 
         try {

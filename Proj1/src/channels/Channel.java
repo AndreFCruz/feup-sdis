@@ -67,7 +67,7 @@ public abstract class Channel implements Runnable {
         socket.send(packet);
     }
 
-    private void close() {
+    public void close() {
         socket.close();
     }
 
