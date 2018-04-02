@@ -97,10 +97,9 @@ public class Peer implements RemoteBackupService {
             registry.rebind(args[1], stub); //Only use rebind for development purposes
             //registry.bind(args[1], stub);
 
-            Log.logWarning("Server ready");
+            Log.logWarning("Server ready!");
         } catch (Exception e) {
             Log.logError("Server exception: " + e.toString());
-            e.printStackTrace();
         }
     }
 
@@ -146,13 +145,12 @@ public class Peer implements RemoteBackupService {
     }
 
     @Override
-    public String backup(String pathname, int replicationDegree) {
+    public void backup(String pathname, int replicationDegree) {
         executor.execute(new BackupInitiator(protocolVersion, pathname, replicationDegree, this));
-        return "backup command ok";
     }
 
     @Override
-    public boolean restore(String pathname) {
+    public void restore(String pathname) {
         final Future handler;
         handler = executor.submit(new RestoreInitiator(protocolVersion, pathname, this));
 
@@ -161,7 +159,6 @@ public class Peer implements RemoteBackupService {
                 Log.logWarning("RestoreInitiator was killed for lack of chunks.");
             }
         }, 20, TimeUnit.SECONDS);
-        return true;
     }
 
     @Override
@@ -204,7 +201,6 @@ public class Peer implements RemoteBackupService {
 
     private void sendUPMessage() {
         if (isPeerCompatibleWithEnhancement(ENHANCEMENT_DELETE, this)) {
-            //wait for server ready
             String[] args = {
                     getVersion(),
                     Integer.toString(getID()),
@@ -215,7 +211,7 @@ public class Peer implements RemoteBackupService {
             try {
                 sendMessage(Channel.ChannelType.MC, msg);
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.logError("Couldn't send message to multicast channel!");
             }
 
         }
@@ -236,9 +232,6 @@ public class Peer implements RemoteBackupService {
     public boolean hasRestoreFinished(String pathName, String fileID) {
         int numChunks = database.getNumChunksByFilePath(pathName);
         int chunksRestored = peerData.getChunksRestoredSize(fileID);
-
-        Log.log("numChunks: " + numChunks);
-        Log.log("chunksRestored: " + chunksRestored);
 
         return numChunks == chunksRestored;
     }

@@ -61,15 +61,10 @@ public abstract class Channel implements Runnable {
         }
     }
 
-    synchronized public void sendMessage(byte[] message) {
+    synchronized public void sendMessage(byte[] message) throws IOException {
 
         DatagramPacket packet = new DatagramPacket(message, message.length, mcastAddr, mcastPort);
-
-        try {
-            socket.send(packet);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        socket.send(packet);
     }
 
     private void close() {
