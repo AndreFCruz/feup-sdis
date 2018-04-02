@@ -12,7 +12,7 @@
 	- open a terminal, navigate to the project's root folder and type "sh peer.sh <version> <id>"
 
 - To run the TestApp:
-	- open a terminal, navigate to the project's root folder and type "sh protocol.sh <protocol> <id> <args>"
+	- open a terminal, navigate to the project's root folder and type "sh xxxx.sh" (xxxx -> backup or restore or delete or state)
 	
 - To clear the peers files:
 	- open a terminal, navigate to the project's root folder and type "sh clearFileSystem.sh"
