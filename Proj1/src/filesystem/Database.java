@@ -2,17 +2,15 @@ package filesystem;
 
 import utils.Log;
 
-import java.io.*;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
-import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
-public class Database implements Serializable {
+public class Database extends PermanentStateClass {
+    private static final long serialVersionUID = 1L;
 
     /**
      * Contains local files that were backed up,
@@ -33,85 +31,32 @@ public class Database implements Serializable {
     private ConcurrentMap<String, ConcurrentMap<Integer, ChunkInfo>> chunksBackedUp;
 
     /**
-     * Contains peerIDs to delete a file.
-     * Maps (fileID -> Array<PeerID>)
+     * Contains peerIDs of mirrors of local files.
+     * Maps (fileID -> Set<PeerID>)
      */
-    private ConcurrentMap<String, Set<Integer>> filesToDelete;
+    private ConcurrentMap<String, Set<Integer>> fileMirrors;
 
-    /**
-     * Stream used to serialize this instance.
-     * Is static to not be serialized with the class instance.
-     */
-    private static ObjectOutputStream objectOutputStream;
-
-    /**
-     * Period between DB saves, in milliseconds
-     */
-    private final long SAVE_PERIOD = 1000;
-
-
-    Database(String savePath) throws IOException {
+    Database(String savePath) {
         filesBackedUp = new ConcurrentHashMap<>();
         filesByPath = new ConcurrentHashMap<>();
         chunksBackedUp = new ConcurrentHashMap<>();
-        filesToDelete = new ConcurrentHashMap<>();
+        fileMirrors = new ConcurrentHashMap<>();
 
-        OutputStream out = new FileOutputStream(savePath);
-        objectOutputStream = new ObjectOutputStream(out);
-        setUpPeriodicSaves(SAVE_PERIOD);
+        this.setUp(savePath);
     }
 
-    private void setUpPeriodicSaves(long save_period) {
-        Database db = this;
-        Timer timer = new Timer();
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                db.savePermanentState();
-            }
-        }, save_period, save_period);
+    public void addFileMirror(String fileID, int senderID) {
+        fileMirrors.putIfAbsent(fileID, new ConcurrentSkipListSet<>());
+        fileMirrors.get(fileID).add(senderID);
     }
 
-    synchronized private void savePermanentState() {
-        try {
-            objectOutputStream.writeObject(this);
-        } catch (IOException e) {
-            Log.logError("Couldn't save database");
-            e.printStackTrace();
-        }
-    }
-
-    synchronized static Database loadDatabase(File file) {
-        Database db = null;
-
-        try {
-            final ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(file));
-            db = (Database) inputStream.readObject();
-            inputStream.close();
-        } catch (final IOException pE) {
-            Log.logError("Couldn't load database!");
-            pE.printStackTrace();
-        } catch (ClassNotFoundException pE) {
-            Log.logError("Class was removed since last execution!?");
-            pE.printStackTrace();
-        }
-
-        return db;
-    }
-
-    public void  addFileMirror(String fileID, int senderID) {
-        filesToDelete.putIfAbsent(fileID, new ConcurrentSkipListSet<>());
-        Set<Integer> peers = filesToDelete.get(fileID);
-        peers.add(senderID);
-    }
-
-    public Set<String> getFilesToDelete(int senderID){
+    public Set<String> getFilesToDelete(int senderID) {
         Set<String> files = new ConcurrentSkipListSet<>();
 
-        for (Map.Entry<String, Set<Integer>> outer : filesToDelete.entrySet()) {
-            for (Integer inner : outer.getValue()) {
-                if(inner == senderID){
-                    files.add(outer.getKey());
+        for (Map.Entry<String, Set<Integer>> fileMirrorEntry : fileMirrors.entrySet()) {
+            for (Integer mirrorID : fileMirrorEntry.getValue()) {
+                if (mirrorID == senderID) {
+                    files.add(fileMirrorEntry.getKey());
                     break;
                 }
             }
@@ -120,8 +65,8 @@ public class Database implements Serializable {
         return files;
     }
 
-    public void  deleteFileMirror(String fileID, int senderID) {
-        Set<Integer> peers = filesToDelete.get(fileID);
+    public void deleteFileMirror(String fileID, int senderID) {
+        Set<Integer> peers = fileMirrors.get(fileID);
         if (peers != null)
             peers.remove(senderID);
     }
@@ -159,7 +104,9 @@ public class Database implements Serializable {
         return fileChunks != null && fileChunks.containsKey(chunkNo);
     }
 
-    public void addChunk(ChunkInfo chunkInfo) {
+    public void addChunk(ChunkInfo chunkInfo, Integer parentPeerID) {
+        chunkInfo.addMirror(parentPeerID);
+
         String fileID = chunkInfo.getFileID();
         int chunkNo = chunkInfo.getChunkNo();
 
@@ -168,8 +115,6 @@ public class Database implements Serializable {
         fileChunks.putIfAbsent(chunkNo, chunkInfo);
 
         chunksBackedUp.putIfAbsent(fileID, fileChunks);
-
-//        saveDatabase();
     }
 
     public ChunkInfo getChunkInfo(String fileID, int chunkNo) {
@@ -185,11 +130,11 @@ public class Database implements Serializable {
         chunksBackedUp.get(fileID).remove(chunkNo);
     }
 
-    public void removeFileBackedUp(String fileID) {
+    public Map<Integer, ChunkInfo> removeChunksBackedUpByFileID(String fileID) {
         if (!chunksBackedUp.containsKey(fileID))
-            return;
+            return null;
 
-        chunksBackedUp.remove(fileID);
+        return chunksBackedUp.remove(fileID);
     }
 
     public int getNumChunksByFilePath(String path) {
@@ -225,7 +170,7 @@ public class Database implements Serializable {
         try {
             ret = chunksBackedUp.get(fileID).get(chunkNo).removeMirror(peerID);
         } catch (NullPointerException e) {
-            Log.logWarning("(removeChunkMirror) Chunk not found: " + e.getMessage());
+            Log.logError("(removeChunkMirror) Chunk not found: " + e.getMessage());
             return null;
         }
 
@@ -246,10 +191,6 @@ public class Database implements Serializable {
 
     public boolean hasChunks(String fileID) {
         return chunksBackedUp.containsKey(fileID);
-    }
-
-    public Set<Integer> getFileChunksKey(String fileID) {
-        return chunksBackedUp.get(fileID).keySet();
     }
 
     public Collection<FileInfo> getFilesBackedUp() {
@@ -289,10 +230,8 @@ public class Database implements Serializable {
 
     @Override
     protected void finalize() throws Throwable {
-        super.finalize();
         savePermanentState();
-        objectOutputStream.close();
+        super.finalize();
     }
-
 
 }

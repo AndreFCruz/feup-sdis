@@ -14,6 +14,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import static protocols.ProtocolSettings.ENHANCEMENT_RESTORE;
+import static protocols.ProtocolSettings.isCompatibleWithEnhancement;
 
 public class Restore implements Runnable, PeerData.MessageObserver {
 
@@ -51,7 +52,7 @@ public class Restore implements Runnable, PeerData.MessageObserver {
 
         byte[] chunkData = parentPeer.loadChunk(fileID, chunkNo);
 
-        if ((request.getVersion().equals(ENHANCEMENT_RESTORE) && parentPeer.getVersion().equals(ENHANCEMENT_RESTORE))) {
+        if (isCompatibleWithEnhancement(ENHANCEMENT_RESTORE, request, parentPeer)) {
             sendMessageToTCP(request, chunkData);
             sendMessageToMDR(request, null);
         } else {
@@ -63,15 +64,13 @@ public class Restore implements Runnable, PeerData.MessageObserver {
 
     private Message createMessage(Message request, byte[] chunkData) {
         String[] args = {
-                request.getVersion(),
+                parentPeer.getVersion(),
                 Integer.toString(parentPeer.getID()),
                 request.getFileID(),
                 Integer.toString(request.getChunkNo())
         };
 
-        Message msgToSend = new Message(Message.MessageType.CHUNK, args, chunkData);
-
-        return msgToSend;
+        return new Message(Message.MessageType.CHUNK, args, chunkData);
     }
 
     private void sendMessageToTCP(Message request, byte[] chunkData) {
@@ -84,16 +83,16 @@ public class Restore implements Runnable, PeerData.MessageObserver {
 
         try {
             serverSocket = new Socket(hostName, portNumber);
-            Log.log("Connected to server");
+            Log.log("Connected to TCPServer");
             ObjectOutputStream oos = new ObjectOutputStream(serverSocket.getOutputStream());
             oos.writeObject(msgToSend);
             oos.close();
             serverSocket.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.logError("Couldn't send CHUNK via TCP");
         }
 
-        Log.log("Send chunk: " + msgToSend.getChunkNo());
+        Log.logWarning("S TCP: " + request.toString());
     }
 
     private void sendMessageToMDR(Message request, byte[] chunkData) {

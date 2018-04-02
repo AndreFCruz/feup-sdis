@@ -3,13 +3,23 @@ package network;
 import utils.Log;
 import utils.Utils;
 
-import java.awt.*;
 import java.io.*;
 
-import static protocols.ProtocolSettings.TCPSERVER_PORT;
 import static utils.Utils.getIPV4Address;
 
-public class Message implements Serializable{
+public class Message implements Serializable {
+
+    public enum MessageType {
+        PUTCHUNK,
+        STORED,
+        GETCHUNK,
+        REMOVED,
+        DELETE,
+        ENH_GETCHUNK,
+        DELETED,
+        UP,
+        CHUNK
+    }
 
     private int numberArgs;
     //    Header
@@ -43,7 +53,7 @@ public class Message implements Serializable{
         version = args[0];
         senderID = Integer.parseInt(args[1]);
 
-        if(type == MessageType.UP)
+        if (type == MessageType.UP)
             return;
 
         fileID = args[2];
@@ -55,8 +65,8 @@ public class Message implements Serializable{
             replicationDegree = Integer.parseInt(args[4]);
         }
 
-        if(type == MessageType.ENH_GETCHUNK){
-            mTCPPort = TCPSERVER_PORT;
+        if (type == MessageType.ENH_GETCHUNK) {
+            mTCPPort = Integer.parseInt(args[4]);
             mTCPHost = getIPV4Address();
         }
     }
@@ -75,7 +85,7 @@ public class Message implements Serializable{
         String header = "";
 
         try {
-            header = reader.readLine(); //TODO: Check if have two CRLF
+            header = reader.readLine();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -146,7 +156,7 @@ public class Message implements Serializable{
         version = headerSplit[1];
         senderID = Integer.parseInt(headerSplit[2]);
 
-        if(type == MessageType.UP)
+        if (type == MessageType.UP)
             return true;
 
         fileID = headerSplit[3];
@@ -157,7 +167,7 @@ public class Message implements Serializable{
         if (type == MessageType.PUTCHUNK)
             replicationDegree = Integer.parseInt(headerSplit[5]);
 
-        if(type == MessageType.ENH_GETCHUNK){
+        if (type == MessageType.ENH_GETCHUNK) {
             String[] tcpAddress = headerSplit[5].split(":");
             mTCPHost = tcpAddress[0];
             mTCPPort = Integer.parseInt(tcpAddress[1]);
@@ -196,14 +206,18 @@ public class Message implements Serializable{
         return str;
     }
 
-    public byte[] getBytes() throws IOException {
+    public byte[] getBytes() {
 
         byte header[] = getHeaderAsString().getBytes();
 
         if (body != null) {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            outputStream.write(header);
-            outputStream.write(body);
+            try {
+                outputStream.write(header);
+                outputStream.write(body);
+            } catch (IOException e) {
+                Log.logError("Couldn't create message byte[] to send!");
+            }
             return outputStream.toByteArray();
 
         } else
@@ -269,15 +283,4 @@ public class Message implements Serializable{
         return mTCPPort;
     }
 
-    public enum MessageType {
-        PUTCHUNK,
-        STORED,
-        GETCHUNK,
-        REMOVED,
-        DELETE,
-        ENH_GETCHUNK,
-        DELETED,
-        UP,
-        CHUNK
-    }
 }

@@ -9,10 +9,10 @@ import service.Peer;
 import utils.Log;
 import utils.Utils;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,13 +25,13 @@ public class BackupInitiator implements Runnable {
 
     private byte[] fileData;
     private int replicationDegree;
-    private File file;
+    private String pathname;
     private Peer parentPeer;
     private String version;
 
-    public BackupInitiator(String version, File file, int replicationDegree, Peer parentPeer) {
+    public BackupInitiator(String version, String pathname, int replicationDegree, Peer parentPeer) {
         this.version = version;
-        this.file = file;
+        this.pathname = pathname;
         this.replicationDegree = replicationDegree;
         this.parentPeer = parentPeer;
 
@@ -40,13 +40,9 @@ public class BackupInitiator implements Runnable {
 
     @Override
     public void run() {
-        try {
-            fileData = SystemManager.loadFile(file);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        fileData = SystemManager.loadFile(pathname);
 
-        String fileID = generateFileID(file);
+        String fileID = generateFileID(pathname);
         ArrayList<Chunk> chunks = splitFileInChunks(fileData, fileID, replicationDegree);
 
         if (!validBackup(replicationDegree, chunks.size())) {
@@ -68,7 +64,6 @@ public class BackupInitiator implements Runnable {
             parentPeer.getPeerData().resetChunkReplication(fileID);
         } catch (InterruptedException e) {
             Log.logError("Backup: Failed join with helper threads");
-            e.printStackTrace();
         }
 
         Log.logWarning("Finished BackupInitiator!");
@@ -94,7 +89,7 @@ public class BackupInitiator implements Runnable {
             Chunk chunk = chunks.get(i);
             chunkInfoArray[i] = new ChunkInfo(chunk.getChunkNo(), chunk.getReplicationDegree());
         }
-        parentPeer.getDatabase().addRestorableFile(new FileInfo(file, fileID, replicationDegree, chunkInfoArray));
+        parentPeer.getDatabase().addRestorableFile(new FileInfo(pathname, fileID, replicationDegree, chunkInfoArray));
     }
 
     private void joinWithThreads(List<Thread> threads) throws InterruptedException {
@@ -103,21 +98,21 @@ public class BackupInitiator implements Runnable {
         }
     }
 
-    private String generateFileID(File file) {
-        return Utils.hash(generateUnhashedFileID(file));
+    private String generateFileID(String pathname) {
+        return Utils.hash(generateUnhashedFileID(pathname));
     }
 
-    private String generateUnhashedFileID(File file) {
+    private String generateUnhashedFileID(String absPath) {
         BasicFileAttributes attr;
         try {
-            attr = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
+            attr = Files.readAttributes(Paths.get(absPath), BasicFileAttributes.class);
         } catch (IOException e) {
             Log.logError("Couldn't read file's metadata: " + e.getMessage());
             return null;
         }
 
-        String fileID = file.getName() + attr.lastModifiedTime() + attr.size();
-        return fileID;
+        Path pathObj = Paths.get(absPath);
+        return pathObj.getFileName().toString() + attr.lastModifiedTime() + attr.size();
     }
 
     public Peer getParentPeer() {

@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
 public class PeerData {
+
     interface MessageObserver {
         void update(Message msg);
     }
@@ -32,11 +33,26 @@ public class PeerData {
      * Used for Restore protocol.
      */
     private Collection<MessageObserver> chunkObservers;
+    private Collection<MessageObserver> storedObservers;
 
     public PeerData() {
         chunkReplication = new ConcurrentHashMap<>();
         chunksRestored = new ConcurrentHashMap<>();
         chunkObservers = Collections.newSetFromMap(new ConcurrentHashMap<>());
+        storedObservers = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    }
+
+    public void attachStoredObserver(MessageObserver observer) {
+        this.storedObservers.add(observer);
+    }
+
+    public void detachStoredObserver(MessageObserver observer) {
+        this.storedObservers.remove(observer);
+    }
+
+    public void notifyStoredObservers(Message msg) {
+        for (MessageObserver observer : storedObservers)
+            observer.update(msg);
     }
 
     public void attachChunkObserver(MessageObserver observer) {
@@ -68,9 +84,9 @@ public class PeerData {
         Chunk ret = chunksRestored.get(chunk.getFileID()).putIfAbsent(chunk.getChunkNo(), chunk);
 
         if (ret != null) {
-            Log.logWarning("Chunk already exists");
+            Log.logWarning("Chunk already exists!");
         } else {
-            Log.logWarning("Adding chunk to merge");
+            Log.logWarning("Adding chunk to merge!");
         }
     }
 

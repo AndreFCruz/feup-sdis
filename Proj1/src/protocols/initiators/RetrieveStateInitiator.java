@@ -3,7 +3,7 @@ package protocols.initiators;
 import filesystem.ChunkInfo;
 import filesystem.Database;
 import filesystem.FileInfo;
-import filesystem.SystemManager;
+import filesystem.MemoryManager;
 import service.Peer;
 import utils.Log;
 
@@ -20,20 +20,21 @@ public class RetrieveStateInitiator implements Runnable {
         this.version = version;
         this.parentPeer = parentPeer;
         this.database = parentPeer.getDatabase();
-        Log.logWarning("Starting retriveStateInitiator!");
+
+        Log.logWarning("Starting retrieveStateInitiator!");
     }
 
     @Override
     public void run() {
-        //Obtain info of the files from Database
+        // Obtain info of the files from Database
         Collection<FileInfo> files = database.getFilesBackedUp();
-        //Obtain info of the chunks from Database
+        // Obtain info of the chunks from Database
         ConcurrentMap<String, ConcurrentMap<Integer, ChunkInfo>> chunks = database.getChunksBackedUp();
 
-        //Save output string
+        // Save output string
         String out = "";
 
-        //Loop to save the files
+        // Loop to save the files
         out += "\nFiles:\n";
         for (FileInfo file : files) {
             out += "\nFile: " + file.getFileName() +
@@ -43,13 +44,12 @@ public class RetrieveStateInitiator implements Runnable {
                     "\n  Chunks:";
             ChunkInfo[] fileChunks = file.getChunks();
             for (ChunkInfo chunk : fileChunks) {
-                out += "\n   ChunkID:" + chunk.getChunkNo() +
-                        "\n   Perceived Replication:" + chunk.getReplicationDegree(); //TODO:Update this value
+                out += "\n   ChunkID:" + chunk.getChunkNo();
             }
         }
 
         //Loop to save the chunks
-        out += "\n\nChunks:\n"; //TODO: Correct values
+        out += "\n\nChunks:\n";
         for (Map.Entry<String, ConcurrentMap<Integer, ChunkInfo>> outer : chunks.entrySet()) {
             out += "\nFile: " + outer.getKey();
             for (Map.Entry<Integer, ChunkInfo> inner : outer.getValue().entrySet()) {
@@ -57,15 +57,15 @@ public class RetrieveStateInitiator implements Runnable {
                 out += "\n Chunk: " +
                         "\n  ChunkID: " + chunk.getChunkNo() +
                         "\n  Size: " + chunk.getSize() / 1000 +
-                        "\n  Perceived Replication: " + chunk.getReplicationDegree();
+                        "\n  Perceived Replication: " + chunk.getNumMirrors();
             }
         }
 
-
-        //Storage capacity
+        // Storage capacity
+        MemoryManager mm = parentPeer.getSystemManager().getMemoryManager();
         out += "\n\nStorage: " +
-                "\n Available memory: " + SystemManager.getAvailableMemory() +
-                "\n Used memory: " + SystemManager.getUsedMemory();
+                "\n Available memory: " + mm.getAvailableMemory() +
+                "\n Used memory: " + mm.getUsedMemory();
 
         System.out.println(out); //TODO: Retrieve to TestApp
         Log.logWarning("Finished retrieveStateInitiator!");

@@ -39,10 +39,9 @@ public class DeleteInitiator implements Runnable {
 
         //Delete the file from fileSystem
         try {
-            //TODO: Send delete messages 3/5 times with delay?
             Files.delete(Paths.get(path));
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.logError("Couldn't delete a file!");
         }
 
         //Delete file from database
@@ -50,23 +49,24 @@ public class DeleteInitiator implements Runnable {
         Log.logWarning("Finished deleteInitiator!");
     }
 
-    private boolean sendMessageToMC(FileInfo fileInfo) {
+    private void sendMessageToMC(FileInfo fileInfo) {
+        Message msg = makeDELETE(fileInfo);
+
+        try {
+            parentPeer.sendMessage(Channel.ChannelType.MC, msg);
+        } catch (IOException e) {
+            Log.logError("Couldn't send message to multicast channel!");
+        }
+    }
+
+    private Message makeDELETE(FileInfo fileInfo) {
         String[] args = {
                 version,
                 Integer.toString(parentPeer.getID()),
                 fileInfo.getFileID()
         };
 
-        Message msg = new Message(Message.MessageType.DELETE, args);
-
-        try {
-            parentPeer.sendMessage(Channel.ChannelType.MC, msg);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-
-        return true;
+        return new Message(Message.MessageType.DELETE, args);
     }
 
 }

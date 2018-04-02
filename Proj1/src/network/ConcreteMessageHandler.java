@@ -1,36 +1,32 @@
 package network;
 
-import channels.Channel;
 import filesystem.Chunk;
 import filesystem.ChunkInfo;
 import filesystem.Database;
 import protocols.*;
-import protocols.initiators.DeleteInitiator;
 import protocols.initiators.helpers.DeleteEnhHelper;
 import protocols.initiators.helpers.RemovedChunkHelper;
 import service.Peer;
 import utils.Log;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 import java.util.concurrent.*;
 
-import static protocols.ProtocolSettings.ENHANCEMENT_DELETE;
+import static protocols.ProtocolSettings.*;
 
-public class Handler implements Runnable {
+public class ConcreteMessageHandler extends MessageHandler {
     private Peer parentPeer;
-    private BlockingQueue<Message> msgQueue;
     private ScheduledExecutorService executor;
     private Map<String, Map<Integer, Future>> backUpHandlers;
 
     private Random random;
 
-    public Handler(Peer parentPeer) {
+    public ConcreteMessageHandler(Peer parentPeer) {
+        super();
+
         this.parentPeer = parentPeer;
-        this.msgQueue = new LinkedBlockingQueue<>();
         this.executor = Executors.newScheduledThreadPool(5);
 
         this.backUpHandlers = new HashMap<>();
@@ -38,29 +34,20 @@ public class Handler implements Runnable {
     }
 
     @Override
-    public void run() {
-        Message msg;
-
-        while (true) {
-            try {
-                msg = msgQueue.take();
-                dispatchMessage(msg);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private void dispatchMessage(Message msg) {
+    protected void dispatchMessage(Message msg) {
+        //Ignoring invalid messages
         if (msg == null) {
-            Log.logError("Null Message Received");
+            Log.logError("Null message received!");
             return;
         }
 
+        // Ignoring own messages
         if (msg.getSenderID() == parentPeer.getID())
             return;
 
+        //Print received messages
         Log.logWarning("R: " + msg.toString());
+
         switch (msg.getType()) {
             case PUTCHUNK:
                 handlePUTCHUNK(msg);
@@ -98,7 +85,7 @@ public class Handler implements Runnable {
     }
 
     private void handleUP(Message msg) {
-        if(msg.getVersion().equals(ENHANCEMENT_DELETE) && parentPeer.getVersion().equals(ENHANCEMENT_DELETE)){
+        if (isCompatibleWithEnhancement(ENHANCEMENT_DELETE, msg, parentPeer)) {
             executor.execute(new DeleteEnhHelper(msg, parentPeer));
         }
     }
@@ -106,7 +93,7 @@ public class Handler implements Runnable {
     private void handleDELETED(Message msg) {
         Database database = parentPeer.getDatabase();
 
-        if(msg.getVersion().equals(ENHANCEMENT_DELETE) && parentPeer.getVersion().equals(ENHANCEMENT_DELETE)){
+        if (isCompatibleWithEnhancement(ENHANCEMENT_DELETE, msg, parentPeer)) {
             database.deleteFileMirror(msg.getFileID(), msg.getSenderID());
         }
     }
@@ -114,21 +101,24 @@ public class Handler implements Runnable {
     private void handleCHUNK(Message msg) {
         PeerData peerData = parentPeer.getPeerData();
 
-        // Notify restore observers of new message
+        // Notify RESTORE observers of new CHUNK message
         peerData.notifyChunkObservers(msg);
 
-        if (!peerData.getFlagRestored(msg.getFileID())) { // Restoring File ?
-            Log.logWarning("Discarded Chunk");
+        if (!peerData.getFlagRestored(msg.getFileID())) { // Restoring File
+            Log.log("Discarded Chunk");
             return;
         }
 
-        if(msg.getBody() != null)
+        if (!isMessageCompatibleWithEnhancement(ENHANCEMENT_RESTORE, msg)) {
             peerData.addChunkToRestore(new Chunk(msg.getFileID(), msg.getChunkNo(), msg.getBody()));
+        }
     }
 
     private void handlePUTCHUNK(Message msg) {
         Database database = parentPeer.getDatabase();
+
         if (database.hasChunk(msg.getFileID(), msg.getChunkNo())) {
+            // If chunk is backed up by parentPeer, notify
             Map<Integer, Future> fileBackUpHandlers = backUpHandlers.get(msg.getFileID());
             if (fileBackUpHandlers == null) return;
 
@@ -136,7 +126,9 @@ public class Handler implements Runnable {
             if (handler == null) return;
             handler.cancel(true);
             Log.log("Stopping chunk back up, due to received PUTCHUNK");
-        } else if (! database.hasBackedUpFileById(msg.getFileID())) {
+        }
+        else if (! database.hasBackedUpFileById(msg.getFileID())) {
+            // If file is not a local file, Mirror/Backup Chunk
             Backup backup = new Backup(parentPeer, msg);
             executor.execute(backup);
         } else {
@@ -145,6 +137,9 @@ public class Handler implements Runnable {
     }
 
     private void handleSTORED(Message msg) {
+        // Notify BACKUP observers of new STORED message
+        parentPeer.getPeerData().notifyStoredObservers(msg);
+
         Database database = parentPeer.getDatabase();
         if (database.hasChunk(msg.getFileID(), msg.getChunkNo())) {
             database.addChunkMirror(msg.getFileID(), msg.getChunkNo(), msg.getSenderID());
@@ -160,7 +155,7 @@ public class Handler implements Runnable {
         int chunkNo = msg.getChunkNo();
 
         if (database.removeChunkMirror(fileID, chunkNo, msg.getSenderID()) == null) {
-            Log.logWarning("Ignoring REMOVED of non-local Chunk");
+            Log.log("Ignoring REMOVED of non-local Chunk");
             return;
         }
 
@@ -181,17 +176,5 @@ public class Handler implements Runnable {
             backUpHandlers.putIfAbsent(msg.getFileID(), new HashMap<>());
             backUpHandlers.get(msg.getFileID()).put(msg.getChunkNo(), handler);
         }
-    }
-
-    public void pushMessage(byte[] data, int length) {
-        Message msgParsed; // create and parse the message
-        try {
-            msgParsed = new Message(data, length);
-        } catch (Exception e) {
-            Log.logError(e.getMessage());
-            return;
-        }
-
-        msgQueue.add(msgParsed);
     }
 }

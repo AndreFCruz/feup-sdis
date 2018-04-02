@@ -31,17 +31,17 @@ public class TCPServer implements Runnable {
             run = false;
             serverSocket.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.logError("Couldn't close TCPServer!");
         }
     }
 
     private void initializeTCPServer() {
         try {
-            serverSocket = new ServerSocket(TCPSERVER_PORT);
-            Log.log("Started TCPServer");
+            serverSocket = new ServerSocket(TCPSERVER_PORT + parentPeer.getID());
+            Log.logWarning("Started TCPServer!");
             run = true;
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.logError("Couldn't initialize TCPServer!");
         }
 
     }

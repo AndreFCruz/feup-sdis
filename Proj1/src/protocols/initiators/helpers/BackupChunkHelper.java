@@ -38,18 +38,16 @@ public class BackupChunkHelper implements Runnable {
         int waitTime = 1000; // wait time, in milliseconds
         Message msg = generatePutChunkMsg(chunk, protocolVersion);
 
-        Thread currentThread = Thread.currentThread();
         for (int i = 0; i < ProtocolSettings.PUTCHUNK_RETRIES; i++) {
-            Log.log(currentThread.getId() + " i: " + i);
             if (isDesiredReplicationDegree()) {
-                Log.logWarning("Achieved desired replication at i=" + i);
+                Log.log("Achieved desired replication at i=" + i);
                 break;
             }
 
             try {
                 parentPeer.sendMessage(Channel.ChannelType.MDB, msg);
             } catch (IOException e) {
-                Log.logError(e.getMessage());
+                Log.logError("Couldn't send message to multicast channel!");
             }
 
             sleep(waitTime);
@@ -66,7 +64,7 @@ public class BackupChunkHelper implements Runnable {
         try {
             Thread.sleep(waitTime);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Log.logError(e.getMessage());
         }
     }
 

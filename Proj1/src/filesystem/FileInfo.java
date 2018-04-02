@@ -1,8 +1,10 @@
 package filesystem;
 
-import java.io.File;
+import java.io.Serializable;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
-public class FileInfo {
+public class FileInfo implements Serializable {
 
     private String fileID; // hashed through sha256
     private String pathName;
@@ -12,10 +14,12 @@ public class FileInfo {
     private ChunkInfo[] chunks; //ChunkNo -> ChunkInfo
 
 
-    public FileInfo(File file, String fileID, int replicationDegree, ChunkInfo[] chunkInfoArray) {
+    public FileInfo(String pathName, String fileID, int replicationDegree, ChunkInfo[] chunkInfoArray) {
         this.fileID = fileID;
-        this.fileName = file.getName();
-        this.pathName = file.getPath();
+        Path filepath = Paths.get(pathName);
+        this.fileName = filepath.getFileName().toString();
+        this.pathName = filepath.toString();
+
         this.numChunks = chunkInfoArray.length;
         this.desiredReplicationDegree = replicationDegree;
         this.chunks = chunkInfoArray;

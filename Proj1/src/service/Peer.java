@@ -7,13 +7,13 @@ import channels.MDBChannel;
 import channels.MDRChannel;
 import filesystem.Database;
 import filesystem.SystemManager;
-import network.Handler;
+import network.ConcreteMessageHandler;
 import network.Message;
+import network.MessageHandler;
 import protocols.PeerData;
 import protocols.initiators.*;
 import utils.Log;
 
-import java.io.File;
 import java.io.IOException;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
@@ -24,8 +24,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import static protocols.ProtocolSettings.ENHANCEMENT_DELETE;
-import static protocols.ProtocolSettings.MAX_SYSTEM_MEMORY;
+import static protocols.ProtocolSettings.*;
 import static utils.Utils.getRegistry;
 import static utils.Utils.parseRMI;
 
@@ -34,16 +33,16 @@ public class Peer implements RemoteBackupService {
     private final String protocolVersion;
     private final int id;
     private final String[] serverAccessPoint;
-    /**
-     * Handler and Dispatcher for received messages
-     */
-    private Handler dispatcher;
+
+    private MessageHandler messageHandler;
+    private Map<ChannelType, Channel> channels;
+
     /**
      * Executor service responsible for scheduling delayed responses
-     * and performing all sub-protocol tasks (backup, restore, ...).
+     * and performing all RMI sub-protocol tasks (backup, restore, ...).
      */
     private ScheduledExecutorService executor;
-    private Map<ChannelType, Channel> channels;
+    
     private SystemManager systemManager;
     private Database database;
     private PeerData peerData;
@@ -57,7 +56,7 @@ public class Peer implements RemoteBackupService {
         database = systemManager.getDatabase();
 
         setupChannels(mcAddress, mdbAddress, mdrAddress);
-        setupDispatcher();
+        setupMessageHandler();
 
         executor = new ScheduledThreadPoolExecutor(10);
 
@@ -99,17 +98,16 @@ public class Peer implements RemoteBackupService {
             registry.rebind(args[1], stub); //Only use rebind for development purposes
             //registry.bind(args[1], stub);
 
-            Log.logWarning("Server ready");
+            Log.logWarning("Server ready!");
         } catch (Exception e) {
             Log.logError("Server exception: " + e.toString());
-            e.printStackTrace();
         }
     }
 
-    private void setupDispatcher() {
+    private void setupMessageHandler() {
         peerData = new PeerData();
-        dispatcher = new Handler(this);
-        new Thread(dispatcher).start();
+        messageHandler = new ConcreteMessageHandler(this);
+        new Thread(messageHandler).start();
     }
 
     private void setupChannels(String[] mcAddress, String[] mdbAddress, String[] mdrAddress) {
@@ -148,13 +146,12 @@ public class Peer implements RemoteBackupService {
     }
 
     @Override
-    public String backup(File file, int replicationDegree) {
-        executor.execute(new BackupInitiator(protocolVersion, file, replicationDegree, this));
-        return "backup command ok";
+    public void backup(String pathname, int replicationDegree) {
+        executor.execute(new BackupInitiator(protocolVersion, pathname, replicationDegree, this));
     }
 
     @Override
-    public boolean restore(String pathname) {
+    public void restore(String pathname) {
         final Future handler;
         handler = executor.submit(new RestoreInitiator(protocolVersion, pathname, this));
 
@@ -163,7 +160,6 @@ public class Peer implements RemoteBackupService {
                 Log.logWarning("RestoreInitiator was killed for lack of chunks.");
             }
         }, 20, TimeUnit.SECONDS);
-        return true;
     }
 
     @Override
@@ -173,7 +169,7 @@ public class Peer implements RemoteBackupService {
 
     @Override
     public void reclaim(int space) {
-        systemManager.setMaxMemory(space);
+        systemManager.getMemoryManager().setMaxMemory(space);
         executor.execute(new ReclaimInitiator(protocolVersion, this));
     }
 
@@ -205,8 +201,7 @@ public class Peer implements RemoteBackupService {
     }
 
     private void sendUPMessage() {
-        if(getVersion().equals(ENHANCEMENT_DELETE)){
-            //wait for server ready
+        if (isPeerCompatibleWithEnhancement(ENHANCEMENT_DELETE, this)) {
             String[] args = {
                     getVersion(),
                     Integer.toString(getID()),
@@ -217,14 +212,14 @@ public class Peer implements RemoteBackupService {
             try {
                 sendMessage(Channel.ChannelType.MC, msg);
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.logError("Couldn't send message to multicast channel!");
             }
 
         }
     }
 
     public void addMsgToHandler(byte[] data, int length) {
-        dispatcher.pushMessage(data, length);
+        messageHandler.pushMessage(data, length);
     }
 
     public byte[] loadChunk(String fileID, int chunkNo) {
@@ -238,9 +233,6 @@ public class Peer implements RemoteBackupService {
     public boolean hasRestoreFinished(String pathName, String fileID) {
         int numChunks = database.getNumChunksByFilePath(pathName);
         int chunksRestored = peerData.getChunksRestoredSize(fileID);
-
-        Log.log("numChunks: "+ numChunks);
-        Log.log("chunksRestored: "+ chunksRestored);
 
         return numChunks == chunksRestored;
     }

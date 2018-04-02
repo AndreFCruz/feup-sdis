@@ -23,14 +23,12 @@ public class Log {
     }
 
     synchronized public static void logWarning(String msg) {
-        Date date = new Date();
 
         logFile.println("WARN @ " + getStandardHeader() + msg);
         logFile.flush();
     }
 
     synchronized public static void log(String msg) {
-        Date date = new Date();
 
         logFile.println("LOG  @ " + getStandardHeader() + msg);
         logFile.flush();
