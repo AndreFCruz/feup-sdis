@@ -42,7 +42,7 @@ public class Peer implements RemoteBackupService {
      * and performing all RMI sub-protocol tasks (backup, restore, ...).
      */
     private ScheduledExecutorService executor;
-    
+
     private SystemManager systemManager;
     private Database database;
     private PeerData peerData;

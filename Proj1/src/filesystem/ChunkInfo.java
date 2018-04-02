@@ -4,34 +4,20 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ChunkInfo implements Serializable {
+public class ChunkInfo extends BaseChunk implements Serializable {
 
-    private String fileID;
-    private int chunkNo;
     private int size;
-    private Integer replicationDegree;
     private Set<Integer> mirrors;
 
-    public ChunkInfo(int chunkNo, int replicationDegree) {
-        this.chunkNo = chunkNo;
-        this.replicationDegree = replicationDegree;
-        this.mirrors = new HashSet<>();
-    }
-
     public ChunkInfo(String fileID, int chunkNo, int replicationDegree, int size) {
-        this(chunkNo, replicationDegree);
+        super(fileID, chunkNo, replicationDegree);
 
-        this.fileID = fileID;
+        this.mirrors = new HashSet<>();
         this.size = size;
     }
 
-    public int getReplicationDegree() {
-        return replicationDegree;
-    }
-
     /**
-     * Removes the given peerID from the mirrors Set
-     *
+     * Removes the given peerID from the mirrors Set.
      * @param peerID
      * @return True if the peerID was a mirror, False otherwise
      */
@@ -39,20 +25,17 @@ public class ChunkInfo implements Serializable {
         return mirrors.remove(peerID);
     }
 
+    /**
+     * Adds the given peerID to the mirrors Set.
+     * @param peerID
+     * @return True if addition was successful.
+     */
     public boolean addMirror(Integer peerID) {
         return mirrors.add(peerID);
     }
 
     public int getNumMirrors() {
         return mirrors.size();
-    }
-
-    public String getFileID() {
-        return fileID;
-    }
-
-    public int getChunkNo() {
-        return chunkNo;
     }
 
     public int getSize() {

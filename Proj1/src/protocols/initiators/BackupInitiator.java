@@ -87,7 +87,7 @@ public class BackupInitiator implements Runnable {
         ChunkInfo[] chunkInfoArray = new ChunkInfo[chunks.size()];
         for (int i = 0; i < chunks.size(); i++) {
             Chunk chunk = chunks.get(i);
-            chunkInfoArray[i] = new ChunkInfo(chunk.getChunkNo(), chunk.getReplicationDegree());
+            chunkInfoArray[i] = new ChunkInfo(fileID, chunk.getChunkNo(), chunk.getReplicationDegree(), chunk.getSize());
         }
         parentPeer.getDatabase().addRestorableFile(new FileInfo(pathname, fileID, replicationDegree, chunkInfoArray));
     }
