@@ -17,6 +17,8 @@ public class DeleteEnhHelper implements Runnable {
     public DeleteEnhHelper(Message request, Peer parentPeer) {
         this.request = request;
         this.parentPeer = parentPeer;
+
+        Log.log("Starting DeleteEnhHelper");
     }
 
     @Override
