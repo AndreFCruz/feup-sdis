@@ -1,7 +1,7 @@
 package protocols.initiators.helpers;
 
 import channels.Channel;
-import filesystem.Chunk;
+import filesystem.ChunkData;
 import network.Message;
 import protocols.ProtocolSettings;
 import protocols.initiators.BackupInitiator;
@@ -15,17 +15,17 @@ public class BackupChunkHelper implements Runnable {
 
     private final String protocolVersion;
     private Peer parentPeer;
-    private Chunk chunk;
+    private ChunkData chunk;
     private AtomicIntegerArray chunkReplication;
 
-    public BackupChunkHelper(BackupInitiator backupInitiator, Chunk chunk) {
+    public BackupChunkHelper(BackupInitiator backupInitiator, ChunkData chunk) {
         this.chunk = chunk;
         this.parentPeer = backupInitiator.getParentPeer();
         this.protocolVersion = backupInitiator.getProtocolVersion();
         this.chunkReplication = parentPeer.getPeerData().getChunkReplication(chunk.getFileID());
     }
 
-    BackupChunkHelper(Peer parentPeer, Chunk chunk) {
+    BackupChunkHelper(Peer parentPeer, ChunkData chunk) {
         this.chunk = chunk;
         this.parentPeer = parentPeer;
         this.protocolVersion = parentPeer.getVersion();
@@ -68,7 +68,7 @@ public class BackupChunkHelper implements Runnable {
         }
     }
 
-    private Message generatePutChunkMsg(Chunk chunk, String protocolVersion) {
+    private Message generatePutChunkMsg(ChunkData chunk, String protocolVersion) {
         String[] args = {
                 protocolVersion,
                 Integer.toString(parentPeer.getID()),

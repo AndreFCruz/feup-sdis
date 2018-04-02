@@ -44,9 +44,9 @@ public class Restore implements Runnable, PeerData.MessageObserver {
         String fileID = request.getFileID();
         int chunkNo = request.getChunkNo();
 
-        //Access database to get the Chunk
+        //Access database to get the ChunkData
         if (!database.hasChunk(fileID, chunkNo)) {
-            Log.logError("Chunk not found locally: " + fileID + "/" + chunkNo);
+            Log.logError("ChunkData not found locally: " + fileID + "/" + chunkNo);
             return;
         }
 

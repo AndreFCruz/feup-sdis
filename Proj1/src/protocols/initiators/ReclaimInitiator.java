@@ -33,7 +33,7 @@ public class ReclaimInitiator implements Runnable {
 
             byte[] chunkData = systemManager.loadChunk(chunkInfo.getFileID(), chunkInfo.getChunkNo());
             if (chunkData == null) { // Confirm chunk exists
-                Log.logWarning("Chunk selected for reclaim doesn't exist");
+                Log.logWarning("ChunkData selected for reclaim doesn't exist");
                 continue;
             }
 

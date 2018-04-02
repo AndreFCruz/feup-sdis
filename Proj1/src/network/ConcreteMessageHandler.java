@@ -1,6 +1,6 @@
 package network;
 
-import filesystem.Chunk;
+import filesystem.ChunkData;
 import filesystem.ChunkInfo;
 import filesystem.Database;
 import protocols.*;
@@ -105,12 +105,12 @@ public class ConcreteMessageHandler extends MessageHandler {
         peerData.notifyChunkObservers(msg);
 
         if (!peerData.getFlagRestored(msg.getFileID())) { // Restoring File
-            Log.log("Discarded Chunk");
+            Log.log("Discarded ChunkData");
             return;
         }
 
         if (!isMessageCompatibleWithEnhancement(ENHANCEMENT_RESTORE, msg)) {
-            peerData.addChunkToRestore(new Chunk(msg.getFileID(), msg.getChunkNo(), msg.getBody()));
+            peerData.addChunkToRestore(new ChunkData(msg.getFileID(), msg.getChunkNo(), msg.getBody()));
         }
     }
 
@@ -128,7 +128,7 @@ public class ConcreteMessageHandler extends MessageHandler {
             Log.log("Stopping chunk back up, due to received PUTCHUNK");
         }
         else if (! database.hasBackedUpFileById(msg.getFileID())) {
-            // If file is not a local file, Mirror/Backup Chunk
+            // If file is not a local file, Mirror/Backup ChunkData
             Backup backup = new Backup(parentPeer, msg);
             executor.execute(backup);
         } else {
@@ -155,7 +155,7 @@ public class ConcreteMessageHandler extends MessageHandler {
         int chunkNo = msg.getChunkNo();
 
         if (database.removeChunkMirror(fileID, chunkNo, msg.getSenderID()) == null) {
-            Log.log("Ignoring REMOVED of non-local Chunk");
+            Log.log("Ignoring REMOVED of non-local ChunkData");
             return;
         }
 

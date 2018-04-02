@@ -1,6 +1,6 @@
 package protocols.initiators.helpers;
 
-import filesystem.Chunk;
+import filesystem.ChunkData;
 import network.Message;
 import protocols.PeerData;
 import service.Peer;
@@ -44,10 +44,10 @@ public class TCPClientHandler implements Runnable {
         PeerData peerData = parentPeer.getPeerData();
 
         if (!peerData.getFlagRestored(msg.getFileID())) {
-            Log.log("Discarded Chunk!");
+            Log.log("Discarded ChunkData!");
             return;
         }
 
-        peerData.addChunkToRestore(new Chunk(msg.getFileID(), msg.getChunkNo(), msg.getBody()));
+        peerData.addChunkToRestore(new ChunkData(msg.getFileID(), msg.getChunkNo(), msg.getBody()));
     }
 }

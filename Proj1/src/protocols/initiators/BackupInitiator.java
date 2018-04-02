@@ -1,6 +1,6 @@
 package protocols.initiators;
 
-import filesystem.Chunk;
+import filesystem.ChunkData;
 import filesystem.ChunkInfo;
 import filesystem.FileInfo;
 import filesystem.SystemManager;
@@ -43,7 +43,7 @@ public class BackupInitiator implements Runnable {
         fileData = SystemManager.loadFile(pathname);
 
         String fileID = generateFileID(pathname);
-        ArrayList<Chunk> chunks = splitFileInChunks(fileData, fileID, replicationDegree);
+        ArrayList<ChunkData> chunks = splitFileInChunks(fileData, fileID, replicationDegree);
 
         if (!validBackup(replicationDegree, chunks.size())) {
             return;
@@ -53,7 +53,7 @@ public class BackupInitiator implements Runnable {
         parentPeer.getPeerData().startChunkReplication(fileID, chunks.size());
 
         ArrayList<Thread> helperThreads = new ArrayList<>(chunks.size());
-        for (Chunk chunk : chunks) {
+        for (ChunkData chunk : chunks) {
             Thread t = new Thread(new BackupChunkHelper(this, chunk));
             helperThreads.add(t);
             t.start();
@@ -83,10 +83,10 @@ public class BackupInitiator implements Runnable {
         return true;
     }
 
-    private void addRestorableFile(ArrayList<Chunk> chunks, String fileID) {
+    private void addRestorableFile(ArrayList<ChunkData> chunks, String fileID) {
         ChunkInfo[] chunkInfoArray = new ChunkInfo[chunks.size()];
         for (int i = 0; i < chunks.size(); i++) {
-            Chunk chunk = chunks.get(i);
+            ChunkData chunk = chunks.get(i);
             chunkInfoArray[i] = new ChunkInfo(fileID, chunk.getChunkNo(), chunk.getReplicationDegree(), chunk.getSize());
         }
         parentPeer.getDatabase().addRestorableFile(new FileInfo(pathname, fileID, replicationDegree, chunkInfoArray));

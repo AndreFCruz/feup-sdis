@@ -1,6 +1,6 @@
 package protocols;
 
-import filesystem.Chunk;
+import filesystem.ChunkData;
 import network.Message;
 import utils.Log;
 
@@ -25,9 +25,9 @@ public class PeerData {
     private ConcurrentMap<String, AtomicIntegerArray> chunkReplication;
     /**
      * Contains the in-memory chunks restored.
-     * Maps (fileID -> (ChunkNum -> Chunk))
+     * Maps (fileID -> (ChunkNum -> ChunkData))
      */
-    private ConcurrentMap<String, ConcurrentSkipListMap<Integer, Chunk>> chunksRestored;
+    private ConcurrentMap<String, ConcurrentSkipListMap<Integer, ChunkData>> chunksRestored;
     /**
      * Collection of Observers of CHUNK messages.
      * Used for Restore protocol.
@@ -80,11 +80,11 @@ public class PeerData {
         return chunksRestored.containsKey(fileID);
     }
 
-    public void addChunkToRestore(Chunk chunk) {
-        Chunk ret = chunksRestored.get(chunk.getFileID()).putIfAbsent(chunk.getChunkNo(), chunk);
+    public void addChunkToRestore(ChunkData chunk) {
+        ChunkData ret = chunksRestored.get(chunk.getFileID()).putIfAbsent(chunk.getChunkNo(), chunk);
 
         if (ret != null) {
-            Log.logWarning("Chunk already exists!");
+            Log.logWarning("ChunkData already exists!");
         } else {
             Log.logWarning("Adding chunk to merge!");
         }
@@ -94,7 +94,7 @@ public class PeerData {
         return chunksRestored.get(fileID).size();
     }
 
-    public ConcurrentMap<Integer, Chunk> getChunksRestored(String fileID) {
+    public ConcurrentMap<Integer, ChunkData> getChunksRestored(String fileID) {
         return chunksRestored.get(fileID);
     }
 
