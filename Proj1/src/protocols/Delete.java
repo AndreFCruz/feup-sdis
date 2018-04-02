@@ -1,15 +1,15 @@
 package protocols;
 
 import channels.Channel;
+import filesystem.ChunkInfo;
 import filesystem.Database;
 import network.Message;
 import service.Peer;
 import utils.Log;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Set;
+import java.util.Collection;
+import java.util.Map;
 
 import static protocols.ProtocolSettings.ENHANCEMENT_DELETE;
 import static protocols.ProtocolSettings.isCompatibleWithEnhancement;
@@ -38,45 +38,37 @@ public class Delete implements Runnable {
             return;
         }
 
-        Set<Integer> chunks = database.getFileChunksKey(fileID);
-        String path = parentPeer.getPath("chunks");
-
-        for (Integer chunk : chunks) {
-            try {
-                Files.delete(Paths.get(path + "/" + fileID + "/" + chunk));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        try {
-            Files.delete(Paths.get(path + "/" + fileID));
-        } catch (IOException e) {
-            Log.logError("Couldn't delete the file");
+        Map<Integer, ChunkInfo> chunkMap = database.removeChunksBackedUpByFileID(fileID);
+        Collection<ChunkInfo> chunks = chunkMap.values();
+        for (ChunkInfo chunk : chunks) {
+            parentPeer.getSystemManager().deleteChunk(chunk.getFileID(), chunk.getChunkNo());
         }
 
         if (isCompatibleWithEnhancement(ENHANCEMENT_DELETE, request, parentPeer)) {
             sendMessageToMC(request);
         }
 
-        database.removeFileBackedUp(fileID);
         Log.logWarning("Finished delete!");
     }
 
     private void sendMessageToMC(Message request) {
-        String[] args = {
-                parentPeer.getVersion(),
-                Integer.toString(parentPeer.getID()),
-                request.getFileID()
-        };
-
-        Message msg = new Message(Message.MessageType.DELETED, args);
+        Message msg = makeDELETED(request);
 
         try {
             parentPeer.sendMessage(Channel.ChannelType.MC, msg);
         } catch (IOException e) {
             Log.logError("Couldn't send message to multicast channel!");
         }
+    }
+
+    private Message makeDELETED(Message request) {
+        String[] args = {
+                parentPeer.getVersion(),
+                Integer.toString(parentPeer.getID()),
+                request.getFileID()
+        };
+
+        return new Message(Message.MessageType.DELETED, args);
     }
 
 }

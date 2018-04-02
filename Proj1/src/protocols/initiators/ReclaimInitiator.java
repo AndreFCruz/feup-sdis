@@ -21,27 +21,28 @@ public class ReclaimInitiator implements Runnable {
         this.systemManager = parentPeer.getSystemManager();
         this.version = version;
 
-        Log.logWarning("Starting reclaimInitiator!");
+        Log.log("Starting reclaimInitiator!");
     }
 
     @Override
     public void run() {
         MemoryManager memoryManager = systemManager.getMemoryManager();
         while (memoryManager.getAvailableMemory() < 0) {
-            Log.logWarning("Available memory: " + memoryManager.getAvailableMemory());
+            Log.log("Available memory: " + memoryManager.getAvailableMemory());
             ChunkInfo chunkInfo = systemManager.getDatabase().getChunkForRemoval();
+
             byte[] chunkData = systemManager.loadChunk(chunkInfo.getFileID(), chunkInfo.getChunkNo());
             if (chunkData == null) { // Confirm chunk exists
+                Log.logWarning("Chunk selected for reclaim doesn't exist");
                 continue;
             }
 
             systemManager.deleteChunk(chunkInfo.getFileID(), chunkInfo.getChunkNo());
-
             sendREMOVED(chunkInfo);
         }
 
-        Log.logWarning("Available memory: " + memoryManager.getAvailableMemory());
-        Log.logWarning("Finished reclaimInitiator!");
+        Log.log("Available memory: " + memoryManager.getAvailableMemory());
+        Log.log("Finished reclaimInitiator!");
     }
 
     private void sendREMOVED(ChunkInfo chunkInfo) {

@@ -128,11 +128,11 @@ public class Database extends PermanentStateClass {
         chunksBackedUp.get(fileID).remove(chunkNo);
     }
 
-    public void removeFileBackedUp(String fileID) {
+    public Map<Integer, ChunkInfo> removeChunksBackedUpByFileID(String fileID) {
         if (!chunksBackedUp.containsKey(fileID))
-            return;
+            return null;
 
-        chunksBackedUp.remove(fileID);
+        return chunksBackedUp.remove(fileID);
     }
 
     public int getNumChunksByFilePath(String path) {
@@ -189,10 +189,6 @@ public class Database extends PermanentStateClass {
 
     public boolean hasChunks(String fileID) {
         return chunksBackedUp.containsKey(fileID);
-    }
-
-    public Set<Integer> getFileChunksKey(String fileID) {
-        return chunksBackedUp.get(fileID).keySet();
     }
 
     public Collection<FileInfo> getFilesBackedUp() {

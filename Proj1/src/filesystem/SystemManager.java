@@ -219,7 +219,7 @@ public class SystemManager {
         try {
             Files.delete(path);
         } catch (IOException e) {
-            Log.logError("Couldn't delete a file!");
+            Log.logError("Couldn't delete file: " + path);
         }
         memoryManager.reduceUsedMemory(chunkSize);
         database.removeChunk(fileID, chunkNo);

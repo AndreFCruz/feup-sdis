@@ -3,6 +3,7 @@ package filesystem;
 import utils.Log;
 
 public class MemoryManager extends PermanentStateClass {
+    private static final long serialVersionUID = 2L;
 
     private long maxMemory;
     private long usedMemory;
