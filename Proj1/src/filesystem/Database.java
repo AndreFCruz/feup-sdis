@@ -3,10 +3,6 @@ package filesystem;
 import utils.Log;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -14,36 +10,30 @@ import java.util.concurrent.ConcurrentSkipListSet;
 
 public class Database implements Serializable {
     private static final long serialVersionUID = 1L;
-
+    /**
+     * Period between DB saves, in milliseconds
+     */
+    private final long SAVE_PERIOD = 1000;
     /**
      * Contains local files that were backed up,
      * and may be restored.
      * Maps (fileID -> FileInfo)
      */
     private ConcurrentMap<String, FileInfo> filesBackedUp;
-
     /**
      * Maps (filePath -> FileInfo)
      */
     private ConcurrentMap<String, FileInfo> filesByPath;
-
     /**
      * Contains backed up Chunks (on disk memory).
      * Maps (fileID -> (ChunkNum -> ChunkInfo))
      */
     private ConcurrentMap<String, ConcurrentMap<Integer, ChunkInfo>> chunksBackedUp;
-
     /**
      * Contains peerIDs to delete a file.
      * Maps (fileID -> Array<PeerID>)
      */
     private ConcurrentMap<String, Set<Integer>> filesToDelete;
-
-    /**
-     * Period between DB saves, in milliseconds
-     */
-    private final long SAVE_PERIOD = 1000;
-
     private String savePath;
 
 
@@ -54,6 +44,23 @@ public class Database implements Serializable {
         filesToDelete = new ConcurrentHashMap<>();
 
         setUpDatabase(savePath);
+    }
+
+    synchronized static Database loadDatabase(File file) throws IOException, ClassNotFoundException {
+        Database db;
+
+        FileInputStream fileIn = new FileInputStream(file);
+        final ObjectInputStream inputStream = new ObjectInputStream(fileIn);
+        db = (Database) inputStream.readObject();
+        inputStream.close();
+        fileIn.close();
+
+        if (db != null)
+            db.setUpDatabase(file.getAbsolutePath());
+        else
+            Log.logError("Error initializing DB from file");
+
+        return db;
     }
 
     public void setUpDatabase(String savePath) {
@@ -85,35 +92,18 @@ public class Database implements Serializable {
         }
     }
 
-    synchronized static Database loadDatabase(File file) throws IOException, ClassNotFoundException {
-        Database db;
-
-        FileInputStream fileIn = new FileInputStream(file);
-        final ObjectInputStream inputStream = new ObjectInputStream(fileIn);
-        db = (Database) inputStream.readObject();
-        inputStream.close();
-        fileIn.close();
-
-        if (db != null)
-            db.setUpDatabase(file.getAbsolutePath());
-        else
-            Log.logError("Error initializing DB from file");
-
-        return db;
-    }
-
-    public void  addFileMirror(String fileID, int senderID) {
+    public void addFileMirror(String fileID, int senderID) {
         filesToDelete.putIfAbsent(fileID, new ConcurrentSkipListSet<>());
         Set<Integer> peers = filesToDelete.get(fileID);
         peers.add(senderID);
     }
 
-    public Set<String> getFilesToDelete(int senderID){
+    public Set<String> getFilesToDelete(int senderID) {
         Set<String> files = new ConcurrentSkipListSet<>();
 
         for (Map.Entry<String, Set<Integer>> outer : filesToDelete.entrySet()) {
             for (Integer inner : outer.getValue()) {
-                if(inner == senderID){
+                if (inner == senderID) {
                     files.add(outer.getKey());
                     break;
                 }
@@ -123,7 +113,7 @@ public class Database implements Serializable {
         return files;
     }
 
-    public void  deleteFileMirror(String fileID, int senderID) {
+    public void deleteFileMirror(String fileID, int senderID) {
         Set<Integer> peers = filesToDelete.get(fileID);
         if (peers != null)
             peers.remove(senderID);
@@ -183,7 +173,7 @@ public class Database implements Serializable {
         if (!chunksBackedUp.containsKey(fileID))
             return;
 
-        Log.log("Apaguei! " + fileID + " " +chunkNo);
+        Log.log("Apaguei! " + fileID + " " + chunkNo);
         chunksBackedUp.get(fileID).remove(chunkNo);
     }
 
@@ -294,6 +284,6 @@ public class Database implements Serializable {
         savePermanentState();
         super.finalize();
     }
-    
+
 
 }

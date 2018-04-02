@@ -14,9 +14,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import static filesystem.SystemManager.fileMerge;
 import static filesystem.SystemManager.saveFile;
-import static protocols.ProtocolSettings.ENHANCEMENT_RESTORE;
-import static protocols.ProtocolSettings.TCPSERVER_PORT;
-import static protocols.ProtocolSettings.isPeerCompatibleWithEnhancement;
+import static protocols.ProtocolSettings.*;
 
 public class RestoreInitiator implements Runnable {
 

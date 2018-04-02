@@ -16,9 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 import static filesystem.SystemManager.createFolder;
 import static filesystem.SystemManager.saveFile;
-import static protocols.ProtocolSettings.ENHANCEMENT_BACKUP;
-import static protocols.ProtocolSettings.MAX_DELAY;
-import static protocols.ProtocolSettings.isCompatibleWithEnhancement;
+import static protocols.ProtocolSettings.*;
 
 public class Backup implements Runnable, PeerData.MessageObserver {
 
@@ -151,7 +149,7 @@ public class Backup implements Runnable, PeerData.MessageObserver {
     public void update(Message msg) {
         if (this.handler == null)
             return;
-        if ( msg.getChunkNo() != request.getChunkNo() || (! msg.getFileID().equals(request.getFileID())) )
+        if (msg.getChunkNo() != request.getChunkNo() || (!msg.getFileID().equals(request.getFileID())))
             return;
 
         storedCount += 1;

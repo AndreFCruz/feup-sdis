@@ -23,9 +23,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import static protocols.ProtocolSettings.ENHANCEMENT_DELETE;
-import static protocols.ProtocolSettings.MAX_SYSTEM_MEMORY;
-import static protocols.ProtocolSettings.isPeerCompatibleWithEnhancement;
+import static protocols.ProtocolSettings.*;
 import static utils.Utils.getRegistry;
 import static utils.Utils.parseRMI;
 
@@ -205,7 +203,7 @@ public class Peer implements RemoteBackupService {
     }
 
     private void sendUPMessage() {
-        if(isPeerCompatibleWithEnhancement(ENHANCEMENT_DELETE, this)){
+        if (isPeerCompatibleWithEnhancement(ENHANCEMENT_DELETE, this)) {
             //wait for server ready
             String[] args = {
                     getVersion(),
@@ -239,8 +237,8 @@ public class Peer implements RemoteBackupService {
         int numChunks = database.getNumChunksByFilePath(pathName);
         int chunksRestored = peerData.getChunksRestoredSize(fileID);
 
-        Log.log("numChunks: "+ numChunks);
-        Log.log("chunksRestored: "+ chunksRestored);
+        Log.log("numChunks: " + numChunks);
+        Log.log("chunksRestored: " + chunksRestored);
 
         return numChunks == chunksRestored;
     }

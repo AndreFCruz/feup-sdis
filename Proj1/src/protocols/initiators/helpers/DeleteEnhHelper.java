@@ -24,16 +24,16 @@ public class DeleteEnhHelper implements Runnable {
 
         Set<String> filesToDelete = database.getFilesToDelete(request.getSenderID());
 
-        if(filesToDelete.isEmpty())
+        if (filesToDelete.isEmpty())
             return;
 
-        for(String fileID : filesToDelete){
+        for (String fileID : filesToDelete) {
             sendDELETE(fileID);
         }
 
     }
 
-    private void sendDELETE(String fileID){
+    private void sendDELETE(String fileID) {
         String[] args = {
                 parentPeer.getVersion(),
                 Integer.toString(parentPeer.getID()),

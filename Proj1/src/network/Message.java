@@ -1,15 +1,12 @@
 package network;
 
-import utils.Log;
 import utils.Utils;
 
-import java.awt.*;
 import java.io.*;
 
-import static protocols.ProtocolSettings.TCPSERVER_PORT;
 import static utils.Utils.getIPV4Address;
 
-public class Message implements Serializable{
+public class Message implements Serializable {
 
     private int numberArgs;
     //    Header
@@ -43,7 +40,7 @@ public class Message implements Serializable{
         version = args[0];
         senderID = Integer.parseInt(args[1]);
 
-        if(type == MessageType.UP)
+        if (type == MessageType.UP)
             return;
 
         fileID = args[2];
@@ -55,7 +52,7 @@ public class Message implements Serializable{
             replicationDegree = Integer.parseInt(args[4]);
         }
 
-        if(type == MessageType.ENH_GETCHUNK){
+        if (type == MessageType.ENH_GETCHUNK) {
             mTCPPort = Integer.parseInt(args[4]);
             mTCPHost = getIPV4Address();
         }
@@ -146,7 +143,7 @@ public class Message implements Serializable{
         version = headerSplit[1];
         senderID = Integer.parseInt(headerSplit[2]);
 
-        if(type == MessageType.UP)
+        if (type == MessageType.UP)
             return true;
 
         fileID = headerSplit[3];
@@ -157,7 +154,7 @@ public class Message implements Serializable{
         if (type == MessageType.PUTCHUNK)
             replicationDegree = Integer.parseInt(headerSplit[5]);
 
-        if(type == MessageType.ENH_GETCHUNK){
+        if (type == MessageType.ENH_GETCHUNK) {
             String[] tcpAddress = headerSplit[5].split(":");
             mTCPHost = tcpAddress[0];
             mTCPPort = Integer.parseInt(tcpAddress[1]);

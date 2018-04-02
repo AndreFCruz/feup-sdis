@@ -15,12 +15,6 @@ import static java.util.Arrays.copyOfRange;
 import static protocols.ProtocolSettings.MAX_CHUNK_SIZE;
 
 public class SystemManager {
-    public enum SAVE_STATE {
-        EXISTS,
-        SUCCESS,
-        FAILURE
-    }
-
     public static final String FILES = "../files/";
     private static final String CHUNKS = "chunks/";
     private static final String RESTORES = "restores/";
@@ -103,7 +97,7 @@ public class SystemManager {
         return data;
     }
 
-    public static long getFileSize(Path filepath){
+    public static long getFileSize(Path filepath) {
         BasicFileAttributes attr = null;
         try {
             attr = Files.readAttributes(filepath, BasicFileAttributes.class);
@@ -112,6 +106,7 @@ public class SystemManager {
         }
         return attr.size();
     }
+
     public static ArrayList<Chunk> loadChunks(String pathname, int numberOfChunks) throws FileNotFoundException {
         ArrayList<Chunk> chunks = new ArrayList<>();
 
@@ -257,5 +252,11 @@ public class SystemManager {
         }
         reduceUsedMemory(chunkSize);
         database.removeChunk(fileID, chunkNo);
+    }
+
+    public enum SAVE_STATE {
+        EXISTS,
+        SUCCESS,
+        FAILURE
     }
 }

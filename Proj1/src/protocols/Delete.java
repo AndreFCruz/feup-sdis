@@ -55,7 +55,7 @@ public class Delete implements Runnable {
             e.printStackTrace();
         }
 
-        if (isCompatibleWithEnhancement(ENHANCEMENT_DELETE, request, parentPeer)){
+        if (isCompatibleWithEnhancement(ENHANCEMENT_DELETE, request, parentPeer)) {
             sendMessageToMC(request);
         }
 

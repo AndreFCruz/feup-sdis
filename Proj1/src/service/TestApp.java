@@ -2,7 +2,6 @@ package service;
 
 import utils.Log;
 
-import java.io.File;
 import java.nio.file.Paths;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;

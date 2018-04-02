@@ -94,7 +94,7 @@ public class Handler implements Runnable {
     }
 
     private void handleUP(Message msg) {
-        if(isCompatibleWithEnhancement(ENHANCEMENT_DELETE, msg, parentPeer)){
+        if (isCompatibleWithEnhancement(ENHANCEMENT_DELETE, msg, parentPeer)) {
             executor.execute(new DeleteEnhHelper(msg, parentPeer));
         }
     }
@@ -102,7 +102,7 @@ public class Handler implements Runnable {
     private void handleDELETED(Message msg) {
         Database database = parentPeer.getDatabase();
 
-        if(isCompatibleWithEnhancement(ENHANCEMENT_DELETE, msg, parentPeer)){
+        if (isCompatibleWithEnhancement(ENHANCEMENT_DELETE, msg, parentPeer)) {
             database.deleteFileMirror(msg.getFileID(), msg.getSenderID());
         }
     }
@@ -119,7 +119,7 @@ public class Handler implements Runnable {
         }
 
 
-        if(!isMessageCompatibleWithEnhancement(ENHANCEMENT_RESTORE, msg)){
+        if (!isMessageCompatibleWithEnhancement(ENHANCEMENT_RESTORE, msg)) {
             peerData.addChunkToRestore(new Chunk(msg.getFileID(), msg.getChunkNo(), msg.getBody()));
         }
 
@@ -135,7 +135,7 @@ public class Handler implements Runnable {
             if (handler == null) return;
             handler.cancel(true);
             Log.log("Stopping chunk back up, due to received PUTCHUNK");
-        } else if (! database.hasBackedUpFileById(msg.getFileID())) {
+        } else if (!database.hasBackedUpFileById(msg.getFileID())) {
             Backup backup = new Backup(parentPeer, msg);
             executor.execute(backup);
         } else {
