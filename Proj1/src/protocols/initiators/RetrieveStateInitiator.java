@@ -57,7 +57,7 @@ public class RetrieveStateInitiator implements Runnable {
                 out += "\n Chunk: " +
                         "\n  ChunkID: " + chunk.getChunkNo() +
                         "\n  Size: " + chunk.getSize() / 1000 +
-                        "\n  Perceived Replication: " + chunk.getNumMirrors();
+                        "\n  Perceived Replication: " + (chunk.getNumMirrors()+1);
             }
         }
 
