@@ -1,6 +1,9 @@
 package protocols.initiators;
 
-import filesystem.*;
+import filesystem.ChunkInfo;
+import filesystem.Database;
+import filesystem.FileInfo;
+import filesystem.MemoryManager;
 import service.Peer;
 import utils.Log;
 

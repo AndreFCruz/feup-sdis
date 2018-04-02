@@ -43,9 +43,7 @@ public class SystemManager {
         try {
             initializeMemoryManager(maxMemory);
             initializeDatabase();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
     }
@@ -101,14 +99,14 @@ public class SystemManager {
     synchronized public static byte[] loadFile(String pathname) {
         InputStream inputStream;
         long fileSize;
-        byte[] data = null;
+        byte[] data;
 
         try {
             inputStream = Files.newInputStream(Paths.get(pathname));
             fileSize = getFileSize(Paths.get(pathname));
         } catch (IOException e) {
             Log.logError("File not found!");
-            return data;
+            return null;
         }
 
         data = new byte[(int) fileSize];

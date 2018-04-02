@@ -41,7 +41,7 @@ public class DeleteInitiator implements Runnable {
         try {
             Files.delete(Paths.get(path));
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.logError("Couldn't delete a file!");
         }
 
         //Delete file from database
