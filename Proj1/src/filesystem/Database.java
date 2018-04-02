@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 public class Database implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     /**
      * Contains local files that were backed up,
@@ -39,12 +40,6 @@ public class Database implements Serializable {
     private ConcurrentMap<String, Set<Integer>> filesToDelete;
 
     /**
-     * Stream used to serialize this instance.
-     * Is static to not be serialized with the class instance.
-     */
-    private static ObjectOutputStream objectOutputStream;
-
-    /**
      * Period between DB saves, in milliseconds
      */
     private final long SAVE_PERIOD = 1000;
@@ -61,11 +56,8 @@ public class Database implements Serializable {
         setUpDatabase(savePath);
     }
 
-    public void setUpDatabase(String savePath) throws IOException {
+    public void setUpDatabase(String savePath) {
         this.savePath = savePath;
-
-        OutputStream out = new FileOutputStream(savePath);
-        objectOutputStream = new ObjectOutputStream(out);
 
         setUpPeriodicSaves();
     }
@@ -83,9 +75,10 @@ public class Database implements Serializable {
 
     synchronized private void savePermanentState() {
         try {
-            File file = new File(this.savePath);
-            file.delete();
-            objectOutputStream.writeObject(this);
+            FileOutputStream out = new FileOutputStream(savePath);
+            ObjectOutputStream oos = new ObjectOutputStream(out);
+            oos.writeObject(this);
+            oos.close();
         } catch (IOException e) {
             Log.logError("Couldn't save database");
             e.printStackTrace();
@@ -299,7 +292,6 @@ public class Database implements Serializable {
     @Override
     protected void finalize() throws Throwable {
         savePermanentState();
-        objectOutputStream.close();
         super.finalize();
     }
     
