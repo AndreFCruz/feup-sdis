@@ -37,7 +37,7 @@ public class Database implements Serializable {
     private String savePath;
 
 
-    Database(String savePath) throws IOException {
+    Database(String savePath) {
         filesBackedUp = new ConcurrentHashMap<>();
         filesByPath = new ConcurrentHashMap<>();
         chunksBackedUp = new ConcurrentHashMap<>();
@@ -88,7 +88,6 @@ public class Database implements Serializable {
             oos.close();
         } catch (IOException e) {
             Log.logError("Couldn't save database");
-            e.printStackTrace();
         }
     }
 
@@ -173,7 +172,6 @@ public class Database implements Serializable {
         if (!chunksBackedUp.containsKey(fileID))
             return;
 
-        Log.log("Apaguei! " + fileID + " " + chunkNo);
         chunksBackedUp.get(fileID).remove(chunkNo);
     }
 
@@ -217,7 +215,7 @@ public class Database implements Serializable {
         try {
             ret = chunksBackedUp.get(fileID).get(chunkNo).removeMirror(peerID);
         } catch (NullPointerException e) {
-            Log.logWarning("(removeChunkMirror) Chunk not found: " + e.getMessage());
+            Log.logError("(removeChunkMirror) Chunk not found: " + e.getMessage());
             return null;
         }
 
@@ -284,6 +282,5 @@ public class Database implements Serializable {
         savePermanentState();
         super.finalize();
     }
-
 
 }

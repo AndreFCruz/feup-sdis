@@ -15,6 +15,13 @@ import static java.util.Arrays.copyOfRange;
 import static protocols.ProtocolSettings.MAX_CHUNK_SIZE;
 
 public class SystemManager {
+
+    public enum SAVE_STATE {
+        EXISTS,
+        SUCCESS,
+        FAILURE
+    }
+
     public static final String FILES = "../files/";
     private static final String CHUNKS = "chunks/";
     private static final String RESTORES = "restores/";
@@ -35,11 +42,8 @@ public class SystemManager {
 
         try {
             initializeDatabase();
-        } catch (IOException e) {
-            Log.logError("Failed DB construction");
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+        } catch (IOException | ClassNotFoundException e) {
+            Log.logError("Failed DB construction!");
         }
     }
 
@@ -47,7 +51,7 @@ public class SystemManager {
         try {
             Files.createDirectories(Paths.get(name));
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.logError("Couldn't create file directory!");
         }
     }
 
@@ -59,7 +63,7 @@ public class SystemManager {
         String filePath = pathname + "/" + fileName;
 
         if (Files.exists(Paths.get(filePath))) {
-            Log.logWarning("File already exists");
+            Log.logWarning("File already exists!");
             return SAVE_STATE.EXISTS;
         }
 
@@ -71,7 +75,7 @@ public class SystemManager {
         return SAVE_STATE.SUCCESS;
     }
 
-    synchronized public static byte[] loadFile(String pathname) throws FileNotFoundException {
+    synchronized public static byte[] loadFile(String pathname) {
         InputStream inputStream;
         long fileSize;
         byte[] data = null;
@@ -80,7 +84,6 @@ public class SystemManager {
             inputStream = Files.newInputStream(Paths.get(pathname));
             fileSize = getFileSize(Paths.get(pathname));
         } catch (IOException e) {
-//            e.printStackTrace();
             Log.logError("File not found!");
             return data;
         }
@@ -91,7 +94,7 @@ public class SystemManager {
             inputStream.read(data);
             inputStream.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.logError("Couldn't read data of a file!");
         }
 
         return data;
@@ -102,12 +105,12 @@ public class SystemManager {
         try {
             attr = Files.readAttributes(filepath, BasicFileAttributes.class);
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.logError("Couldn't read attributes of a file!");
         }
         return attr.size();
     }
 
-    public static ArrayList<Chunk> loadChunks(String pathname, int numberOfChunks) throws FileNotFoundException {
+    public static ArrayList<Chunk> loadChunks(String pathname, int numberOfChunks) {
         ArrayList<Chunk> chunks = new ArrayList<>();
 
         for (int i = 0; i <= numberOfChunks; i++) {
@@ -150,7 +153,7 @@ public class SystemManager {
             try {
                 outputStream.write(chunks.get(i).getData());
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.logError("Couldn't merge chunks of a file!");
             }
         }
 
@@ -177,13 +180,13 @@ public class SystemManager {
         usedMemory -= n;
         if (usedMemory < 0) {
             usedMemory = 0;
-            Log.logError("Used memory went below 0");
+            Log.logError("Used memory went below 0!");
         }
     }
 
     private static boolean increaseUsedMemory(long n) {
         if (usedMemory + n > maxMemory) {
-            Log.logWarning("Tried to surpass memory restrictions");
+            Log.logWarning("Tried to surpass memory restrictions!");
             return false;
         }
         usedMemory += n;
@@ -206,15 +209,11 @@ public class SystemManager {
     }
 
     public byte[] loadChunk(String fileID, int chunkNo) {
-        byte[] chunkData = null;
+        byte[] chunkData;
         String chunkPath = getChunkPath(fileID, chunkNo);
 
-        try {
-            //load chunk data
-            chunkData = loadFile(chunkPath);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        //load chunk data
+        chunkData = loadFile(chunkPath);
 
         return chunkData;
     }
@@ -248,15 +247,10 @@ public class SystemManager {
         try {
             Files.delete(path);
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.logError("Couldn't delete a file!");
         }
         reduceUsedMemory(chunkSize);
         database.removeChunk(fileID, chunkNo);
     }
 
-    public enum SAVE_STATE {
-        EXISTS,
-        SUCCESS,
-        FAILURE
-    }
 }

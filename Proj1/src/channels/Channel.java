@@ -9,6 +9,10 @@ import java.net.MulticastSocket;
 
 public abstract class Channel implements Runnable {
 
+    public enum ChannelType {
+        MC, MDB, MDR
+    }
+
     private static final int MAX_MESSAGE_SIZE = 65000;
     private MulticastSocket socket;
     private InetAddress mcastAddr;
@@ -72,7 +76,4 @@ public abstract class Channel implements Runnable {
         socket.close();
     }
 
-    public enum ChannelType {
-        MC, MDB, MDR
-    }
 }

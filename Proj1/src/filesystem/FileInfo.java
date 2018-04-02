@@ -1,7 +1,5 @@
 package filesystem;
 
-import utils.Log;
-
 import java.io.Serializable;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -21,8 +19,6 @@ public class FileInfo implements Serializable {
         Path filepath = Paths.get(pathName);
         this.fileName = filepath.getFileName().toString();
         this.pathName = filepath.toString();
-        Log.log(fileName);
-        Log.log(pathName);
 
         this.numChunks = chunkInfoArray.length;
         this.desiredReplicationDegree = replicationDegree;
