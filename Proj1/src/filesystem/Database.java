@@ -124,7 +124,6 @@ public class Database extends PermanentStateClass {
         if (!chunksBackedUp.containsKey(fileID))
             return;
 
-        Log.log("Apaguei! " + fileID + " " + chunkNo);
         chunksBackedUp.get(fileID).remove(chunkNo);
     }
 
@@ -168,7 +167,7 @@ public class Database extends PermanentStateClass {
         try {
             ret = chunksBackedUp.get(fileID).get(chunkNo).removeMirror(peerID);
         } catch (NullPointerException e) {
-            Log.logWarning("(removeChunkMirror) Chunk not found: " + e.getMessage());
+            Log.logError("(removeChunkMirror) Chunk not found: " + e.getMessage());
             return null;
         }
 
@@ -235,6 +234,5 @@ public class Database extends PermanentStateClass {
         savePermanentState();
         super.finalize();
     }
-
 
 }

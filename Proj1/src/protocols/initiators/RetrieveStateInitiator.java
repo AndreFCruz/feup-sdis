@@ -17,7 +17,8 @@ public class RetrieveStateInitiator implements Runnable {
         this.version = version;
         this.parentPeer = parentPeer;
         this.database = parentPeer.getDatabase();
-        Log.logWarning("Starting retriveStateInitiator!");
+
+        Log.logWarning("Starting retrieveStateInitiator!");
     }
 
     @Override
@@ -40,13 +41,12 @@ public class RetrieveStateInitiator implements Runnable {
                     "\n  Chunks:";
             ChunkInfo[] fileChunks = file.getChunks();
             for (ChunkInfo chunk : fileChunks) {
-                out += "\n   ChunkID:" + chunk.getChunkNo() +
-                        "\n   Perceived Replication:" + chunk.getReplicationDegree(); //TODO:Update this value
+                out += "\n   ChunkID:" + chunk.getChunkNo();
             }
         }
 
-        // Loop to save the chunks
-        out += "\n\nChunks:\n"; //TODO: Correct values
+        //Loop to save the chunks
+        out += "\n\nChunks:\n";
         for (Map.Entry<String, ConcurrentMap<Integer, ChunkInfo>> outer : chunks.entrySet()) {
             out += "\nFile: " + outer.getKey();
             for (Map.Entry<Integer, ChunkInfo> inner : outer.getValue().entrySet()) {
@@ -54,7 +54,7 @@ public class RetrieveStateInitiator implements Runnable {
                 out += "\n Chunk: " +
                         "\n  ChunkID: " + chunk.getChunkNo() +
                         "\n  Size: " + chunk.getSize() / 1000 +
-                        "\n  Perceived Replication: " + chunk.getReplicationDegree();
+                        "\n  Perceived Replication: " + (chunk.getNumMirrors()+1);
             }
         }
 

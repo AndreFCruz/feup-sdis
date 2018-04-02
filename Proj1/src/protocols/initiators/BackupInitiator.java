@@ -9,7 +9,6 @@ import service.Peer;
 import utils.Log;
 import utils.Utils;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -65,7 +64,6 @@ public class BackupInitiator implements Runnable {
             parentPeer.getPeerData().resetChunkReplication(fileID);
         } catch (InterruptedException e) {
             Log.logError("Backup: Failed join with helper threads");
-            e.printStackTrace();
         }
 
         Log.logWarning("Finished BackupInitiator!");

@@ -35,6 +35,8 @@ public class Backup implements Runnable, PeerData.MessageObserver {
 
         this.random = new Random();
         this.scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
+
+        Log.logWarning("Starting backup!");
     }
 
 
@@ -46,7 +48,6 @@ public class Backup implements Runnable, PeerData.MessageObserver {
         int replicationDegree = request.getReplicationDegree();
 
         if (senderID == parentPeer.getID()) { // a peer never stores the chunks of its own files
-//            Log.log("Ignoring backup of own files");
             return;
         }
 
@@ -61,7 +62,7 @@ public class Backup implements Runnable, PeerData.MessageObserver {
             handleStandardRequest(fileID, chunkNo, replicationDegree, chunkData, chunkPath);
         }
 
-        Log.log("Finished backup!");
+        Log.logWarning("Finished backup!");
     }
 
     private void handleStandardRequest(String fileID, int chunkNo, int replicationDegree, byte[] chunkData, String chunkPath) {
@@ -100,7 +101,7 @@ public class Backup implements Runnable, PeerData.MessageObserver {
                     chunkData
             );
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.logError("Couldn't save the chunk!");
             return false;
         }
 
@@ -123,8 +124,7 @@ public class Backup implements Runnable, PeerData.MessageObserver {
         try {
             parentPeer.sendMessage(Channel.ChannelType.MC, msg);
         } catch (IOException e) {
-            Log.logError("Failed message construction");
-            e.printStackTrace();
+            Log.logError("Couldn't send message to multicast channel!");
         }
     }
 

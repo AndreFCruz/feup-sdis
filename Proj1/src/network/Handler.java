@@ -38,7 +38,7 @@ public class Handler implements Runnable {
         Message msg;
 
         while (true) {
-            try {
+            try { //BlockingQueue method that blocks until receive a new message
                 msg = msgQueue.take();
                 dispatchMessage(msg);
             } catch (InterruptedException e) {
@@ -48,15 +48,19 @@ public class Handler implements Runnable {
     }
 
     private void dispatchMessage(Message msg) {
+        //Ignoring invalid messages
         if (msg == null) {
-            Log.logError("Null Message Received");
+            Log.logError("Null message received!");
             return;
         }
 
+        // Ignoring own messages
         if (msg.getSenderID() == parentPeer.getID())
             return;
 
+        //Print received messages
         Log.logWarning("R: " + msg.toString());
+
         switch (msg.getType()) {
             case PUTCHUNK:
                 handlePUTCHUNK(msg);
@@ -113,16 +117,14 @@ public class Handler implements Runnable {
         // Notify RESTORE observers of new CHUNK message
         peerData.notifyChunkObservers(msg);
 
-        if (!peerData.getFlagRestored(msg.getFileID())) { // Restoring File ?
-            Log.logWarning("Discarded Chunk");
+        if (!peerData.getFlagRestored(msg.getFileID())) { // Restoring File
+            Log.log("Discarded Chunk");
             return;
         }
-
 
         if (!isMessageCompatibleWithEnhancement(ENHANCEMENT_RESTORE, msg)) {
             peerData.addChunkToRestore(new Chunk(msg.getFileID(), msg.getChunkNo(), msg.getBody()));
         }
-
     }
 
     private void handlePUTCHUNK(Message msg) {
@@ -162,7 +164,7 @@ public class Handler implements Runnable {
         int chunkNo = msg.getChunkNo();
 
         if (database.removeChunkMirror(fileID, chunkNo, msg.getSenderID()) == null) {
-            Log.logWarning("Ignoring REMOVED of non-local Chunk");
+            Log.log("Ignoring REMOVED of non-local Chunk");
             return;
         }
 

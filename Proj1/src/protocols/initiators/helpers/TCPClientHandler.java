@@ -29,24 +29,22 @@ public class TCPClientHandler implements Runnable {
             msg = (Message) ois.readObject();
             ois.close();
             clientSocket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+        } catch (IOException | ClassNotFoundException e) {
+            Log.logError("Couldn't read the message through TCPServer!");
         }
 
-        System.out.println(msg.toString());
+        Log.logWarning("R TCP: " + msg.toString());
 
         if (msg == null) {
             Log.logError("Invalid CHUNK from TCP. Aborting!");
             return;
-
         }
+
         //Handle the CHUNK
         PeerData peerData = parentPeer.getPeerData();
 
-        if (!peerData.getFlagRestored(msg.getFileID())) { // Restoring File ?
-            Log.logWarning("Discarded Chunk");
+        if (!peerData.getFlagRestored(msg.getFileID())) {
+            Log.log("Discarded Chunk!");
             return;
         }
 

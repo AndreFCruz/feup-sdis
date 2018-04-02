@@ -5,9 +5,9 @@ import java.rmi.RemoteException;
 
 public interface RemoteBackupService extends Remote {
 
-    String backup(String pathname, int replicationDegree) throws RemoteException;
+    void backup(String pathname, int replicationDegree) throws RemoteException;
 
-    boolean restore(String pathname) throws RemoteException; // TODO return byte[]
+    void restore(String pathname) throws RemoteException;
 
     void delete(String pathname) throws RemoteException;
 

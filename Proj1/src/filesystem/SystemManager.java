@@ -14,6 +14,13 @@ import static java.util.Arrays.copyOfRange;
 import static protocols.ProtocolSettings.MAX_CHUNK_SIZE;
 
 public class SystemManager {
+
+    public enum SAVE_STATE {
+        EXISTS,
+        SUCCESS,
+        FAILURE
+    }
+
     public static final String FILES = "../files/";
     private static final String CHUNKS = "chunks/";
     private static final String RESTORES = "restores/";
@@ -67,7 +74,7 @@ public class SystemManager {
         try {
             Files.createDirectories(Paths.get(name));
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.logError("Couldn't create file directory!");
         }
     }
 
@@ -79,7 +86,7 @@ public class SystemManager {
         String filePath = pathname + "/" + fileName;
 
         if (Files.exists(Paths.get(filePath))) {
-            Log.logWarning("File already exists");
+            Log.logWarning("File already exists!");
             return SAVE_STATE.EXISTS;
         }
 
@@ -110,7 +117,7 @@ public class SystemManager {
             inputStream.read(data);
             inputStream.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.logError("Couldn't read data of a file!");
         }
 
         return data;
@@ -121,7 +128,7 @@ public class SystemManager {
         try {
             attr = Files.readAttributes(filepath, BasicFileAttributes.class);
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.logError("Couldn't read attributes of a file!");
         }
         return attr.size();
     }
@@ -169,7 +176,7 @@ public class SystemManager {
             try {
                 outputStream.write(chunks.get(i).getData());
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.logError("Couldn't merge chunks of a file!");
             }
         }
 
@@ -214,7 +221,7 @@ public class SystemManager {
         try {
             Files.delete(path);
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.logError("Couldn't delete a file!");
         }
         memoryManager.reduceUsedMemory(chunkSize);
         database.removeChunk(fileID, chunkNo);
@@ -224,9 +231,4 @@ public class SystemManager {
         return memoryManager;
     }
 
-    public enum SAVE_STATE {
-        EXISTS,
-        SUCCESS,
-        FAILURE
-    }
 }
