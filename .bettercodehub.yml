@@ -1,0 +1,6 @@
+exclude:
+- /TP1/.*
+- /TP2/.*
+
+languages:
+- java
