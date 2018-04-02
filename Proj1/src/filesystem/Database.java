@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 public class Database implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     /**
      * Contains local files that were backed up,
@@ -39,15 +40,11 @@ public class Database implements Serializable {
     private ConcurrentMap<String, Set<Integer>> filesToDelete;
 
     /**
-     * Stream used to serialize this instance.
-     * Is static to not be serialized with the class instance.
-     */
-    private static ObjectOutputStream objectOutputStream;
-
-    /**
      * Period between DB saves, in milliseconds
      */
     private final long SAVE_PERIOD = 1000;
+
+    private String savePath;
 
 
     Database(String savePath) throws IOException {
@@ -59,9 +56,8 @@ public class Database implements Serializable {
         setUpDatabase(savePath);
     }
 
-    public void setUpDatabase(String savePath) throws IOException {
-        OutputStream out = new FileOutputStream(savePath);
-        objectOutputStream = new ObjectOutputStream(out);
+    public void setUpDatabase(String savePath) {
+        this.savePath = savePath;
 
         setUpPeriodicSaves();
     }
@@ -79,29 +75,29 @@ public class Database implements Serializable {
 
     synchronized private void savePermanentState() {
         try {
-            objectOutputStream.writeObject(this);
+            FileOutputStream out = new FileOutputStream(savePath);
+            ObjectOutputStream oos = new ObjectOutputStream(out);
+            oos.writeObject(this);
+            oos.close();
         } catch (IOException e) {
             Log.logError("Couldn't save database");
             e.printStackTrace();
         }
     }
 
-    synchronized static Database loadDatabase(File file) throws IOException {
-        Database db = null;
+    synchronized static Database loadDatabase(File file) throws IOException, ClassNotFoundException {
+        Database db;
 
-        try {
-            final ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(file));
-            db = (Database) inputStream.readObject();
-            inputStream.close();
-        } catch (final IOException pE) {
-            Log.logError("Couldn't load database!");
-            pE.printStackTrace();
-        } catch (ClassNotFoundException pE) {
-            Log.logError("Class was removed since last execution!?");
-            pE.printStackTrace();
-        }
+        FileInputStream fileIn = new FileInputStream(file);
+        final ObjectInputStream inputStream = new ObjectInputStream(fileIn);
+        db = (Database) inputStream.readObject();
+        inputStream.close();
+        fileIn.close();
 
-        db.setUpDatabase(file.getAbsolutePath());
+        if (db != null)
+            db.setUpDatabase(file.getAbsolutePath());
+        else
+            Log.logError("Error initializing DB from file");
 
         return db;
     }
@@ -296,7 +292,6 @@ public class Database implements Serializable {
     @Override
     protected void finalize() throws Throwable {
         savePermanentState();
-        objectOutputStream.close();
         super.finalize();
     }
     

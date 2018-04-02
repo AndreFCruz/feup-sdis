@@ -44,6 +44,8 @@ public class SystemManager {
         } catch (IOException e) {
             Log.logError("Failed DB construction");
             e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
         }
     }
 
@@ -194,7 +196,7 @@ public class SystemManager {
         return true;
     }
 
-    private void initializeDatabase() throws IOException {
+    private void initializeDatabase() throws IOException, ClassNotFoundException {
         File db = new File(rootPath + "db");
 
         if (db.exists()) {

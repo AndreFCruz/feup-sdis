@@ -1,10 +1,10 @@
 package filesystem;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-// TODO common subclass between Chunk and ChunkInfo, lots of replication
-public class ChunkInfo {
+public class ChunkInfo implements Serializable {
 
     private String fileID;
     private int chunkNo;
