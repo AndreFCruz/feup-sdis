@@ -15,7 +15,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static filesystem.SystemManager.createFolder;
-import static filesystem.SystemManager.saveFile;
 import static protocols.ProtocolSettings.*;
 
 public class Backup implements Runnable, PeerData.MessageObserver {
@@ -95,16 +94,22 @@ public class Backup implements Runnable, PeerData.MessageObserver {
     private boolean saveChunk(String fileID, int chunkNo, int replicationDegree, byte[] chunkData, String chunkPath) {
         SAVE_STATE ret;
         try {
-            ret = saveFile(Integer.toString(chunkNo), chunkPath, chunkData);
+            ret = parentPeer.getSystemManager().saveFile(
+                    Integer.toString(chunkNo),
+                    chunkPath,
+                    chunkData
+            );
         } catch (IOException e) {
             e.printStackTrace();
             return false;
         }
 
         if (ret == SAVE_STATE.SUCCESS) {
-            //save to database
-            parentPeer.getDatabase().addChunk((new ChunkInfo(fileID, chunkNo, replicationDegree, chunkData.length)));
-        } else { // Don't send STORED if chunk already existed (?)
+            parentPeer.getDatabase().addChunk(
+                    new ChunkInfo(fileID, chunkNo, replicationDegree, chunkData.length),
+                    parentPeer.getID()
+            );
+        } else { // Don't send STORED if chunk already existed
             Log.logWarning("Chunk Backup: " + ret);
             return false;
         }

@@ -10,7 +10,6 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 
-import static filesystem.Database.loadDatabase;
 import static java.util.Arrays.copyOfRange;
 import static protocols.ProtocolSettings.MAX_CHUNK_SIZE;
 
@@ -18,28 +17,49 @@ public class SystemManager {
     public static final String FILES = "../files/";
     private static final String CHUNKS = "chunks/";
     private static final String RESTORES = "restores/";
-    private static long maxMemory;
-    private static long usedMemory;
     private Peer parentPeer;
     private String rootPath;
+
     private Database database;
+    private MemoryManager memoryManager;
 
     public SystemManager(Peer parentPeer, long maxMemory) {
         this.parentPeer = parentPeer;
-        SystemManager.maxMemory = maxMemory;
-
-        usedMemory = 0;
-        rootPath = "fileSystem/Peer" + parentPeer.getID() + "/";
+        this.rootPath = "fileSystem/Peer" + parentPeer.getID() + "/";
 
         initializePeerFileSystem();
 
+        initializePermanentState(maxMemory);
+    }
+
+    private void initializePermanentState(long maxMemory) {
         try {
+            initializeMemoryManager(maxMemory);
             initializeDatabase();
         } catch (IOException e) {
-            Log.logError("Failed DB construction");
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void initializeMemoryManager(long maxMemory) throws IOException, ClassNotFoundException {
+        File mm = new File(rootPath + "memoryManager");
+
+        if (mm.exists()) {
+            this.memoryManager = (MemoryManager) MemoryManager.loadFromFile(mm);
+        } else {
+            this.memoryManager = new MemoryManager(maxMemory, mm.getAbsolutePath());
+        }
+    }
+
+    private void initializeDatabase() throws IOException, ClassNotFoundException {
+        File db = new File(rootPath + "db");
+
+        if (db.exists()) {
+            this.database = (Database) Database.loadFromFile(db);
+        } else {
+            this.database = new Database(db.getAbsolutePath());
         }
     }
 
@@ -51,8 +71,8 @@ public class SystemManager {
         }
     }
 
-    synchronized public static SAVE_STATE saveFile(String fileName, String pathname, byte[] data) throws IOException {
-        if (getAvailableMemory() < data.length) {
+    synchronized public SAVE_STATE saveFile(String fileName, String pathname, byte[] data) throws IOException {
+        if (memoryManager.getAvailableMemory() < data.length) {
             Log.logWarning("Not enough space for saveFile!");
             return SAVE_STATE.FAILURE;
         }
@@ -67,11 +87,11 @@ public class SystemManager {
         out.write(data);
         out.close();
 
-        SystemManager.increaseUsedMemory(data.length);
+        memoryManager.increaseUsedMemory(data.length);
         return SAVE_STATE.SUCCESS;
     }
 
-    synchronized public static byte[] loadFile(String pathname) throws FileNotFoundException {
+    synchronized public static byte[] loadFile(String pathname) {
         InputStream inputStream;
         long fileSize;
         byte[] data = null;
@@ -80,7 +100,6 @@ public class SystemManager {
             inputStream = Files.newInputStream(Paths.get(pathname));
             fileSize = getFileSize(Paths.get(pathname));
         } catch (IOException e) {
-//            e.printStackTrace();
             Log.logError("File not found!");
             return data;
         }
@@ -107,7 +126,7 @@ public class SystemManager {
         return attr.size();
     }
 
-    public static ArrayList<Chunk> loadChunks(String pathname, int numberOfChunks) throws FileNotFoundException {
+    public static ArrayList<Chunk> loadChunks(String pathname, int numberOfChunks) {
         ArrayList<Chunk> chunks = new ArrayList<>();
 
         for (int i = 0; i <= numberOfChunks; i++) {
@@ -157,66 +176,13 @@ public class SystemManager {
         return outputStream.toByteArray();
     }
 
-    public static long getMaxMemory() {
-        return maxMemory;
-    }
-
-    public static void setMaxMemory(int maxMemory) {
-        SystemManager.maxMemory = maxMemory;
-    }
-
-    public static long getUsedMemory() {
-        return SystemManager.usedMemory;
-    }
-
-    public static long getAvailableMemory() {
-        return maxMemory - usedMemory;
-    }
-
-    private static void reduceUsedMemory(long n) {
-        usedMemory -= n;
-        if (usedMemory < 0) {
-            usedMemory = 0;
-            Log.logError("Used memory went below 0");
-        }
-    }
-
-    private static boolean increaseUsedMemory(long n) {
-        if (usedMemory + n > maxMemory) {
-            Log.logWarning("Tried to surpass memory restrictions");
-            return false;
-        }
-        usedMemory += n;
-        Log.logWarning("Used memory: " + usedMemory + " / " + maxMemory);
-        return true;
-    }
-
-    private void initializeDatabase() throws IOException, ClassNotFoundException {
-        File db = new File(rootPath + "db");
-
-        if (db.exists()) {
-            database = loadDatabase(db);
-        } else {
-            database = new Database(db.getAbsolutePath());
-        }
-    }
-
     public String getChunkPath(String fileID, int chunkNo) {
         return getChunksPath() + fileID + "/" + chunkNo;
     }
 
     public byte[] loadChunk(String fileID, int chunkNo) {
-        byte[] chunkData = null;
         String chunkPath = getChunkPath(fileID, chunkNo);
-
-        try {
-            //load chunk data
-            chunkData = loadFile(chunkPath);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return chunkData;
+        return loadFile(chunkPath);
     }
 
     private void initializePeerFileSystem() {
@@ -250,8 +216,12 @@ public class SystemManager {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        reduceUsedMemory(chunkSize);
+        memoryManager.reduceUsedMemory(chunkSize);
         database.removeChunk(fileID, chunkNo);
+    }
+
+    public MemoryManager getMemoryManager() {
+        return memoryManager;
     }
 
     public enum SAVE_STATE {

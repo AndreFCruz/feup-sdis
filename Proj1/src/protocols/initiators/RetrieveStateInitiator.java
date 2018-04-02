@@ -1,9 +1,6 @@
 package protocols.initiators;
 
-import filesystem.ChunkInfo;
-import filesystem.Database;
-import filesystem.FileInfo;
-import filesystem.SystemManager;
+import filesystem.*;
 import service.Peer;
 import utils.Log;
 
@@ -25,15 +22,15 @@ public class RetrieveStateInitiator implements Runnable {
 
     @Override
     public void run() {
-        //Obtain info of the files from Database
+        // Obtain info of the files from Database
         Collection<FileInfo> files = database.getFilesBackedUp();
-        //Obtain info of the chunks from Database
+        // Obtain info of the chunks from Database
         ConcurrentMap<String, ConcurrentMap<Integer, ChunkInfo>> chunks = database.getChunksBackedUp();
 
-        //Save output string
+        // Save output string
         String out = "";
 
-        //Loop to save the files
+        // Loop to save the files
         out += "\nFiles:\n";
         for (FileInfo file : files) {
             out += "\nFile: " + file.getFileName() +
@@ -48,7 +45,7 @@ public class RetrieveStateInitiator implements Runnable {
             }
         }
 
-        //Loop to save the chunks
+        // Loop to save the chunks
         out += "\n\nChunks:\n"; //TODO: Correct values
         for (Map.Entry<String, ConcurrentMap<Integer, ChunkInfo>> outer : chunks.entrySet()) {
             out += "\nFile: " + outer.getKey();
@@ -61,11 +58,11 @@ public class RetrieveStateInitiator implements Runnable {
             }
         }
 
-
-        //Storage capacity
+        // Storage capacity
+        MemoryManager mm = parentPeer.getSystemManager().getMemoryManager();
         out += "\n\nStorage: " +
-                "\n Available memory: " + SystemManager.getAvailableMemory() +
-                "\n Used memory: " + SystemManager.getUsedMemory();
+                "\n Available memory: " + mm.getAvailableMemory() +
+                "\n Used memory: " + mm.getUsedMemory();
 
         System.out.println(out); //TODO: Retrieve to TestApp
         Log.logWarning("Finished retrieveStateInitiator!");

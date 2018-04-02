@@ -41,11 +41,7 @@ public class BackupInitiator implements Runnable {
 
     @Override
     public void run() {
-        try {
-            fileData = SystemManager.loadFile(pathname);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        fileData = SystemManager.loadFile(pathname);
 
         String fileID = generateFileID(pathname);
         ArrayList<Chunk> chunks = splitFileInChunks(fileData, fileID, replicationDegree);
@@ -108,18 +104,17 @@ public class BackupInitiator implements Runnable {
         return Utils.hash(generateUnhashedFileID(pathname));
     }
 
-    private String generateUnhashedFileID(String pathname) {
+    private String generateUnhashedFileID(String absPath) {
         BasicFileAttributes attr;
         try {
-            attr = Files.readAttributes(Paths.get(pathname), BasicFileAttributes.class);
+            attr = Files.readAttributes(Paths.get(absPath), BasicFileAttributes.class);
         } catch (IOException e) {
             Log.logError("Couldn't read file's metadata: " + e.getMessage());
             return null;
         }
 
-        Path filepath = Paths.get(pathname);
-        String fileID = filepath.getFileName().toString() + attr.lastModifiedTime() + attr.size();
-        return fileID;
+        Path pathObj = Paths.get(absPath);
+        return pathObj.getFileName().toString() + attr.lastModifiedTime() + attr.size();
     }
 
     public Peer getParentPeer() {

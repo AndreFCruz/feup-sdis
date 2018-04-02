@@ -171,7 +171,7 @@ public class Peer implements RemoteBackupService {
 
     @Override
     public void reclaim(int space) {
-        systemManager.setMaxMemory(space);
+        systemManager.getMemoryManager().setMaxMemory(space);
         executor.execute(new ReclaimInitiator(protocolVersion, this));
     }
 

@@ -8,12 +8,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
-public class Database implements Serializable {
+public class Database extends PermanentStateClass {
     private static final long serialVersionUID = 1L;
-    /**
-     * Period between DB saves, in milliseconds
-     */
-    private final long SAVE_PERIOD = 1000;
+
     /**
      * Contains local files that were backed up,
      * and may be restored.
@@ -34,62 +31,14 @@ public class Database implements Serializable {
      * Maps (fileID -> Array<PeerID>)
      */
     private ConcurrentMap<String, Set<Integer>> filesToDelete;
-    private String savePath;
 
-
-    Database(String savePath) throws IOException {
+    Database(String savePath) {
         filesBackedUp = new ConcurrentHashMap<>();
         filesByPath = new ConcurrentHashMap<>();
         chunksBackedUp = new ConcurrentHashMap<>();
         filesToDelete = new ConcurrentHashMap<>();
 
-        setUpDatabase(savePath);
-    }
-
-    synchronized static Database loadDatabase(File file) throws IOException, ClassNotFoundException {
-        Database db;
-
-        FileInputStream fileIn = new FileInputStream(file);
-        final ObjectInputStream inputStream = new ObjectInputStream(fileIn);
-        db = (Database) inputStream.readObject();
-        inputStream.close();
-        fileIn.close();
-
-        if (db != null)
-            db.setUpDatabase(file.getAbsolutePath());
-        else
-            Log.logError("Error initializing DB from file");
-
-        return db;
-    }
-
-    public void setUpDatabase(String savePath) {
-        this.savePath = savePath;
-
-        setUpPeriodicSaves();
-    }
-
-    private void setUpPeriodicSaves() {
-        Database db = this;
-        Timer timer = new Timer();
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                db.savePermanentState();
-            }
-        }, SAVE_PERIOD, SAVE_PERIOD);
-    }
-
-    synchronized private void savePermanentState() {
-        try {
-            FileOutputStream out = new FileOutputStream(savePath);
-            ObjectOutputStream oos = new ObjectOutputStream(out);
-            oos.writeObject(this);
-            oos.close();
-        } catch (IOException e) {
-            Log.logError("Couldn't save database");
-            e.printStackTrace();
-        }
+        this.setUp(savePath);
     }
 
     public void addFileMirror(String fileID, int senderID) {
@@ -152,7 +101,9 @@ public class Database implements Serializable {
         return fileChunks != null && fileChunks.containsKey(chunkNo);
     }
 
-    public void addChunk(ChunkInfo chunkInfo) {
+    public void addChunk(ChunkInfo chunkInfo, Integer parentPeerID) {
+        chunkInfo.addMirror(parentPeerID);
+
         String fileID = chunkInfo.getFileID();
         int chunkNo = chunkInfo.getChunkNo();
 

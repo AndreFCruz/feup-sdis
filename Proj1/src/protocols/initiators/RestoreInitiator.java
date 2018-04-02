@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.concurrent.ConcurrentMap;
 
 import static filesystem.SystemManager.fileMerge;
-import static filesystem.SystemManager.saveFile;
 import static protocols.ProtocolSettings.*;
 
 public class RestoreInitiator implements Runnable {
@@ -75,7 +74,11 @@ public class RestoreInitiator implements Runnable {
         String pathToSave = parentPeer.getPath("restores");
 
         try {
-            saveFile(fileInfo.getFileName(), pathToSave, fileMerge(new ArrayList<>(chunksRestored.values())));
+            parentPeer.getSystemManager().saveFile(
+                    fileInfo.getFileName(),
+                    pathToSave,
+                    fileMerge(new ArrayList<>(chunksRestored.values()))
+            );
         } catch (IOException e) {
             e.printStackTrace();
             Log.logError("Failed saving file at " + fileInfo.getPath());

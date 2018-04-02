@@ -2,6 +2,7 @@ package protocols.initiators;
 
 import channels.Channel;
 import filesystem.ChunkInfo;
+import filesystem.MemoryManager;
 import filesystem.SystemManager;
 import network.Message;
 import service.Peer;
@@ -25,8 +26,9 @@ public class ReclaimInitiator implements Runnable {
 
     @Override
     public void run() {
-        while (SystemManager.getAvailableMemory() < 0) {
-            Log.logWarning("Available memory: " + SystemManager.getAvailableMemory());
+        MemoryManager memoryManager = systemManager.getMemoryManager();
+        while (memoryManager.getAvailableMemory() < 0) {
+            Log.logWarning("Available memory: " + memoryManager.getAvailableMemory());
             ChunkInfo chunkInfo = systemManager.getDatabase().getChunkForRemoval();
             byte[] chunkData = systemManager.loadChunk(chunkInfo.getFileID(), chunkInfo.getChunkNo());
             if (chunkData == null) { // Confirm chunk exists
@@ -42,7 +44,7 @@ public class ReclaimInitiator implements Runnable {
             }
         }
 
-        Log.logWarning("Available memory: " + SystemManager.getAvailableMemory());
+        Log.logWarning("Available memory: " + memoryManager.getAvailableMemory());
         Log.logWarning("Finished reclaimInitiator!");
     }
 
