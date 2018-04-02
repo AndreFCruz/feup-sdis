@@ -18,43 +18,45 @@ public class Database extends PermanentStateClass {
      * Maps (fileID -> FileInfo)
      */
     private ConcurrentMap<String, FileInfo> filesBackedUp;
+
     /**
      * Maps (filePath -> FileInfo)
      */
     private ConcurrentMap<String, FileInfo> filesByPath;
+
     /**
      * Contains backed up Chunks (on disk memory).
      * Maps (fileID -> (ChunkNum -> ChunkInfo))
      */
     private ConcurrentMap<String, ConcurrentMap<Integer, ChunkInfo>> chunksBackedUp;
+
     /**
-     * Contains peerIDs to delete a file.
-     * Maps (fileID -> Array<PeerID>)
+     * Contains peerIDs of mirrors of local files.
+     * Maps (fileID -> Set<PeerID>)
      */
-    private ConcurrentMap<String, Set<Integer>> filesToDelete;
+    private ConcurrentMap<String, Set<Integer>> fileMirrors;
 
     Database(String savePath) {
         filesBackedUp = new ConcurrentHashMap<>();
         filesByPath = new ConcurrentHashMap<>();
         chunksBackedUp = new ConcurrentHashMap<>();
-        filesToDelete = new ConcurrentHashMap<>();
+        fileMirrors = new ConcurrentHashMap<>();
 
         this.setUp(savePath);
     }
 
     public void addFileMirror(String fileID, int senderID) {
-        filesToDelete.putIfAbsent(fileID, new ConcurrentSkipListSet<>());
-        Set<Integer> peers = filesToDelete.get(fileID);
-        peers.add(senderID);
+        fileMirrors.putIfAbsent(fileID, new ConcurrentSkipListSet<>());
+        fileMirrors.get(fileID).add(senderID);
     }
 
     public Set<String> getFilesToDelete(int senderID) {
         Set<String> files = new ConcurrentSkipListSet<>();
 
-        for (Map.Entry<String, Set<Integer>> outer : filesToDelete.entrySet()) {
-            for (Integer inner : outer.getValue()) {
-                if (inner == senderID) {
-                    files.add(outer.getKey());
+        for (Map.Entry<String, Set<Integer>> fileMirrorEntry : fileMirrors.entrySet()) {
+            for (Integer mirrorID : fileMirrorEntry.getValue()) {
+                if (mirrorID == senderID) {
+                    files.add(fileMirrorEntry.getKey());
                     break;
                 }
             }
@@ -64,7 +66,7 @@ public class Database extends PermanentStateClass {
     }
 
     public void deleteFileMirror(String fileID, int senderID) {
-        Set<Integer> peers = filesToDelete.get(fileID);
+        Set<Integer> peers = fileMirrors.get(fileID);
         if (peers != null)
             peers.remove(senderID);
     }

@@ -16,17 +16,17 @@ import java.util.concurrent.*;
 
 import static protocols.ProtocolSettings.*;
 
-public class Handler implements Runnable {
+public class ConcreteMessageHandler extends MessageHandler {
     private Peer parentPeer;
-    private BlockingQueue<Message> msgQueue;
     private ScheduledExecutorService executor;
     private Map<String, Map<Integer, Future>> backUpHandlers;
 
     private Random random;
 
-    public Handler(Peer parentPeer) {
+    public ConcreteMessageHandler(Peer parentPeer) {
+        super();
+
         this.parentPeer = parentPeer;
-        this.msgQueue = new LinkedBlockingQueue<>();
         this.executor = Executors.newScheduledThreadPool(5);
 
         this.backUpHandlers = new HashMap<>();
@@ -34,20 +34,7 @@ public class Handler implements Runnable {
     }
 
     @Override
-    public void run() {
-        Message msg;
-
-        while (true) {
-            try { //BlockingQueue method that blocks until receive a new message
-                msg = msgQueue.take();
-                dispatchMessage(msg);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private void dispatchMessage(Message msg) {
+    protected void dispatchMessage(Message msg) {
         //Ignoring invalid messages
         if (msg == null) {
             Log.logError("Null message received!");
@@ -129,7 +116,9 @@ public class Handler implements Runnable {
 
     private void handlePUTCHUNK(Message msg) {
         Database database = parentPeer.getDatabase();
+
         if (database.hasChunk(msg.getFileID(), msg.getChunkNo())) {
+            // If chunk is backed up by parentPeer, notify
             Map<Integer, Future> fileBackUpHandlers = backUpHandlers.get(msg.getFileID());
             if (fileBackUpHandlers == null) return;
 
@@ -137,7 +126,9 @@ public class Handler implements Runnable {
             if (handler == null) return;
             handler.cancel(true);
             Log.log("Stopping chunk back up, due to received PUTCHUNK");
-        } else if (!database.hasBackedUpFileById(msg.getFileID())) {
+        }
+        else if (! database.hasBackedUpFileById(msg.getFileID())) {
+            // If file is not a local file, Mirror/Backup Chunk
             Backup backup = new Backup(parentPeer, msg);
             executor.execute(backup);
         } else {
@@ -185,17 +176,5 @@ public class Handler implements Runnable {
             backUpHandlers.putIfAbsent(msg.getFileID(), new HashMap<>());
             backUpHandlers.get(msg.getFileID()).put(msg.getChunkNo(), handler);
         }
-    }
-
-    public void pushMessage(byte[] data, int length) {
-        Message msgParsed; // create and parse the message
-        try {
-            msgParsed = new Message(data, length);
-        } catch (Exception e) {
-            Log.logError(e.getMessage());
-            return;
-        }
-
-        msgQueue.add(msgParsed);
     }
 }

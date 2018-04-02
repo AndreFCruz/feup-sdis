@@ -7,8 +7,9 @@ import channels.MDBChannel;
 import channels.MDRChannel;
 import filesystem.Database;
 import filesystem.SystemManager;
-import network.Handler;
+import network.ConcreteMessageHandler;
 import network.Message;
+import network.MessageHandler;
 import protocols.PeerData;
 import protocols.initiators.*;
 import utils.Log;
@@ -32,16 +33,16 @@ public class Peer implements RemoteBackupService {
     private final String protocolVersion;
     private final int id;
     private final String[] serverAccessPoint;
-    /**
-     * Handler and Dispatcher for received messages
-     */
-    private Handler dispatcher;
+
+    private MessageHandler messageHandler;
+    private Map<ChannelType, Channel> channels;
+
     /**
      * Executor service responsible for scheduling delayed responses
-     * and performing all sub-protocol tasks (backup, restore, ...).
+     * and performing all RMI sub-protocol tasks (backup, restore, ...).
      */
     private ScheduledExecutorService executor;
-    private Map<ChannelType, Channel> channels;
+    
     private SystemManager systemManager;
     private Database database;
     private PeerData peerData;
@@ -55,7 +56,7 @@ public class Peer implements RemoteBackupService {
         database = systemManager.getDatabase();
 
         setupChannels(mcAddress, mdbAddress, mdrAddress);
-        setupDispatcher();
+        setupMessageHandler();
 
         executor = new ScheduledThreadPoolExecutor(10);
 
@@ -103,10 +104,10 @@ public class Peer implements RemoteBackupService {
         }
     }
 
-    private void setupDispatcher() {
+    private void setupMessageHandler() {
         peerData = new PeerData();
-        dispatcher = new Handler(this);
-        new Thread(dispatcher).start();
+        messageHandler = new ConcreteMessageHandler(this);
+        new Thread(messageHandler).start();
     }
 
     private void setupChannels(String[] mcAddress, String[] mdbAddress, String[] mdrAddress) {
@@ -218,7 +219,7 @@ public class Peer implements RemoteBackupService {
     }
 
     public void addMsgToHandler(byte[] data, int length) {
-        dispatcher.pushMessage(data, length);
+        messageHandler.pushMessage(data, length);
     }
 
     public byte[] loadChunk(String fileID, int chunkNo) {

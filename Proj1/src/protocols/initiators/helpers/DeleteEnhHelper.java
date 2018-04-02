@@ -22,7 +22,6 @@ public class DeleteEnhHelper implements Runnable {
     @Override
     public void run() {
         Database database = parentPeer.getDatabase();
-
         Set<String> filesToDelete = database.getFilesToDelete(request.getSenderID());
 
         if (filesToDelete.isEmpty())

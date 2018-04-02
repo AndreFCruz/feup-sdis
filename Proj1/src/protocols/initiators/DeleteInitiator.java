@@ -50,19 +50,23 @@ public class DeleteInitiator implements Runnable {
     }
 
     private void sendMessageToMC(FileInfo fileInfo) {
-        String[] args = {
-                version,
-                Integer.toString(parentPeer.getID()),
-                fileInfo.getFileID()
-        };
-
-        Message msg = new Message(Message.MessageType.DELETE, args);
+        Message msg = makeDELETE(fileInfo);
 
         try {
             parentPeer.sendMessage(Channel.ChannelType.MC, msg);
         } catch (IOException e) {
             Log.logError("Couldn't send message to multicast channel!");
         }
+    }
+
+    private Message makeDELETE(FileInfo fileInfo) {
+        String[] args = {
+                version,
+                Integer.toString(parentPeer.getID()),
+                fileInfo.getFileID()
+        };
+
+        return new Message(Message.MessageType.DELETE, args);
     }
 
 }
