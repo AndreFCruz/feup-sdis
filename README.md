@@ -1,51 +1,31 @@
-# feup-sdis
-
 # Distributed backup service
 
 ## How to run
 From the Project's root folder:
 
-- To compile in LINUX/UNIX: using a terminal, navigate to the project's root folder and run the 'compile.sh' script:
+1. To compile in LINUX/UNIX: using a terminal, navigate to the project's root folder and run the 'compile.sh' script:
   > sh compile.sh
 
-- To start the RMI registry run the 'rmi.sh' script:
-  > sh rmi.sh
+2. To start the RMI registry run the 'rmi.sh' script:
+  > sh rmi.sh  
 
-- To start a peer, use the 'peer.sh' script:
+3. To start a peer, use the 'peer.sh' script:
   > sh peer.sh <protocol_version> <peer_id>
 
 (_e.g._ ```sh peer.sh 2.0 1```)
 
-- To run the TestApp:
-	- open a terminal, navigate to the project's root folder and type "sh xxxx.sh" (xxxx -> backup or restore or delete or state)
+4. To run the TestApp:
+  - open a terminal, navigate to the project's root folder and type "sh <test_action>.sh"
+    - <test_action> is one of ```backup```, ```restore```, ```reclaim```, ```delete``` or ```state```.
 	
+
 - To clear the peers' file system, run the 'clearFilesystem.sh' script:
   > sh clearFilesystem.sh
 	
-	
+
 ## How to compile
 
 The project can be compiled as usual with the ```javac``` command, or by running ```sh compile.sh``` from the project's root folder.
-
-## How to run
-
-### With scripts
-
-- Into Proj1 folder:
-  1. Run sh rmi.sh
-  2. Run sh compile.sh
-  3. Run sh peer.sh (see the usage of script)
-  4. Run sh xxxx.sh (depending on invoking method of testApp)
-
-- To reset the peers:
-  - Run sh.clearFileSystem.sh
-
-### Without scripts
-
-  1. After having built the project with javac, open a *Terminal* in the **bin** folder resultant of the build process. 
-  2. Need to start RMI Registry (See RMI registry section).
-  3. After that you can then launch a peer or invoke the testApp (See Peer section and Test App section).
-
 
 ## RMI registry
 
@@ -128,21 +108,22 @@ You need not generate these files manually. Once the *Peer* is launched for the 
 
 You should not manually edit **db**. These files are managed by the service.
 
-## Explanation os scripts
+## Scripts' Specification
 
 - compile.sh
-  - Script that compile java classes into a bin folder.
+  - Script to compile java classes into a bin folder.
 
 - clearFileSystem.sh
-  - Script that delete fileSystem of peers.
+  - Script to delete fileSystem of peers.
 
 - peer.sh
-  - Script that allows to run the peer with some parameters with default value.
+  - Script to launch an instance of a peer with some parameters.
 
     Usage: peer.sh <version> <peer_num>
       Eg. sh peer.sh 1.0 1
 
 - Others scripts
-  - The scripts like backup.sh, restore.sh, delete.sh run in peer 1 with default file as image1.png
-  - The script reclaim.sh run in peer 2 with a size of 1400000.
+  - Action scripts (backup.sh, restore.sh, delete.sh) run in peer 1 with default file as image1.png
+  - The script 'reclaim.sh' runs in peer 2 with a size of 140000 (reclaiming all used memory above 140KB).
   - And the script state.sh retrieve information about peer 1 and peer 2.
+  - All scripts use the ```localhost``` ip by default (127.0.0.1).
