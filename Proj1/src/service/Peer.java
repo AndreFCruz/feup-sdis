@@ -15,6 +15,7 @@ import protocols.initiators.*;
 import utils.Log;
 
 import java.io.IOException;
+import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
@@ -25,7 +26,6 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import static protocols.ProtocolSettings.*;
-import static utils.Utils.getRegistry;
 import static utils.Utils.parseRMI;
 
 public class Peer implements RemoteBackupService {
@@ -94,9 +94,9 @@ public class Peer implements RemoteBackupService {
             Peer obj = new Peer(protocolVersion, serverID, serviceAccessPoint, mcAddress, mdbAddress, mdrAddress);
             RemoteBackupService stub = (RemoteBackupService) UnicastRemoteObject.exportObject(obj, 0);
 
-            Registry registry = getRegistry(serviceAccessPoint);
-            registry.rebind(args[1], stub); //Only use rebind for development purposes
-            //registry.bind(args[1], stub);
+            // Locate self registry, for rebinding to correct stub
+            Registry registry = LocateRegistry.getRegistry();
+            registry.rebind(args[1], stub);
 
             Log.log("Server ready!");
         } catch (Exception e) {
