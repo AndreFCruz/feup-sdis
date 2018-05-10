@@ -1,4 +1,4 @@
-package com.sdis.service;
+package service;
 
 public class InitPeer {
 }

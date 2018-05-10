@@ -1,4 +1,4 @@
-package com.sdis.task;
+package task;
 
 import java.util.Collection;
 

@@ -1,4 +1,4 @@
-package com.sdis.protocol;
+package task;
 
 public class AdversarialSearchTask {
 }

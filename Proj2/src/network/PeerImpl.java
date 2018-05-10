@@ -1,6 +1,6 @@
-package com.sdis.network;
+package network;
 
-import com.sdis.protocol.Request;
+import protocol.Request;
 
 public class PeerImpl implements Peer {
 
