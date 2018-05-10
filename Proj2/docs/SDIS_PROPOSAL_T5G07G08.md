@@ -1,17 +1,7 @@
 # SDIS - 2nd Project Specification
-* 09/04/2018
-
-## T5 G07 G08
-
-* André Cruz - up201503776
-* António Almeida - up201505836
-* Diogo Torres - up201506428
-* João Damas - up201504088
-
-***
 
 ## Purpose of the Application
-We propose the development of an application to distribute adversarial search computations.
+We propose the development of an application to distribute adversarial search computations. This peer-to-peer system will be distributed over the internet, and initiator peers must know the available peers. This is achieved through the implementation of the _Chord_ algorithm and its _finger table_ extension.
 
 Adversarial search algorithms are often computationally heavy, and run on live applications. For instance, in the case of an application for chess, time is often limited to _n_ minutes per player, and running an adversarial search algorithm on a common computer is infeasible.
 
@@ -27,6 +17,7 @@ Furthermore, as different algorithms have a common interface, it is also possibl
 In this sense, and knowing all adversarial search problems should comply with a common interface, the peers should be problem agnostic (_e.g._ an implementation of the common interface may be sent on an initial handshake to the peer).
 
 In sum, the main features of our application are:
+
 * Distributing workload for a generic adversarial search problem;
 * Use of different adversarial search algorithms for different state successors;
 * Full compatibility between clients with the full game specification and recently booted up peers (peers are problem agnostic).
@@ -39,7 +30,22 @@ Security will be assured through secure channel communication, and hash of relev
 The application should recover seamlessly from peer disconnections, redistributing the uncompleted workload through the rest of the network.
 
 ## Scalability
-Our application should scale linearly in the number of peers and complexity of the problem. In fact, the application's usefulness increases as more peers join the network. This inherent to the proposed architecture.
+Our application should scale linearly in the number of peers and complexity of the problem. In fact, the application's usefulness increases as more peers join the network. This is inherent to the proposed architecture.
 
 ## Proposed Grade Ceiling
 Given the project's requirements, we consider our proposal to be fully compliant, and thus have a ceiling of 20.
+
+
+***
+
+## T5 G07 G08
+
+* André Cruz - up201503776
+* António Almeida - up201505836
+* Diogo Torres - up201506428
+* João Damas - up201504088
+
+
+09/04/2018
+
+***
