@@ -1,7 +1,5 @@
 package network;
 
-import protocol.Request;
-
 public interface Peer {
 
     /**
