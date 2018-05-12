@@ -3,14 +3,36 @@ package network;
 import task.AdversarialSearchTask;
 
 import java.io.Serializable;
+import java.net.InetSocketAddress;
 
 public class Request implements Serializable {
+
+    static final long serialVersionUID = 42L;
+
     public enum Type {
-        SUCCESSOR,
-        PREDECESSOR,
+        SUCCESSOR_OF,
+        PREDECESSOR_OF,
         ITH_FINGER,
         TASK
     }
+
+    /**
+     * The number of requests sent from this address.
+     */
+    private static int requestCount = 0;
+
+    /**
+     * This request's id.
+     * Useful for parallelizing answers to various requests.
+     * The sender node should keep a table of requestId->requestHandlerTask
+     *  to be triggered when response of said request arrives.
+     */
+    private int id = requestCount++;
+
+    /**
+     * The address if this request's sender.
+     */
+    private InetSocketAddress sender;
 
     /**
      * This request's type.
@@ -19,35 +41,35 @@ public class Request implements Serializable {
 
     /**
      * This request's argument, if any.
-     * May be an integer (for ith finger), or a Task instance.
+     * May be an integer, or a Task instance.
      */
     private Object arg = null;
 
-    private Request(Type type) {
+    private Request(InetSocketAddress sender, Type type, Object arg) {
         this.requestType = type;
     }
 
-    public static Request makeSuccessorRequest() {
-        return new Request(Type.SUCCESSOR);
+    public static Request makeSuccessorRequest(InetSocketAddress sender, int key) {
+        return new Request(sender, Type.SUCCESSOR_OF, key);
     }
 
-    public static Request makePredecessorRequest() {
-        return new Request(Type.PREDECESSOR);
+    public static Request makePredecessorRequest(InetSocketAddress sender, int key) {
+        return new Request(sender, Type.PREDECESSOR_OF, key);
     }
 
-    public static Request makeIthFingerRequest(int ith) {
-        Request req = new Request(Type.ITH_FINGER);
-        req.arg = ith;
-        return req;
+    public static Request makeIthFingerRequest(InetSocketAddress sender, int ith) {
+        return new Request(sender, Type.ITH_FINGER, ith);
     }
 
-    public static Request makeTaskRequest(AdversarialSearchTask task) {
-        Request req = new Request(Type.TASK);
-        req.arg = task;
-        return req;
+    public static Request makeTaskRequest(InetSocketAddress sender, AdversarialSearchTask task) {
+        return new Request(sender, Type.TASK, task);
     }
 
-    public Type getRequestType() {
+    public int getId() {
+        return id;
+    }
+
+    public Type getType() {
         return requestType;
     }
 
@@ -55,4 +77,10 @@ public class Request implements Serializable {
         return arg;
     }
 
+    public InetSocketAddress getSenderAddress() {
+        return sender;
+    }
+
 }
+
+// NOTE maybe rethink necessity of having sender address, socket connection is already bi-directional
