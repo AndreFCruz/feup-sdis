@@ -1,11 +1,13 @@
 package network.threads;
 
-public abstract class HelperThread extends Thread {
+import java.util.concurrent.atomic.AtomicBoolean;
+
+public abstract class ThreadImpl extends Thread {
 
     /**
      * Variable indicating whether the current thread should live.
      */
-    private boolean alive = true;
+    private AtomicBoolean running = new AtomicBoolean(true);
 
     /**
      * Initialize current thread's resources.
@@ -13,13 +15,27 @@ public abstract class HelperThread extends Thread {
     protected abstract void initialize();
 
     /**
-     * Gracefully terminate current thread.
-     */
-    protected abstract void terminate();
-
-    /**
      * Action to be repeated whilst thread lives.
      */
     protected abstract void act();
 
+    /**
+     * Gracefully terminate current thread.
+     */
+    protected abstract void terminate();
+
+    @Override
+    public void run() {
+        this.initialize();
+
+        while(running.get()) {
+            this.act();
+        }
+
+        this.terminate();
+    }
+
+    public void toDie() {
+        this.running.set(false);
+    }
 }

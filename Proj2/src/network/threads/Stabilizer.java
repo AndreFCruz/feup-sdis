@@ -1,4 +1,4 @@
 package network.threads;
 
-public class Stabilizer {
+public class Stabilizer extends Thread {
 }
