@@ -8,7 +8,7 @@ public class Message<T extends Serializable> implements Serializable {
     static final long serialVersionUID = 42L;
 
     public enum Type {
-        SUCCESSOR,      // request node's successor
+        SUCCESSOR,      // request node's successor, or key's successor (if provided)
         PREDECESSOR,    // request node's predecessor
         ITH_FINGER,     // request node's ith finger
         TASK,           // request task fulfillment

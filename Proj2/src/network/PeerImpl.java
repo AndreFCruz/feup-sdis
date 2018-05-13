@@ -34,16 +34,19 @@ public class PeerImpl implements Peer {
 
         this.fingers = new AtomicReferenceArray<>(KEY_SIZE);
         this.data = new ConcurrentHashMap<>();
+
+        setUpHelperThreads();
+    }
+
+    private void setUpHelperThreads() {
+        dispatcher = new MessageDispatcher(this);
+        listener = new Listener(this, dispatcher);
+        stabilizer = new Stabilizer(this, dispatcher);
     }
 
     private void startHelperThreads() {
-        dispatcher = new MessageDispatcher(this);
         dispatcher.start();
-
-        listener = new Listener(this, dispatcher);
         listener.start();
-
-        stabilizer = new Stabilizer(this, dispatcher);
         stabilizer.start();
     }
 
@@ -82,13 +85,11 @@ public class PeerImpl implements Peer {
     }
 
     @Override
-    public <T extends Serializable> T put(Key key, Serializable obj) {
-        if (this.isResponsibleForKey(key)) {
-            return (T) data.put(key, obj);
-        }
+    public void put(Key key, Serializable obj) {
+        if (this.isResponsibleForKey(key))
+            data.put(key, obj);
 
         // TODO fetch appropriate successor and send request
-        return null;
     }
 
     @Override
@@ -98,23 +99,32 @@ public class PeerImpl implements Peer {
 
     @Override
     public void setIthFinger(int i, InetSocketAddress address) {
+        if (i == 0) // successor
+            this.notify(address);
         fingers.set(i, address);
     }
 
     @Override
     public boolean join(InetSocketAddress contact) {
-        return false;
-    }
+        if (contact == null || contact.equals(getAddress())) {
+            System.err.println("Failed join attempt");
+            return false;
+        }
 
-    @Override
-    public void leave() {
+        Message<Key> request = Message.makeRequest(Message.Type.SUCCESSOR, getKey());
+        InetSocketAddress successorOfKey = dispatcher.requestAddress(contact, request);
 
+        setIthFinger(0, successorOfKey);
+        startHelperThreads();
+
+        return true;
     }
 
     @Override
     public boolean notify(InetSocketAddress successor) {
+        System.out.println("Notifying " + successor + ".");
         if (successor == null || successor.equals(this.getAddress()))
-            return false;
+            throw new IllegalArgumentException("Illegal arguments for ChordNode.notify()");
 
         Message<Serializable> notification = Message.makeRequest(Message.Type.AM_YOUR_PREDECESSOR, getAddress());
         Message response = dispatcher.sendRequest(successor, notification);
@@ -123,8 +133,9 @@ public class PeerImpl implements Peer {
 
     @Override
     public void notified(InetSocketAddress newPred) {
+        System.out.println("Notified by " + newPred + ".");
         if (newPred == null || newPred.equals(getAddress())) {
-            return;
+            throw new IllegalArgumentException("Illegal arguments for ChordNode.notify()");
         } else if (this.predecessor == null) {
             this.predecessor = newPred;
         }
@@ -143,11 +154,13 @@ public class PeerImpl implements Peer {
 
     @Override
     public void initiateTask(AdversarialSearchTask task) {
-
+        // TODO start adversarial search task
+        // partition and send to appropriate peers
     }
 
     @Override
     public int handleTask(AdversarialSearchTask task) {
+        // TODO process adversarial search task
         return 0;
     }
 
@@ -157,4 +170,7 @@ public class PeerImpl implements Peer {
         listener.toDie();
         // TODO send local data to substitute peer (successor).
     }
+
+    @Override
+    public void leave() {}
 }
