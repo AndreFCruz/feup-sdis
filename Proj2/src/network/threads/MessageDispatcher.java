@@ -1,7 +1,7 @@
 package network.threads;
 
-import network.ChordNode;
 import network.Message;
+import network.Peer;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -25,12 +25,12 @@ public class MessageDispatcher extends Thread {
      */
     static final int RESPONSE_WAIT_TIME = 100;
 
-    private ChordNode node;
+    private Peer peer;
     private ExecutorService executorService;
     private ConcurrentMap<Integer, ResponseHandler> responseHandlers;
 
-    public MessageDispatcher(ChordNode node) {
-        this.node = node;
+    public MessageDispatcher(Peer peer) {
+        this.peer = peer;
         this.executorService = Executors.newFixedThreadPool(5);
         this.responseHandlers = new ConcurrentHashMap<>();
     }
@@ -39,13 +39,7 @@ public class MessageDispatcher extends Thread {
         if (server == null || msg == null || ! msg.isRequest())
             throw new IllegalArgumentException("Invalid message to be sent as request.");
 
-        Socket socket = null;
-        try {
-            socket = new Socket(server.getAddress(), server.getPort());
-            sendMessage(socket, msg);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed connecting to server socket.", e);
-        }
+        Socket socket = sendMessage(server, msg);
 
         try {
             Thread.sleep(RESPONSE_WAIT_TIME);
@@ -71,19 +65,33 @@ public class MessageDispatcher extends Thread {
 
     public <S extends Serializable> ResponseHandler sendRequestAsync(final InetSocketAddress server,
                                                             final Message<S> msg, ResponseHandler callback) {
-        try {
-            Socket socket = new Socket(server.getAddress(), server.getPort());
-            sendMessage(socket, msg);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        Socket socket = sendMessage(server, msg);
         return responseHandlers.put(msg.getId(), callback);
     }
 
-    private <S extends Serializable> void sendMessage(Socket socket, Message<S> msg) throws IOException {
-        ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
-        output.writeObject(msg);
+    public void sendResponse(InetSocketAddress server, Message msg) {
+        Socket socket = sendMessage(server, msg);
+        try {
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private Socket sendMessage(InetSocketAddress server, Message msg) {
+        if (server == null || msg == null)
+            throw new IllegalArgumentException("sendMessage received NULL arguments.");
+
+        Socket socket = null;
+        try {
+            socket = new Socket(server.getAddress(), server.getPort());
+            ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
+            output.writeObject(msg);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed connecting to server socket.", e);
+        }
+
+        return socket;
     }
 
     // Add <S extends Serializable> bound to return ?
@@ -112,8 +120,24 @@ public class MessageDispatcher extends Thread {
         }
     }
 
-    public <S extends Serializable> void handleRequest(Message<S> request) {
+    public Message handleRequest(Message request) {
         // TODO switch among request types
+
+        switch (request.getType()) {
+            case SUCCESSOR:
+                break;
+            case PREDECESSOR:
+                break;
+            case ITH_FINGER:
+                break;
+            case TASK:
+
+                break;
+            default:
+                System.err.println("Invalid message type received.");
+        }
+
+        return null;
     }
 
 }

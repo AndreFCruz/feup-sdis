@@ -16,6 +16,7 @@ public abstract class ThreadImpl extends Thread {
 
     /**
      * Action to be repeated whilst thread lives.
+     * Function should block if no action is yet to be made.
      */
     protected abstract void act();
 
@@ -35,6 +36,9 @@ public abstract class ThreadImpl extends Thread {
         this.terminate();
     }
 
+    /**
+     * Sets this thread to gracefully terminate.
+     */
     public void toDie() {
         this.running.set(false);
     }

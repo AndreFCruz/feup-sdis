@@ -44,11 +44,12 @@ public interface ChordNode {
     /**
      * Puts the given object in this node's persistent memory.
      * @param key the Object's key.
+     * @param obj the Object to be stored.
      * @param <T> the type of the Object (must be serializable).
      * @return the previous Object associated with key, or null if there
      *  was no mapping for the given key.
      */
-    <T extends Serializable> T put(int key);
+    <T extends Serializable> T put(int key, Serializable obj);
 
     /**
      * Gets the ith finger on this node's finger table.
