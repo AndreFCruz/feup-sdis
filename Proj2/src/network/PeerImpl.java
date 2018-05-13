@@ -113,12 +113,27 @@ public class PeerImpl implements Peer {
 
     @Override
     public boolean notify(InetSocketAddress successor) {
-        return false;
+        if (successor == null || successor.equals(this.getAddress()))
+            return false;
+
+        Message<Serializable> notification = Message.makeRequest(Message.Type.AM_YOUR_PREDECESSOR, getAddress());
+        Message response = dispatcher.sendRequest(successor, notification);
+        return response.getType() == Message.Type.OK;
     }
 
     @Override
-    public boolean notified(InetSocketAddress predecessor) {
-        return false;
+    public void notified(InetSocketAddress newPred) {
+        if (newPred == null || newPred.equals(getAddress())) {
+            return;
+        } else if (this.predecessor == null) {
+            this.predecessor = newPred;
+        }
+
+        Key newPredKey = Key.fromAddress(newPred);
+        Key predKey = Key.fromAddress(predecessor);
+        if (newPredKey.isBetween(predKey, this.getKey())) {
+            this.predecessor = newPred;
+        }
     }
 
     @Override

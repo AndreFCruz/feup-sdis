@@ -14,7 +14,9 @@ public class Message<T extends Serializable> implements Serializable {
         TASK,           // request task fulfillment
         KEY,            // request node's key
         GET,            // lookup object
-        PUT             // store object
+        PUT,            // store object
+        AM_YOUR_PREDECESSOR, // indicate this node is target node's predecessor
+        OK              // node acknowledges notification
     }
 
     /**
@@ -51,14 +53,14 @@ public class Message<T extends Serializable> implements Serializable {
         this.arg = arg;
     }
 
-    public static <S extends Serializable> Message makeRequest(Type requestType, S arg) {
+    public static <S extends Serializable> Message<S> makeRequest(Type requestType, S arg) {
         Message<S> msg = new Message<>(requestType, arg);
         msg.isRequest = true;
         msg.id = requestCount++;
         return msg;
     }
 
-    public static <S extends Serializable> Message makeResponse(Type requestType, S arg, int id) {
+    public static <S extends Serializable> Message<S> makeResponse(Type requestType, S arg, int id) {
         Message<S> msg = new Message<>(requestType, arg);
         msg.isRequest = false;
         msg.id = id;

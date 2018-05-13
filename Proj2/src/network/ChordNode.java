@@ -89,9 +89,8 @@ public interface ChordNode {
     /**
      * Received notification signaling this node's predecessor.
      * @param predecessor this node's predecessor.
-     * @return whether notified was successful.
      */
-    boolean notified(InetSocketAddress predecessor);
+    void notified(InetSocketAddress predecessor);
 
     /**
      * Find key's successor (the node responsible for the given key/id).
