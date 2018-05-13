@@ -142,15 +142,15 @@ public class ConcreteMessageDispatcher extends AbstractMessageDispatcher {
 
     @Override
     protected void setupMessageHandlers() {
-        addMessageHandler(PUTCHUNK, (Message msg) -> handlePUTCHUNK(msg));
-        addMessageHandler(STORED, (Message msg) -> handleSTORED(msg));
-        addMessageHandler(GETCHUNK, (Message msg) -> handleGETCHUNK(msg));
-        addMessageHandler(ENH_GETCHUNK, (Message msg) -> handleGETCHUNK(msg));
-        addMessageHandler(CHUNK, (Message msg) -> handleCHUNK(msg));
-        addMessageHandler(REMOVED, (Message msg) -> handleREMOVED(msg));
-        addMessageHandler(DELETE, (Message msg) -> handleDELETE(msg));
-        addMessageHandler(DELETED, (Message msg) -> handleDELETED(msg));
-        addMessageHandler(UP, (Message msg) -> handleUP(msg));
+        addMessageHandler(PUTCHUNK, this::handlePUTCHUNK);
+        addMessageHandler(STORED, this::handleSTORED);
+        addMessageHandler(GETCHUNK, this::handleGETCHUNK);
+        addMessageHandler(ENH_GETCHUNK, this::handleGETCHUNK);
+        addMessageHandler(CHUNK, this::handleCHUNK);
+        addMessageHandler(REMOVED, this::handleREMOVED);
+        addMessageHandler(DELETE, this::handleDELETE);
+        addMessageHandler(DELETED, this::handleDELETED);
+        addMessageHandler(UP, this::handleUP);
     }
 
 }
