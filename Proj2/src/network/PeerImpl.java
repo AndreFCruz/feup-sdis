@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 
 public class PeerImpl implements Peer {
@@ -127,7 +128,7 @@ public class PeerImpl implements Peer {
             return false;
         }
 
-        Message<Key> request = Message.makeRequest(Message.Type.SUCCESSOR, getKey());
+        Message<Key> request = Message.makeRequest(Message.Type.SUCCESSOR, getKey(), localAddress);
         InetSocketAddress successorOfKey = dispatcher.requestAddress(contact, request);
 
         setIthFinger(0, successorOfKey);
@@ -142,7 +143,10 @@ public class PeerImpl implements Peer {
         if (successor == null || successor.equals(this.getAddress()))
             throw new IllegalArgumentException("Illegal arguments for ChordNode.notify()");
 
-        Message<Serializable> notification = Message.makeRequest(Message.Type.AM_YOUR_PREDECESSOR, getAddress());
+        Message<Serializable> notification = Message.makeRequest(
+                Message.Type.AM_YOUR_PREDECESSOR,
+                getAddress(),
+                getAddress());
         Message response = dispatcher.sendRequest(successor, notification);
         return response.getType() == Message.Type.OK;
     }
@@ -173,7 +177,7 @@ public class PeerImpl implements Peer {
         }
 
         InetSocketAddress pred = closestPrecedingNode(key);
-        Message<Key> request = Message.makeRequest(Message.Type.SUCCESSOR, key);
+        Message<Key> request = Message.makeRequest(Message.Type.SUCCESSOR, key, getAddress());
         return dispatcher.requestAddress(pred, request);
     }
 
@@ -189,15 +193,15 @@ public class PeerImpl implements Peer {
 
     @Override
     public void initiateTask(AdversarialSearchTask task) {
-        // TODO start adversarial search task
+        // TODO start adversarial search task on separate thread
         // partition and send to appropriate peers
     }
 
     @Override
-    public int handleTask(AdversarialSearchTask task) {
-        // TODO process adversarial search task
+    public Future<Integer> handleTask(AdversarialSearchTask task) {
+        // TODO process adversarial search task on separate thread
         // returns value of evaluated tree
-        return 0;
+        return null;
     }
 
     @Override

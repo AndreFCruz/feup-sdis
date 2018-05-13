@@ -26,7 +26,7 @@ public class CheckPredecessor extends RecurrentTask {
     @Override
     public void run() {
         InetSocketAddress predecessor = node.getPredecessor();
-        Message request = Message.makeRequest(Message.Type.KEY, null);
+        Message request = Message.makeRequest(Message.Type.KEY, null, node.getAddress());
         Message response = dispatcher.sendRequest(predecessor, request);
 
         if (response == null)

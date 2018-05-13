@@ -2,6 +2,8 @@ package network;
 
 import task.AdversarialSearchTask;
 
+import java.util.concurrent.Future;
+
 public interface Peer extends ChordNode {
 
     /**
@@ -21,7 +23,7 @@ public interface Peer extends ChordNode {
      * @param task the given task.
      * @return the value of the given task
      */
-    int handleTask(AdversarialSearchTask task);
+    Future<Integer> handleTask(AdversarialSearchTask task);
 
     /**
      * Gracefully terminate this peer's resources.

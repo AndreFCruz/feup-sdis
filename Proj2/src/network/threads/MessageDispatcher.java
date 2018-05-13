@@ -2,6 +2,7 @@ package network.threads;
 
 import network.Message;
 import network.Peer;
+import task.AdversarialSearchTask;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -36,7 +37,7 @@ public class MessageDispatcher extends Thread {
     }
 
     public int requestKey(InetSocketAddress server) {
-        Message request = Message.makeRequest(Message.Type.KEY, null);
+        Message request = Message.makeRequest(Message.Type.KEY, null, peer.getAddress());
         Message response = sendRequest(server, request);
 
         return (int) response.getArg();
@@ -90,10 +91,10 @@ public class MessageDispatcher extends Thread {
         return response;
     }
 
-    public <S extends Serializable> ResponseHandler sendRequestAsync(final InetSocketAddress server,
-                                                            final Message<S> msg, ResponseHandler callback) {
-        Socket socket = sendMessage(server, msg);
-        return responseHandlers.put(msg.getId(), callback);
+    public <S extends Serializable> void sendRequestAsync(final InetSocketAddress server,
+                                                          final Message<S> msg, ResponseHandler callback) {
+        sendMessage(server, msg);
+        responseHandlers.put(msg.getId(), callback);
     }
 
     public void sendResponse(InetSocketAddress server, Message msg) {
@@ -148,8 +149,9 @@ public class MessageDispatcher extends Thread {
     }
 
     public Message handleRequest(Message request) {
-        // TODO switch among request types
+        System.out.println("Received Message: " + request.getType());
 
+        Message ret = null;
         switch (request.getType()) {
             case SUCCESSOR:
                 break;
@@ -158,13 +160,33 @@ public class MessageDispatcher extends Thread {
             case ITH_FINGER:
                 break;
             case TASK:
-
+                executorService.submit(() -> handleTaskRequest(request));
+                break;
+            case OK:
+                // This should not be received here, as it should be sent synchronously
                 break;
             default:
                 System.err.println("Invalid message type received.");
         }
 
-        return null;
+        return ret;
+    }
+
+    private void handleTaskRequest(Message<AdversarialSearchTask> request) {
+        InetSocketAddress sender = request.getSender();
+        Future<Integer> ret = peer.handleTask(request.getArg());
+
+        Integer result = null;
+        try {
+            result = ret.get();
+        } catch (InterruptedException e) {
+            System.err.println("Peer interrupted while executing task.");
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        Message<Integer> response = Message.makeResponse(Message.Type.TASK, result, request.getId());
+        sendResponse(sender, response);
     }
 
 }

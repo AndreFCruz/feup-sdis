@@ -48,13 +48,19 @@ public class Message<T extends Serializable> implements Serializable {
      */
     private boolean isRequest;
 
+    /**
+     * The sender's address (ip:port).
+     */
+    private InetSocketAddress sender;
+
     private Message(Type type, T arg) {
         this.messageType = type;
         this.arg = arg;
     }
 
-    public static <S extends Serializable> Message<S> makeRequest(Type requestType, S arg) {
+    public static <S extends Serializable> Message<S> makeRequest(Type requestType, S arg, InetSocketAddress sender) {
         Message<S> msg = new Message<>(requestType, arg);
+        msg.sender = sender;
         msg.isRequest = true;
         msg.id = requestCount++;
         return msg;
@@ -81,6 +87,10 @@ public class Message<T extends Serializable> implements Serializable {
 
     public boolean isRequest() {
         return isRequest;
+    }
+
+    public InetSocketAddress getSender() {
+        return sender;
     }
 
 }

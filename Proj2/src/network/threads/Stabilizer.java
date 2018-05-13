@@ -22,7 +22,7 @@ public class Stabilizer extends RecurrentTask {
     @Override
     public void run() {
         InetSocketAddress successor = node.getSuccessor();
-        Message request = Message.makeRequest(Message.Type.SUCCESSOR, null);
+        Message request = Message.makeRequest(Message.Type.SUCCESSOR, null, node.getAddress());
         InetSocketAddress candidate = dispatcher.requestAddress(successor, request);
 
         Key succKey = Key.fromAddress(successor);
