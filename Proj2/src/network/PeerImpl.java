@@ -26,6 +26,8 @@ public class PeerImpl implements Peer {
     private Listener listener;
     private RecurrentTask stabilizer;
     private RecurrentTask fixFingers;
+    private RecurrentTask checkPredecessor;
+
 
     public PeerImpl(InetSocketAddress address) {
         this.localAddress = address;
@@ -34,21 +36,22 @@ public class PeerImpl implements Peer {
         this.fingers = new AtomicReferenceArray<>(KEY_SIZE);
         this.data = new ConcurrentHashMap<>();
 
+        dispatcher = new MessageDispatcher(this);
         setUpHelperThreads();
     }
 
     private void setUpHelperThreads() {
-        dispatcher = new MessageDispatcher(this);
         listener = new Listener(this, dispatcher);
         stabilizer = new Stabilizer(this, dispatcher);
         fixFingers = new FixFingers(this);
+        checkPredecessor = new CheckPredecessor(this, dispatcher);
     }
 
     private void startHelperThreads() {
-        dispatcher.start();
         listener.start();
         stabilizer.start();
         fixFingers.start();
+        checkPredecessor.start();
     }
 
     private boolean isResponsibleForKey(Key key) {
@@ -104,6 +107,11 @@ public class PeerImpl implements Peer {
         if (i == 0) // successor
             this.notify(address);
         fingers.set(i, address);
+    }
+
+    @Override
+    public void setPredecessor(InetSocketAddress newPredecessor) {
+        this.predecessor = newPredecessor;
     }
 
     @Override
@@ -188,17 +196,21 @@ public class PeerImpl implements Peer {
     @Override
     public int handleTask(AdversarialSearchTask task) {
         // TODO process adversarial search task
+        // returns value of evaluated tree
         return 0;
     }
 
     @Override
     public void terminate() {
+        this.leave();
         stabilizer.terminate();
         fixFingers.terminate();
+        checkPredecessor.terminate();
         listener.toDie();
-        // TODO send local data to substitute peer (successor).
     }
 
     @Override
-    public void leave() {}
+    public void leave() {
+        // TODO check chord protocol's leave
+    }
 }

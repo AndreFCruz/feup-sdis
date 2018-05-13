@@ -65,6 +65,12 @@ public interface ChordNode {
     void setIthFinger(int i, InetSocketAddress address);
 
     /**
+     * Sets this node's predecessor.
+     * @param newPredecessor the new predecessor.
+     */
+    void setPredecessor(InetSocketAddress newPredecessor);
+
+    /**
      * Creates a new Chord Ring.
      * The node's successor is set to the node itself.
      */
