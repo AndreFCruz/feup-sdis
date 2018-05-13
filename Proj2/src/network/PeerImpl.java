@@ -1,5 +1,8 @@
 package network;
 
+import network.threads.Listener;
+import network.threads.MessageDispatcher;
+import network.threads.Stabilizer;
 import task.AdversarialSearchTask;
 
 import java.io.Serializable;
@@ -12,7 +15,7 @@ public class PeerImpl implements Peer {
 
     private static final int KEY_SIZE = 32;
 
-    private Key localId;
+    private Key localKey;
     private final InetSocketAddress localAddress;
     private InetSocketAddress predecessor;
 
@@ -21,18 +24,36 @@ public class PeerImpl implements Peer {
 
     // NOTE add threads for stabilizing, fixing fingers, and listening for requests
 
+    private MessageDispatcher dispatcher;
+    private Listener listener;
+    private Stabilizer stabilizer;
+
     public PeerImpl(InetSocketAddress address) {
         this.localAddress = address;
-        this.localId = Key.fromAddress(address);
+        this.localKey = Key.fromAddress(address);
 
-//        this.fingers = new InetSocketAddress[KEY_SIZE];
         this.fingers = new AtomicReferenceArray<>(KEY_SIZE);
         this.data = new ConcurrentHashMap<>();
     }
 
+    private void startHelperThreads() {
+        dispatcher = new MessageDispatcher(this);
+        dispatcher.start();
+
+        listener = new Listener(this, dispatcher);
+        listener.start();
+
+        stabilizer = new Stabilizer(this, dispatcher);
+        stabilizer.start();
+    }
+
+    private boolean isResponsibleForKey(Key key) {
+        return key.isBetween(Key.fromAddress(predecessor), this.getKey());
+    }
+
     @Override
-    public Key getId() {
-        return localId;
+    public Key getKey() {
+        return localKey;
     }
 
     @Override
@@ -52,14 +73,22 @@ public class PeerImpl implements Peer {
 
     @Override
     public <T extends Serializable> T lookup(Key key) {
-        // TODO check if key is in this node's range
-        return (T) data.get(key);
+        if (this.isResponsibleForKey(key)) {
+            return (T) data.get(key);
+        }
+
+        // TODO fetch appropriate successor and send request
+        return null;
     }
 
     @Override
     public <T extends Serializable> T put(Key key, Serializable obj) {
-        // TODO check if key is in this node's range
-        return (T) data.put(key, obj);
+        if (this.isResponsibleForKey(key)) {
+            return (T) data.put(key, obj);
+        }
+
+        // TODO fetch appropriate successor and send request
+        return null;
     }
 
     @Override
@@ -105,5 +134,12 @@ public class PeerImpl implements Peer {
     @Override
     public int handleTask(AdversarialSearchTask task) {
         return 0;
+    }
+
+    @Override
+    public void terminate() {
+        stabilizer.terminate();
+        listener.toDie();
+        // TODO send local data to substitute peer (successor).
     }
 }

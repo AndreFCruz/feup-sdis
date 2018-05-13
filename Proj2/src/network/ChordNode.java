@@ -13,7 +13,7 @@ public interface ChordNode {
      * Gets this node's id/key.
      * @return this node's id/key.
      */
-    Key getId();
+    Key getKey();
 
     /**
      * Gets this node's address (ip:port).

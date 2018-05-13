@@ -22,4 +22,9 @@ public interface Peer extends ChordNode {
      * @return the value of the given task
      */
     int handleTask(AdversarialSearchTask task);
+
+    /**
+     * Gracefully terminate this peer's resources.
+     */
+    void terminate();
 }

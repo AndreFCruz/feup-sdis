@@ -23,7 +23,13 @@ public class Key implements Serializable {
         return new Key(obj.hashCode());
     }
 
-    // NOTE Check <= to <
+    /**
+     * Is key in range ]lower, upper], meaning upper is responsible for this key
+     *  (if the provided keys correspond to the closest nodes to this key).
+     * @param lower exclusive lower bound
+     * @param upper inclusive upper bound
+     * @return whether key is in range ]lower, upper]
+     */
     public boolean isBetween(Key lower, Key upper) {
         if (lower.key < upper.key) {
             return this.key > lower.key && this.key <= upper.key;
