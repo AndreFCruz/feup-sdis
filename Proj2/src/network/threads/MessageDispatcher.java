@@ -35,6 +35,33 @@ public class MessageDispatcher extends Thread {
         this.responseHandlers = new ConcurrentHashMap<>();
     }
 
+    public int requestKey(InetSocketAddress server) {
+        Message request = Message.makeRequest(Message.Type.KEY, null);
+        Message response = sendRequest(server, request);
+
+        return (int) response.getArg();
+    }
+
+    public InetSocketAddress requestAddress(InetSocketAddress server, Message request) {
+        if (request.getType() == Message.Type.TASK)
+            throw new IllegalArgumentException("requestAddress called with Task message.");
+
+        Message response = sendRequest(server, request);
+        if (request.getType() != response.getType() || request.getId() != response.getId()) {
+            System.err.println("Response incompatible with request message.");
+            return null;
+        }
+
+        InetSocketAddress address = null;
+        try {
+            address = (InetSocketAddress) response.getArg();
+        } catch (ClassCastException e) {
+            System.err.println("Failed casting response arg to InetSocketAddress. " + e.getMessage());
+        }
+
+        return address;
+    }
+
     public <S extends Serializable> Message sendRequest(InetSocketAddress server, Message<S> msg) {
         if (server == null || msg == null || ! msg.isRequest())
             throw new IllegalArgumentException("Invalid message to be sent as request.");

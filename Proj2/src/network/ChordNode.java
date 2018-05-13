@@ -13,7 +13,7 @@ public interface ChordNode {
      * Gets this node's id/key.
      * @return this node's id/key.
      */
-    int getId();
+    Key getId();
 
     /**
      * Gets this node's address (ip:port).
@@ -39,7 +39,7 @@ public interface ChordNode {
      * @param <T> the type of the Object (must be serializable).
      * @return the Object with the specified key, if found.
      */
-    <T extends Serializable> T lookup(int key);
+    <T extends Serializable> T lookup(Key key);
 
     /**
      * Puts the given object in this node's persistent memory.
@@ -49,7 +49,7 @@ public interface ChordNode {
      * @return the previous Object associated with key, or null if there
      *  was no mapping for the given key.
      */
-    <T extends Serializable> T put(int key, Serializable obj);
+    <T extends Serializable> T put(Key key, Serializable obj);
 
     /**
      * Gets the ith finger on this node's finger table.
@@ -59,6 +59,13 @@ public interface ChordNode {
      * @return the finger's address.
      */
     InetSocketAddress getIthFinger(int i);
+
+    /**
+     * Sets the ith finger of this node.
+     * @param i the position on the finger table.
+     * @param address the finger's address.
+     */
+    void setIthFinger(int i, InetSocketAddress address);
 
     /**
      * Join a Chord Ring through the provided contact Node.
@@ -93,7 +100,7 @@ public interface ChordNode {
      * @param key a key in the hash table.
      * @return the corresponding address.
      */
-    InetSocketAddress findSuccessor(int key);
+    InetSocketAddress findSuccessor(Key key);
 
 
 }

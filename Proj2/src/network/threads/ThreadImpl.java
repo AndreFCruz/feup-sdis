@@ -10,11 +10,6 @@ public abstract class ThreadImpl extends Thread {
     private AtomicBoolean running = new AtomicBoolean(true);
 
     /**
-     * Initialize current thread's resources.
-     */
-    protected abstract void initialize();
-
-    /**
      * Action to be repeated whilst thread lives.
      * Function should block if no action is yet to be made.
      */
@@ -27,8 +22,6 @@ public abstract class ThreadImpl extends Thread {
 
     @Override
     public void run() {
-        this.initialize();
-
         while(running.get()) {
             this.act();
         }

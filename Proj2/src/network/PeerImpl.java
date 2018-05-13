@@ -12,20 +12,18 @@ public class PeerImpl implements Peer {
 
     private static final int KEY_SIZE = 32;
 
-    private Integer localId;
+    private Key localId;
     private final InetSocketAddress localAddress;
     private InetSocketAddress predecessor;
 
     private final AtomicReferenceArray<InetSocketAddress> fingers;
-    private ConcurrentMap<Integer, Serializable> data;
-
-    // TO DO store successor key on join
+    private ConcurrentMap<Key, Serializable> data;
 
     // NOTE add threads for stabilizing, fixing fingers, and listening for requests
 
     public PeerImpl(InetSocketAddress address) {
         this.localAddress = address;
-        this.localId = localAddress.hashCode();
+        this.localId = Key.fromAddress(address);
 
 //        this.fingers = new InetSocketAddress[KEY_SIZE];
         this.fingers = new AtomicReferenceArray<>(KEY_SIZE);
@@ -33,7 +31,7 @@ public class PeerImpl implements Peer {
     }
 
     @Override
-    public int getId() {
+    public Key getId() {
         return localId;
     }
 
@@ -53,13 +51,13 @@ public class PeerImpl implements Peer {
     }
 
     @Override
-    public <T extends Serializable> T lookup(int key) {
+    public <T extends Serializable> T lookup(Key key) {
         // TODO check if key is in this node's range
         return (T) data.get(key);
     }
 
     @Override
-    public <T extends Serializable> T put(int key, Serializable obj) {
+    public <T extends Serializable> T put(Key key, Serializable obj) {
         // TODO check if key is in this node's range
         return (T) data.put(key, obj);
     }
@@ -67,6 +65,11 @@ public class PeerImpl implements Peer {
     @Override
     public InetSocketAddress getIthFinger(int i) {
         return fingers.get(i);
+    }
+
+    @Override
+    public void setIthFinger(int i, InetSocketAddress address) {
+        fingers.set(i, address);
     }
 
     @Override
@@ -90,7 +93,7 @@ public class PeerImpl implements Peer {
     }
 
     @Override
-    public InetSocketAddress findSuccessor(int key) {
+    public InetSocketAddress findSuccessor(Key key) {
         return null;
     }
 

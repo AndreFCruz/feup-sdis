@@ -38,9 +38,6 @@ public class Listener extends ThreadImpl {
     }
 
     @Override
-    protected void initialize() { }
-
-    @Override
     protected void act() {
         final Socket socket;
 

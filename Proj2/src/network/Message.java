@@ -11,7 +11,8 @@ public class Message<T extends Serializable> implements Serializable {
         SUCCESSOR,
         PREDECESSOR,
         ITH_FINGER,
-        TASK
+        TASK,
+        KEY
     }
 
     /**
