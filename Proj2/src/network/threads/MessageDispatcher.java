@@ -1,5 +1,6 @@
 package network.threads;
 
+import network.Key;
 import network.Message;
 import network.Peer;
 import task.AdversarialSearchTask;
@@ -153,11 +154,21 @@ public class MessageDispatcher extends Thread {
 
         Message ret = null;
         switch (request.getType()) {
+            case GET:
+                // TODO
+            case PUT:
+                // TODO
+            case KEY:
+                ret = handleKeyRequest(request);
+                break;
             case SUCCESSOR:
+                ret = handleSuccessorRequest(request);
                 break;
             case PREDECESSOR:
+                ret = handlePredecessorRequest(request);
                 break;
             case ITH_FINGER:
+                ret = handleIthFingerRequest(request);
                 break;
             case TASK:
                 executorService.submit(() -> handleTaskRequest(request));
@@ -170,6 +181,36 @@ public class MessageDispatcher extends Thread {
         }
 
         return ret;
+    }
+
+    private Message<Key> handleKeyRequest(Message request) {
+        return Message.makeResponse(Message.Type.KEY, peer.getKey(), request.getId());
+    }
+
+    private Message<InetSocketAddress> handleIthFingerRequest(Message request) {
+        return Message.makeResponse(
+                Message.Type.PREDECESSOR,
+                peer.getIthFinger((Integer) request.getArg()),
+                request.getId()
+        );
+    }
+
+    private Message<InetSocketAddress> handlePredecessorRequest(Message request) {
+        return Message.makeResponse(Message.Type.PREDECESSOR, peer.getPredecessor(), request.getId());
+    }
+
+    private Message<InetSocketAddress> handleSuccessorRequest(Message request) {
+        InetSocketAddress target = null;
+
+        // If no Key provided, return this peer's successor
+        if (request.getArg() == null) {
+            target = peer.getSuccessor();
+        } else { // else, respond to query
+            Key queryKey = (Key) request.getArg();
+            target = peer.findSuccessor(queryKey);
+        }
+
+        return Message.makeResponse(Message.Type.SUCCESSOR, target, request.getId());
     }
 
     private void handleTaskRequest(Message<AdversarialSearchTask> request) {
