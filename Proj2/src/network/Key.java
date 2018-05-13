@@ -38,6 +38,13 @@ public class Key implements Serializable {
         }
     }
 
+    /**
+     * @return key + 2^bits
+     */
+    public Key shift(final int bits) {
+        return new Key(this.key + 1 << bits);
+    }
+
     @Override
     public int hashCode() {
         return this.key;
@@ -45,9 +52,8 @@ public class Key implements Serializable {
 
     @Override
     public boolean equals(final Object object) {
-        if (object == null || !(object instanceof Key)) {
+        if (! (object instanceof Key) )
             return false;
-        }
 
         return this == object || this.key == ((Key) object).key;
     }

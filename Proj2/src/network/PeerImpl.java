@@ -1,8 +1,6 @@
 package network;
 
-import network.threads.Listener;
-import network.threads.MessageDispatcher;
-import network.threads.Stabilizer;
+import network.threads.*;
 import task.AdversarialSearchTask;
 
 import java.io.Serializable;
@@ -26,7 +24,8 @@ public class PeerImpl implements Peer {
 
     private MessageDispatcher dispatcher;
     private Listener listener;
-    private Stabilizer stabilizer;
+    private RecurrentTask stabilizer;
+    private RecurrentTask fixFingers;
 
     public PeerImpl(InetSocketAddress address) {
         this.localAddress = address;
@@ -42,12 +41,14 @@ public class PeerImpl implements Peer {
         dispatcher = new MessageDispatcher(this);
         listener = new Listener(this, dispatcher);
         stabilizer = new Stabilizer(this, dispatcher);
+        fixFingers = new FixFingers(this);
     }
 
     private void startHelperThreads() {
         dispatcher.start();
         listener.start();
         stabilizer.start();
+        fixFingers.start();
     }
 
     private boolean isResponsibleForKey(Key key) {
@@ -117,6 +118,9 @@ public class PeerImpl implements Peer {
         setIthFinger(0, successorOfKey);
         startHelperThreads();
 
+        // NOTE: set contact as predecessor?
+        // or await contact's notification?
+
         return true;
     }
 
@@ -167,6 +171,7 @@ public class PeerImpl implements Peer {
     @Override
     public void terminate() {
         stabilizer.terminate();
+        fixFingers.terminate();
         listener.toDie();
         // TODO send local data to substitute peer (successor).
     }

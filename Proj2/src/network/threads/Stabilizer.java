@@ -5,36 +5,22 @@ import network.Key;
 import network.Message;
 
 import java.net.InetSocketAddress;
-import java.util.Timer;
-import java.util.TimerTask;
 
-public class Stabilizer extends Thread {
+public class Stabilizer extends RecurrentTask {
 
     private static final int INTERVAL = 1000;
 
     private ChordNode node;
     private MessageDispatcher dispatcher;
-    private Timer timer;
 
     public Stabilizer(ChordNode node, MessageDispatcher dispatcher) {
+        super(INTERVAL);
         this.node = node;
         this.dispatcher = dispatcher;
-
-        Stabilizer thisStabilizer = this;
-        this.timer = new Timer();
-        timer.scheduleAtFixedRate(
-                new TimerTask() {
-                    @Override
-                    public void run() {
-                        thisStabilizer.stabilize();
-                    }
-                },
-                INTERVAL,
-                INTERVAL
-        );
     }
 
-    public void stabilize() {
+    @Override
+    public void run() {
         InetSocketAddress successor = node.getSuccessor();
         Message request = Message.makeRequest(Message.Type.SUCCESSOR, null);
         InetSocketAddress candidate = dispatcher.requestAddress(successor, request);
@@ -50,9 +36,4 @@ public class Stabilizer extends Thread {
 
         node.notify(node.getSuccessor());
     }
-
-    public void terminate() {
-        timer.cancel();
-    }
-
 }
