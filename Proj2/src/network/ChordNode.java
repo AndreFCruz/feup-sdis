@@ -65,6 +65,12 @@ public interface ChordNode {
     void setIthFinger(int i, InetSocketAddress address);
 
     /**
+     * Creates a new Chord Ring.
+     * The node's successor is set to the node itself.
+     */
+    void create();
+
+    /**
      * Join a Chord Ring through the provided contact Node.
      * @param contact the address of the join contact.
      * @return whether join was successful.

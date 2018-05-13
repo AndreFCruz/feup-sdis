@@ -52,6 +52,7 @@ public class PeerImpl implements Peer {
     }
 
     private boolean isResponsibleForKey(Key key) {
+        if (predecessor == null) return false;
         return key.isBetween(Key.fromAddress(predecessor), this.getKey());
     }
 
@@ -106,6 +107,12 @@ public class PeerImpl implements Peer {
     }
 
     @Override
+    public void create() {
+        setIthFinger(0, localAddress);
+        startHelperThreads();
+    }
+
+    @Override
     public boolean join(InetSocketAddress contact) {
         if (contact == null || contact.equals(getAddress())) {
             System.err.println("Failed join attempt");
@@ -117,9 +124,6 @@ public class PeerImpl implements Peer {
 
         setIthFinger(0, successorOfKey);
         startHelperThreads();
-
-        // NOTE: set contact as predecessor?
-        // or await contact's notification?
 
         return true;
     }
@@ -153,7 +157,26 @@ public class PeerImpl implements Peer {
 
     @Override
     public InetSocketAddress findSuccessor(Key key) {
-        return null;
+        InetSocketAddress successor = getSuccessor();
+        if (successor == null) {
+            return null;
+        } else if (isResponsibleForKey(key)) {
+            return localAddress;
+        }
+
+        InetSocketAddress pred = closestPrecedingNode(key);
+        Message<Key> request = Message.makeRequest(Message.Type.SUCCESSOR, key);
+        return dispatcher.requestAddress(pred, request);
+    }
+
+
+    private InetSocketAddress closestPrecedingNode(Key key) {
+        for (int i = fingers.length() - 1; i > 0; i--) {
+            InetSocketAddress ithFinger = getIthFinger(i);
+            if (ithFinger != null && Key.fromAddress(ithFinger).isBetween(localKey, key))
+                return ithFinger;
+        }
+        return localAddress;
     }
 
     @Override
