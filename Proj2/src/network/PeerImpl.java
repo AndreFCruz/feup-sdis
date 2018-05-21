@@ -33,6 +33,7 @@ public class PeerImpl implements Peer {
     public PeerImpl(InetSocketAddress address) {
         this.localAddress = address;
         this.localKey = Key.fromAddress(address);
+        System.out.println("Starting Peer with Key: " + localKey);
 
         this.fingers = new AtomicReferenceArray<>(KEY_SIZE);
         this.data = new ConcurrentHashMap<>();
@@ -50,8 +51,8 @@ public class PeerImpl implements Peer {
 
     private void startHelperThreads() {
         listener.start();
-        stabilizer.start();
-        fixFingers.start();
+//        stabilizer.start();
+//        fixFingers.start();
         checkPredecessor.start();
     }
 
@@ -105,6 +106,7 @@ public class PeerImpl implements Peer {
 
     @Override
     public void setIthFinger(int i, InetSocketAddress address) {
+        System.out.println("Setting finger at i=" + i + " -> " + address);
         if (i == 0) // successor
             this.notify(address);
         fingers.set(i, address);
@@ -112,17 +114,20 @@ public class PeerImpl implements Peer {
 
     @Override
     public void setPredecessor(InetSocketAddress newPredecessor) {
+        System.out.println("New predecessor. " + predecessor + " -> " + newPredecessor);
         this.predecessor = newPredecessor;
     }
 
     @Override
     public void create() {
+        System.out.println("Creating Chord Ring.");
         startHelperThreads();
         setIthFinger(0, localAddress);
     }
 
     @Override
     public boolean join(InetSocketAddress contact) {
+        System.out.println("Joining Chord at " + contact);
         if (contact == null || contact.equals(getAddress())) {
             System.err.println("Failed join attempt");
             return false;
@@ -171,8 +176,10 @@ public class PeerImpl implements Peer {
 
     @Override
     public InetSocketAddress findSuccessor(Key key) {
+        System.out.println("Finding Successor of key " + key);
         InetSocketAddress successor = getSuccessor();
-        if (successor == null) {
+        if (successor.equals(localAddress)) {
+            System.out.println("Successor not set.");
             return null;
         } else if (isResponsibleForKey(key)) {
             return localAddress;

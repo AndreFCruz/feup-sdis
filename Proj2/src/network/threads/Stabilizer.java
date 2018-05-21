@@ -6,6 +6,9 @@ import network.Message;
 
 import java.net.InetSocketAddress;
 
+/**
+ * Confirms node's successor is valid.
+ */
 public class Stabilizer extends RecurrentTask {
 
     private static final int INTERVAL = 1000;

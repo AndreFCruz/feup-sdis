@@ -6,6 +6,9 @@ import network.Key;
 import java.net.InetSocketAddress;
 import java.util.Random;
 
+/**
+ * Confirms node's fingers are valid.
+ */
 public class FixFingers extends RecurrentTask {
 
     private static final int INTERVAL = 1000;
