@@ -154,10 +154,15 @@ public class MessageDispatcher extends Thread {
 
         Message ret = null;
         switch (request.getType()) {
+            case AM_YOUR_PREDECESSOR:
+                peer.setPredecessor(request.getSender());
+                break;
             case GET:
                 // TODO
+                break;
             case PUT:
                 // TODO
+                break;
             case KEY:
                 ret = handleKeyRequest(request);
                 break;
