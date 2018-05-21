@@ -58,6 +58,14 @@ public class Message<T extends Serializable> implements Serializable {
         this.arg = arg;
     }
 
+    /**
+     * Static method for constructing request messages.
+     * @param requestType Type of the message.
+     * @param arg The message's argument
+     * @param sender The address of the message's sender.
+     * @param <S> The type of the message's argument.
+     * @return A newly created request message.
+     */
     public static <S extends Serializable> Message<S> makeRequest(Type requestType, S arg, InetSocketAddress sender) {
         Message<S> msg = new Message<>(requestType, arg);
         msg.sender = sender;
@@ -66,8 +74,16 @@ public class Message<T extends Serializable> implements Serializable {
         return msg;
     }
 
-    public static <S extends Serializable> Message<S> makeResponse(Type requestType, S arg, int id) {
-        Message<S> msg = new Message<>(requestType, arg);
+    /**
+     * Static method for constructing response messages.
+     * @param type Type of the message.
+     * @param arg The message's argument.
+     * @param id The message's id, should be the same as the corresponding request.
+     * @param <S> The type of the message's argument.
+     * @return A newly created response Message.
+     */
+    public static <S extends Serializable> Message<S> makeResponse(Type type, S arg, int id) {
+        Message<S> msg = new Message<>(type, arg);
         msg.isRequest = false;
         msg.id = id;
         return msg;

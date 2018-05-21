@@ -155,7 +155,7 @@ public class MessageDispatcher extends Thread {
         Message ret = null;
         switch (request.getType()) {
             case AM_YOUR_PREDECESSOR:
-                peer.setPredecessor(request.getSender());
+                ret = handleAmYourPredecessor(request);
                 break;
             case GET:
                 // TODO
@@ -186,6 +186,11 @@ public class MessageDispatcher extends Thread {
         }
 
         return ret;
+    }
+
+    private Message handleAmYourPredecessor(Message request) {
+        peer.setPredecessor(request.getSender());
+        return Message.makeResponse(Message.Type.OK, null, request.getId());
     }
 
     private Message<Key> handleKeyRequest(Message request) {

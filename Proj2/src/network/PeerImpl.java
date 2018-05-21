@@ -51,7 +51,7 @@ public class PeerImpl implements Peer {
 
     private void startHelperThreads() {
         listener.start();
-//        stabilizer.start();
+//        stabilizer.start(); // TODO uncomment in production
 //        fixFingers.start();
         checkPredecessor.start();
     }
