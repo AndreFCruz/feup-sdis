@@ -117,8 +117,8 @@ public class PeerImpl implements Peer {
 
     @Override
     public void create() {
-        setIthFinger(0, localAddress);
         startHelperThreads();
+        setIthFinger(0, localAddress);
     }
 
     @Override
@@ -127,12 +127,12 @@ public class PeerImpl implements Peer {
             System.err.println("Failed join attempt");
             return false;
         }
+        startHelperThreads();
 
         Message<Key> request = Message.makeRequest(Message.Type.SUCCESSOR, getKey(), localAddress);
         InetSocketAddress successorOfKey = dispatcher.requestAddress(contact, request);
 
         setIthFinger(0, successorOfKey);
-        startHelperThreads();
 
         return true;
     }
@@ -140,6 +140,10 @@ public class PeerImpl implements Peer {
     @Override
     public boolean notify(InetSocketAddress successor) {
         System.out.println("Notifying " + successor + ".");
+        if (successor == null || successor.equals(this.getAddress())) {
+            System.out.println("Notifying self?");
+            return false;
+        }
 
         Message<Serializable> notification = Message.makeRequest(
                 Message.Type.AM_YOUR_PREDECESSOR,
