@@ -25,7 +25,7 @@ public class InitPeer {
 
         InetSocketAddress localAddr = new InetSocketAddress(localIP, Integer.parseInt(args[0]));
 
-        Peer peer = new PeerImpl(localAddr);;
+        Peer peer = new PeerImpl(localAddr);
         if (args.length == 1) {
             peer.create();
         } else {
