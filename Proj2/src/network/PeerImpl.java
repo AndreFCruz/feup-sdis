@@ -140,8 +140,6 @@ public class PeerImpl implements Peer {
     @Override
     public boolean notify(InetSocketAddress successor) {
         System.out.println("Notifying " + successor + ".");
-        if (successor == null || successor.equals(this.getAddress()))
-            throw new IllegalArgumentException("Illegal arguments for ChordNode.notify()");
 
         Message<Serializable> notification = Message.makeRequest(
                 Message.Type.AM_YOUR_PREDECESSOR,
