@@ -180,7 +180,7 @@ public class PeerImpl implements Peer {
         InetSocketAddress successor = getSuccessor();
         if (successor.equals(localAddress)) {
             System.out.println("Successor not set.");
-            return null;
+            return localAddress;
         } else if (isResponsibleForKey(key)) {
             return localAddress;
         }
