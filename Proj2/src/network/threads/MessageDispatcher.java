@@ -66,7 +66,7 @@ public class MessageDispatcher extends Thread {
 
     public <S1 extends Serializable> Message sendRequest(InetSocketAddress server, Message<S1> msg) {
         if (server == null || msg == null || ! msg.isRequest())
-            throw new IllegalArgumentException("Invalid message to be sent as request.");
+            throw new IllegalArgumentException("Invalid message to be sent as request." + msg);
 
         Socket socket = sendMessage(server, msg);
 

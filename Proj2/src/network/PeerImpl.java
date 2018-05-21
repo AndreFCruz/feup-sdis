@@ -140,8 +140,8 @@ public class PeerImpl implements Peer {
     @Override
     public boolean notify(InetSocketAddress successor) {
         System.out.println("Notifying " + successor + ".");
-        if (successor == null || successor.equals(this.getAddress())) {
-            System.out.println("Notifying self?");
+        if (successor.equals(this.getAddress())) {
+            System.out.println("Notifying self. Successor not set.");
             return false;
         }
 
