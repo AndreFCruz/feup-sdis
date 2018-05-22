@@ -25,8 +25,10 @@ public class Stabilizer extends RecurrentTask {
     @Override
     public void run() {
         InetSocketAddress successor = node.getSuccessor();
-        if (successor == node.getAddress())
-            return;
+//        if (successor == node.getAddress()) {
+//            // TODO rethink this situation
+//            return;
+//        }
 
         Message request = Message.makeRequest(Message.Type.PREDECESSOR, null, node.getAddress());
         InetSocketAddress candidate = dispatcher.requestAddress(successor, request);
@@ -40,7 +42,7 @@ public class Stabilizer extends RecurrentTask {
 
         // If there's a peer between this peer and its successor,
         // then that peer is this peer's new successor.
-        if (candKey.isBetween(node.getKey(), succKey)) {
+        if (candKey.isBetween(node.getKey(), succKey) || node.getKey() == succKey) {
             node.setIthFinger(0, candidate);
         }
 

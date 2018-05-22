@@ -3,6 +3,7 @@ package network;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
 
+
 public class Message<T extends Serializable> implements Serializable {
 
     static final long serialVersionUID = 42L;
@@ -44,6 +45,11 @@ public class Message<T extends Serializable> implements Serializable {
     private T arg;
 
     /**
+     * This request's data. For PUT requests.
+     */
+    private Serializable data = null;
+
+    /**
      * Is this a request message (or response) ?
      */
     private boolean isRequest;
@@ -75,6 +81,22 @@ public class Message<T extends Serializable> implements Serializable {
     }
 
     /**
+     * Constructs a PUT request message.
+     * @param arg the key of the data.
+     * @param data the serializable data to store.
+     * @param sender the request's sender.
+     * @return A newly constructed Message<Key> instance.
+     */
+    public static Message<Key> makePutRequest(Key arg, Serializable data, InetSocketAddress sender) {
+        Message<Key> msg = new Message<Key>(Type.PUT, arg);
+        msg.data = data;
+        msg.sender = sender;
+        msg.isRequest = true;
+        msg.id = requestCount++;
+        return msg;
+    }
+
+    /**
      * Static method for constructing response messages.
      * @param type Type of the message.
      * @param arg The message's argument.
@@ -99,6 +121,10 @@ public class Message<T extends Serializable> implements Serializable {
 
     public T getArg() {
         return arg;
+    }
+
+    public Serializable getData() {
+        return data;
     }
 
     public boolean isRequest() {

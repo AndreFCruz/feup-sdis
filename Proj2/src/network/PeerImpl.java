@@ -83,20 +83,26 @@ public class PeerImpl implements Peer {
 
     @Override
     public <T extends Serializable> T lookup(Key key) {
-        if (this.isResponsibleForKey(key)) {
+        InetSocketAddress responsible = findSuccessor(key);
+        if (this.localAddress == responsible) {
             return (T) data.get(key);
         }
 
-        // TODO fetch appropriate successor and send request
-        return null;
+        Message<Key> request = Message.makeRequest(Message.Type.GET, key, localAddress);
+        Message<T> response = dispatcher.sendRequest(responsible, request);
+        return response.getArg();
     }
 
     @Override
     public void put(Key key, Serializable obj) {
-        if (this.isResponsibleForKey(key))
+        InetSocketAddress responsible = findSuccessor(key);
+        if (this.localAddress == responsible) {
             data.put(key, obj);
+        }
 
-        // TODO fetch appropriate successor and send request
+        Message<Key> request = Message.makePutRequest(key, obj, localAddress);
+        Message response = dispatcher.sendRequest(responsible, request);
+        // TODO ensure response is OK ?
     }
 
     @Override
