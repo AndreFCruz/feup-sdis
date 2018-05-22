@@ -51,8 +51,8 @@ public class PeerImpl implements Peer {
 
     private void startHelperThreads() {
         listener.start();
-//        stabilizer.start(); // TODO uncomment in production
-//        fixFingers.start();
+        stabilizer.start();
+//        fixFingers.start(); // TODO uncomment in production
         checkPredecessor.start();
     }
 
@@ -178,20 +178,22 @@ public class PeerImpl implements Peer {
     public InetSocketAddress findSuccessor(Key key) {
         System.out.println("Finding Successor of key " + key);
         InetSocketAddress successor = getSuccessor();
-        if (successor.equals(localAddress)) {
-            System.out.println("Successor not set.");
-            return localAddress;
-        } else if (isResponsibleForKey(key)) {
-            return localAddress;
+
+        if (key.isBetween(this.localKey, Key.fromAddress(successor))) {
+            return successor;
         }
 
-        InetSocketAddress pred = closestPrecedingNode(key);
+        InetSocketAddress pred = closestPrecedingFinger(key);
+        if (pred == localAddress)
+            return localAddress;
+
+        // TODO change sender address to original request's sender (and make request async) (?)
         Message<Key> request = Message.makeRequest(Message.Type.SUCCESSOR, key, getAddress());
         return dispatcher.requestAddress(pred, request);
     }
 
 
-    private InetSocketAddress closestPrecedingNode(Key key) {
+    private InetSocketAddress closestPrecedingFinger(Key key) {
         for (int i = fingers.length() - 1; i > 0; i--) {
             InetSocketAddress ithFinger = getIthFinger(i);
             if (ithFinger != null && Key.fromAddress(ithFinger).isBetween(localKey, key))
