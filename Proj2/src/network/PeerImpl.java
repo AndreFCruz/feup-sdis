@@ -5,6 +5,7 @@ import task.AdversarialSearchTask;
 
 import java.io.Serializable;
 import java.net.InetSocketAddress;
+import java.rmi.RemoteException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Future;
@@ -20,8 +21,6 @@ public class PeerImpl implements Peer {
 
     private final AtomicReferenceArray<InetSocketAddress> fingers;
     private ConcurrentMap<Key, Serializable> data;
-
-    // NOTE add threads for stabilizing, fixing fingers, and listening for requests
 
     private MessageDispatcher dispatcher;
     private Listener listener;
@@ -164,7 +163,7 @@ public class PeerImpl implements Peer {
         return response.getType() == Message.Type.OK;
     }
 
-    @Override
+    @Override // TODO assess if notified is necessary
     public void notified(InetSocketAddress newPred) {
         System.out.println("Notified by " + newPred + ".");
         if (newPred == null || newPred.equals(getAddress())) {
@@ -228,6 +227,23 @@ public class PeerImpl implements Peer {
         fixFingers.terminate();
         checkPredecessor.terminate();
         listener.toDie();
+    }
+
+    @Override
+    public <T extends Serializable> T getR(Key key) throws RemoteException {
+        return lookup(key);
+    }
+
+    @Override
+    public void putR(Key key, Serializable obj) throws RemoteException {
+        put(key, obj);
+    }
+
+    @Override
+    public String getStatus() throws RemoteException {
+        // TODO
+        // Print node's key, node's successor and predecessor
+        return null;
     }
 
     @Override

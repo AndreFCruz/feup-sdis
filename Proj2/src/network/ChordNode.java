@@ -2,11 +2,12 @@ package network;
 
 import java.io.Serializable;
 import java.net.InetSocketAddress;
+import java.rmi.Remote;
 
 /**
  * A Node in a Chord - Distributed Hash Table.
  */
-public interface ChordNode {
+public interface ChordNode extends Remote {
 
 
     /**

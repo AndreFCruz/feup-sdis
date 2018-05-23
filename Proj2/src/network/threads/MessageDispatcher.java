@@ -189,6 +189,7 @@ public class MessageDispatcher extends Thread {
     }
 
     private Message handleAmYourPredecessor(Message request) {
+        // TODO call peer.notified
         peer.setPredecessor(request.getSender());
         return Message.makeResponse(Message.Type.OK, null, request.getId());
     }
