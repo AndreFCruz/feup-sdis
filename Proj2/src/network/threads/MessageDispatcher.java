@@ -1,6 +1,7 @@
 package network.threads;
 
 import network.Key;
+import network.Log;
 import network.Message;
 import network.Peer;
 import task.AdversarialSearchTask;
@@ -150,7 +151,7 @@ public class MessageDispatcher extends Thread {
     }
 
     public Message handleRequest(Message request) {
-        System.out.println("Received Message: " + request.getType());
+        Log.log("Received Message: " + request.getType());
 
         Message ret = null;
         switch (request.getType()) {
@@ -220,7 +221,7 @@ public class MessageDispatcher extends Thread {
             Key queryKey = (Key) request.getArg();
             target = peer.findSuccessor(queryKey);
         }
-        System.out.println("Response to Successor of " + request.getArg() + ": " + target);
+        Log.log("Response to Successor of " + request.getArg() + ": " + target);
 
         return Message.makeResponse(Message.Type.SUCCESSOR, target, request.getId());
     }

@@ -29,7 +29,7 @@ public class Stabilizer extends RecurrentTask {
         Message request = Message.makeRequest(Message.Type.PREDECESSOR, null, node.getAddress());
         InetSocketAddress candidate = dispatcher.requestAddress(successor, request);
         if (candidate == null) {
-            System.out.println("Stabilizer: Predecessor of successor is NULL.");
+            Log.log("Stabilizer: Predecessor of successor is NULL.");
             return;
         }
 

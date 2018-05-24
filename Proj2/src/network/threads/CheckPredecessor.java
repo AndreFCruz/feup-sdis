@@ -27,7 +27,7 @@ public class CheckPredecessor extends RecurrentTask {
     public void run() {
         InetSocketAddress predecessor = node.getPredecessor();
         if (predecessor == null) {
-            System.out.println("Predecessor not set.");
+            Log.log("Predecessor not set.");
             return;
         }
 
@@ -37,7 +37,7 @@ public class CheckPredecessor extends RecurrentTask {
         if (response == null)
             node.setPredecessor(null);
         else if ( response.getArg().equals(Key.fromAddress(predecessor)) )
-            System.out.println("Predecessor still lives :)");
+            Log.log("Predecessor still lives :)");
         else
             System.err.println("Found predecessor but key was invalid.");
     }
