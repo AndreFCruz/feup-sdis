@@ -241,9 +241,12 @@ public class PeerImpl implements Peer {
 
     @Override
     public String getStatus() throws RemoteException {
-        // TODO
-        // Print node's key, node's successor and predecessor
-        return null;
+        return "Local Address: " + localAddress + "\n" +
+                "Key: " + getKey() + "\n" +
+                "Successor: " + getSuccessor() + "\n" +
+                "Successor's key: " + Key.fromAddress(getSuccessor()) + "\n" +
+                "Predecessor: " + getPredecessor() + "\n" +
+                "Predecessor's key: " + Key.fromAddress(getPredecessor()) + "\n";
     }
 
     @Override
