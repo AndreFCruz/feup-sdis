@@ -1,6 +1,6 @@
 package service;
 
-import network.RemotePeer;
+import remote.RemotePeer;
 
 import java.net.InetSocketAddress;
 import java.rmi.RemoteException;
@@ -57,12 +57,21 @@ public class InitClient implements Runnable {
     @Override
     public void run() {
         initiateRMIStub();
-        handlers.get(action).run();
+        Runnable runnable = handlers.get(action);
+        if (runnable != null)
+            runnable.run();
+        else
+            System.err.println("No handler installed for action \"" + action + "\".");
     }
 
     private void initiateRMIStub() {
-        InetSocketAddress address = new InetSocketAddress(remoteAP[0], Integer.parseInt(remoteAP[1]));
-        final String registryName = address.toString();
+        InetSocketAddress address = null;
+        if (remoteAP[0].equals("localhost")) {
+            address = new InetSocketAddress(Utils.getLocalIp(), Integer.parseInt(remoteAP[1]));
+        } else {
+            address = new InetSocketAddress(remoteAP[0], Integer.parseInt(remoteAP[1]));
+        }
+        final String registryName = Utils.getNameFromAddress(address);
         System.out.println("Looking up peer with registry name \"" + registryName + "\"");
 
         try {

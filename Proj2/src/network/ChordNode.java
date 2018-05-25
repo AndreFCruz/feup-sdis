@@ -1,8 +1,11 @@
 package network;
 
+import task.AdversarialSearchTask;
+
 import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.rmi.Remote;
+import java.util.concurrent.Future;
 
 /**
  * A Node in a Chord - Distributed Hash Table.
@@ -110,6 +113,5 @@ public interface ChordNode extends Remote {
      * @return the corresponding address.
      */
     InetSocketAddress findSuccessor(Key key);
-
 
 }

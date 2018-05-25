@@ -1,5 +1,6 @@
-package network;
+package remote;
 
+import network.Key;
 import task.AdversarialSearchTask;
 
 import java.io.Serializable;
@@ -22,9 +23,9 @@ public interface RemotePeer extends Remote {
      */
     void terminate() throws RemoteException;
 
-    <T extends Serializable> T getR(Key key) throws RemoteException;
+    <T extends Serializable> T get(Key key) throws RemoteException;
 
-    void putR(Key key, Serializable obj) throws RemoteException;
+    void put(Key key, Serializable obj) throws RemoteException;
 
     String getStatus() throws RemoteException;
 }

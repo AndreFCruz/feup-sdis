@@ -230,17 +230,7 @@ public class PeerImpl implements Peer {
     }
 
     @Override
-    public <T extends Serializable> T getR(Key key) throws RemoteException {
-        return lookup(key);
-    }
-
-    @Override
-    public void putR(Key key, Serializable obj) throws RemoteException {
-        put(key, obj);
-    }
-
-    @Override
-    public String getStatus() throws RemoteException {
+    public String getStatus() {
         return "Local Address: " + localAddress + "\n" +
                 "Key: " + getKey() + "\n" +
                 "Successor: " + getSuccessor() + "\n" +

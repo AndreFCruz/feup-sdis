@@ -3,6 +3,9 @@ package task;
 import java.io.Serializable;
 
 public class AdversarialSearchTask implements Serializable {
+
+    private static final long serialVersionUID = 101L;
+
     private AdversarialSearchProblem problemDefinition;
     private GameState state;
 

@@ -12,6 +12,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.rmi.RemoteException;
 import java.util.concurrent.*;
 
 /**
@@ -228,7 +229,8 @@ public class MessageDispatcher extends Thread {
 
     private void handleTaskRequest(Message<AdversarialSearchTask> request) {
         InetSocketAddress sender = request.getSender();
-        Future<Integer> ret = peer.handleTask(request.getArg());
+        Future<Integer> ret = null;
+        ret = peer.handleTask(request.getArg());
 
         Integer result = null;
         try {

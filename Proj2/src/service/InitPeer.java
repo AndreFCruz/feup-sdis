@@ -2,7 +2,8 @@ package service;
 
 import network.Peer;
 import network.PeerImpl;
-import network.RemotePeer;
+import remote.RemotePeer;
+import remote.RemotePeerImpl;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -32,7 +33,9 @@ public class InitPeer {
         InetSocketAddress localAddr = new InetSocketAddress(localIP, Integer.parseInt(args[0]));
 
         Peer peer = new PeerImpl(localAddr);
-        bindRemoteObjectStub(peer);
+        RemotePeer remotePeer = new RemotePeerImpl(peer);
+        String remotePeerName = Utils.getNameFromAddress(peer.getAddress());
+        bindRemoteObjectStub(remotePeer, remotePeerName);
 
         if (args.length == 1) {
             peer.create();
@@ -55,10 +58,8 @@ public class InitPeer {
         System.out.println("InitPeer: SUCCESS!");
     }
 
-    private static void bindRemoteObjectStub(Peer peer) {
+    private static void bindRemoteObjectStub(RemotePeer peer, String registryName) {
         System.setProperty("java.net.preferIPv4Stack", "true");
-
-        final String registryName = peer.getAddress().toString();
 
         try {
             RemotePeer stub = (RemotePeer) UnicastRemoteObject.exportObject(peer, 0);

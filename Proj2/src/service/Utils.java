@@ -45,6 +45,10 @@ class Utils {
         return registry;
     }
 
+    static String getNameFromAddress(InetSocketAddress address) {
+        return address.getAddress().getHostAddress() + ":" + address.getPort();
+    }
+
     static InetAddress getLocalIp() {
         InetAddress localIP = null;
         try {

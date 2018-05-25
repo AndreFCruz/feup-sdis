@@ -28,11 +28,11 @@ public class Key implements Serializable {
     }
 
     public static Key fromAddress(InetSocketAddress address) {
-        return new Key(address.hashCode());
+        return address == null ? null : new Key(address.hashCode());
     }
 
     public static Key fromObject(Object obj) {
-        return new Key(obj.hashCode());
+        return obj == null ? null : new Key(obj.hashCode());
     }
 
     /**
