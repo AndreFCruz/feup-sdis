@@ -32,7 +32,7 @@ public class PeerImpl implements Peer {
     public PeerImpl(InetSocketAddress address) {
         this.localAddress = address;
         this.localKey = Key.fromAddress(address);
-        Log.log("Starting Peer with Key: " + localKey);
+        Logger.log("Starting Peer with Key: " + localKey);
 
         this.fingers = new AtomicReferenceArray<>(KEY_SIZE);
         this.data = new ConcurrentHashMap<>();
@@ -111,7 +111,7 @@ public class PeerImpl implements Peer {
 
     @Override
     public void setIthFinger(int i, InetSocketAddress address) {
-        Log.log("Setting finger at i=" + i + " -> " + address);
+        Logger.log("Setting finger at i=" + i + " -> " + address);
         if (i == 0) // successor
             this.notify(address);
         fingers.set(i, address);
@@ -119,20 +119,20 @@ public class PeerImpl implements Peer {
 
     @Override
     public void setPredecessor(InetSocketAddress newPredecessor) {
-        Log.log("New predecessor. " + predecessor + " -> " + newPredecessor);
+        Logger.log("New predecessor. " + predecessor + " -> " + newPredecessor);
         this.predecessor = newPredecessor;
     }
 
     @Override
     public void create() {
-        Log.log("Creating Chord Ring.");
+        Logger.log("Creating Chord Ring.");
         startHelperThreads();
         setIthFinger(0, localAddress);
     }
 
     @Override
     public boolean join(InetSocketAddress contact) {
-        Log.log("Joining Chord at " + contact);
+        Logger.log("Joining Chord at " + contact);
         if (contact == null || contact.equals(getAddress())) {
             System.err.println("Failed join attempt");
             return false;
@@ -149,9 +149,9 @@ public class PeerImpl implements Peer {
 
     @Override
     public boolean notify(InetSocketAddress successor) {
-        Log.log("Notifying " + successor + ".");
+        Logger.log("Notifying " + successor + ".");
         if (successor.equals(this.getAddress())) {
-            Log.log("Notifying self. Successor not set.");
+            Logger.log("Notifying self. Successor not set.");
             return false;
         }
 
@@ -165,7 +165,7 @@ public class PeerImpl implements Peer {
 
     @Override // TODO assess if notified is necessary
     public void notified(InetSocketAddress newPred) {
-        Log.log("Notified by " + newPred + ".");
+        Logger.log("Notified by " + newPred + ".");
         if (newPred == null || newPred.equals(getAddress())) {
             throw new IllegalArgumentException("Illegal arguments for ChordNode.notify()");
         } else if (this.predecessor == null) {
@@ -181,7 +181,7 @@ public class PeerImpl implements Peer {
 
     @Override
     public InetSocketAddress findSuccessor(Key key) {
-        Log.log("Finding Successor of key " + key);
+        Logger.log("Finding Successor of key " + key);
         InetSocketAddress successor = getSuccessor();
 
         if (key.isBetween(this.localKey, Key.fromAddress(successor))) {

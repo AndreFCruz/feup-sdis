@@ -1,6 +1,6 @@
 package service;
 
-import network.Log;
+import network.Logger;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -24,7 +24,7 @@ class Utils {
         if (m.find()) {
             peer_ap = new String[]{m.group(1), m.group(2), m.group(3)};
         } else {
-            Log.logError("Invalid Access Point!");
+            Logger.logError("Invalid Access Point!");
         }
 
         return peer_ap;

@@ -9,10 +9,22 @@ public class Key implements Serializable {
 
     public static final int KEY_SIZE = 32;
 
-    private final int key;
+    public static final int MINIMUM = 0;
 
-    private Key(int key) {
-        this.key = key;
+    public static final int MAXIMUM = (int) Math.pow(2, KEY_SIZE);
+
+    private final long key;
+
+    public Key(final long key) {
+        if (key < MINIMUM) {
+            throw new IllegalArgumentException("Key cannot be smaller than " + MINIMUM);
+        }
+
+        this.key = key % MAXIMUM;
+    }
+
+    public Key(final int key) {
+        this(key & 0x00000000ffffffffL);
     }
 
     public static Key fromAddress(InetSocketAddress address) {
@@ -30,7 +42,7 @@ public class Key implements Serializable {
      * @param upper inclusive upper bound
      * @return whether key is in range ]lower, upper]
      */
-    public boolean isBetween(Key lower, Key upper) {
+    public boolean isBetween(final Key lower, final Key upper) {
         if (lower.key < upper.key) {
             return this.key > lower.key && this.key <= upper.key;
         } else {
@@ -47,7 +59,7 @@ public class Key implements Serializable {
 
     @Override
     public int hashCode() {
-        return this.key;
+        return (int) this.key;
     }
 
     @Override
