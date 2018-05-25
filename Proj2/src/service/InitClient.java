@@ -2,43 +2,53 @@ package service;
 
 import network.RemotePeer;
 
-import java.nio.file.Paths;
+import java.net.InetSocketAddress;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 import java.util.HashMap;
 import java.util.Map;
 
 
-// TODO finish implementing this class
 public class InitClient implements Runnable {
 
     private Map<String, Runnable> handlers;
     private RemotePeer stub;
 
+    /**
+     * IP and port in which target peer is operating
+     */
+    private String[] remoteAP;
+
     private String action;
-    private String operand;
+
+    // Operands useful for GET and PUT operations on the Distributed Hash Map
+    private String oper1;
+    private String oper2;
 
     public static void main(String[] args) {
-        if (args.length < 2 || args.length > 3) {
-            System.out.println("Usage: java InitClient <peer_address> <action> <operand>");
+        if (args.length < 2 || args.length > 4) {
+            System.out.println("Usage: java InitClient <peer_address:port> <action> [<oper1> <oper2>]");
             return;
         }
 
         //host:port/name
-        String[] peer_ap = Utils.parseRMI(false, args[0]);
-        if (peer_ap == null)
+        String[] remoteInterfaceAP = Utils.parseSocketAddress(args[0]);
+        if (remoteInterfaceAP == null)
             return;
 
         String action = args[1];
-        String operand = args.length > 2 ? args[2] : null;
+        String oper1 = args.length > 2 ? args[2] : null;
+        String oper2 = args.length > 3 ? args[3] : null;
 
-        InitClient app = new InitClient(action, operand);
+        InitClient app = new InitClient(remoteInterfaceAP, action, oper1, oper2);
         new Thread(app).start();
     }
 
-    InitClient(String action, String operand) {
+    InitClient(String[] remoteAP, String action, String operand1, String operand2) {
+        this.remoteAP = remoteAP;
         this.action = action;
-        this.operand = operand;
+        this.oper1 = operand1;
+        this.oper2 = operand2;
 
         handlers = new HashMap<>();
         handlers.put("STATUS", this::handleStatus);
@@ -51,11 +61,15 @@ public class InitClient implements Runnable {
     }
 
     private void initiateRMIStub() {
-        try { // TODO getRegistry
-//            Registry registry = Utils.getRegistry(peer_ap);
-//            stub = (RemotePeer) registry.lookup(peer_ap[2]);
+        InetSocketAddress address = new InetSocketAddress(remoteAP[0], Integer.parseInt(remoteAP[1]));
+        final String registryName = address.toString();
+        System.out.println("Looking up peer with registry name \"" + registryName + "\"");
+
+        try {
+            Registry registry = Utils.getRegistry(remoteAP[0]);
+            stub = (RemotePeer) registry.lookup(registryName);
         } catch (Exception e) {
-            System.err.println("Error when opening RMI stub");
+            System.err.println("Error when fetching RMI stub: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -64,7 +78,7 @@ public class InitClient implements Runnable {
         try {
             System.out.println(stub.getStatus());
         } catch (RemoteException e) {
-            System.err.println("Client exception: " + e.toString());
+            System.err.println("Client exception: " + e.getMessage());
         }
     }
 

@@ -96,7 +96,7 @@ public class Peer implements RemoteBackupService {
 
             // Get own registry, to rebind to correct stub
             Registry registry = LocateRegistry.getRegistry();
-            registry.rebind(args[1], stub); //Only use rebind for development purposes
+            registry.rebind(args[1], stub);
 
             Log.log("Server ready!");
         } catch (Exception e) {
