@@ -2,6 +2,7 @@ package network.threads;
 
 import network.ChordNode;
 import network.Key;
+import network.Logger;
 import network.Message;
 
 import java.net.InetSocketAddress;
@@ -27,7 +28,7 @@ public class CheckPredecessor extends RecurrentTask {
     public void run() {
         InetSocketAddress predecessor = node.getPredecessor();
         if (predecessor == null) {
-            Log.log("Predecessor not set.");
+            Logger.log("Predecessor not set.");
             return;
         }
 
@@ -37,7 +38,7 @@ public class CheckPredecessor extends RecurrentTask {
         if (response == null)
             node.setPredecessor(null);
         else if ( response.getArg().equals(Key.fromAddress(predecessor)) )
-            Log.log("Predecessor still lives :)");
+            Logger.log("Predecessor still lives :)");
         else
             System.err.println("Found predecessor but key was invalid.");
     }

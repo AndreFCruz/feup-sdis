@@ -2,6 +2,7 @@ package network.threads;
 
 import network.ChordNode;
 import network.Key;
+import network.Logger;
 import network.Message;
 
 import java.net.InetSocketAddress;
@@ -29,7 +30,7 @@ public class Stabilizer extends RecurrentTask {
         Message request = Message.makeRequest(Message.Type.PREDECESSOR, null, node.getAddress());
         InetSocketAddress candidate = dispatcher.requestAddress(successor, request);
         if (candidate == null) {
-            Log.log("Stabilizer: Predecessor of successor is NULL.");
+            Logger.log("Stabilizer: Predecessor of successor is NULL.");
             return;
         }
 
