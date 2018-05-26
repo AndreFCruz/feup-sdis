@@ -3,6 +3,9 @@ package network.threads;
 import network.ChordNode;
 import network.Message;
 
+import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLServerSocketFactory;
+import javax.net.ssl.SSLSocket;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -19,7 +22,7 @@ public class Listener extends ThreadImpl {
 
     private ChordNode node;
     private MessageDispatcher dispatcher;
-    private ServerSocket serverSocket;
+    private SSLServerSocket serverSocket;
     private ExecutorService executorService;
 
     public Listener(ChordNode node, MessageDispatcher dispatcher) {
@@ -29,20 +32,32 @@ public class Listener extends ThreadImpl {
         this.executorService = Executors.newFixedThreadPool(3);
 
         int port = node.getAddress().getPort();
+        this.serverSocket = initServerSocket(port);
+    }
+
+    public SSLServerSocket initServerSocket(int port) {
+
+        SSLServerSocketFactory sslServerSocketFactory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
+        SSLServerSocket sslServerSocket;
+
         try {
-            this.serverSocket = new ServerSocket(port);
+            sslServerSocket = (SSLServerSocket) sslServerSocketFactory.createServerSocket(port);
+            sslServerSocket.setEnabledCipherSuites(sslServerSocket.getSupportedCipherSuites());/**/
+
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException("Failed opening port " + port + ".", e);
         }
+
+        return sslServerSocket;
     }
 
     @Override
     protected void act() {
-        final Socket socket;
+        final SSLSocket socket;
 
         try { // block waiting for connections
-            socket = serverSocket.accept();
+            socket = (SSLSocket) serverSocket.accept();
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException("Failed opening connection.", e);

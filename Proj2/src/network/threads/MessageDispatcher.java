@@ -6,13 +6,15 @@ import network.Message;
 import network.Peer;
 import task.AdversarialSearchTask;
 
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.rmi.RemoteException;
 import java.util.concurrent.*;
 
 /**
@@ -20,19 +22,13 @@ import java.util.concurrent.*;
  * Handles incoming and outgoing requests, as well as incoming and outgoing responses.
  */
 public class MessageDispatcher extends Thread {
-    public interface ResponseHandler {
-        void handleResponse(Message msg);
-    }
-
     /**
      * Response wait time, in milliseconds.
      */
     static final int RESPONSE_WAIT_TIME = 100;
-
     private Peer peer;
     private ExecutorService executorService;
     private ConcurrentMap<Integer, ResponseHandler> responseHandlers;
-
     public MessageDispatcher(Peer peer) {
         this.peer = peer;
         this.executorService = Executors.newFixedThreadPool(5);
@@ -67,10 +63,10 @@ public class MessageDispatcher extends Thread {
     }
 
     public <S1 extends Serializable> Message sendRequest(InetSocketAddress server, Message<S1> msg) {
-        if (server == null || msg == null || ! msg.isRequest())
+        if (server == null || msg == null || !msg.isRequest())
             throw new IllegalArgumentException("Invalid message to be sent as request." + msg);
 
-        Socket socket = sendMessage(server, msg);
+        SSLSocket socket = sendMessage(server, msg);
 
         try {
             Thread.sleep(RESPONSE_WAIT_TIME);
@@ -101,7 +97,7 @@ public class MessageDispatcher extends Thread {
     }
 
     public void sendResponse(InetSocketAddress server, Message msg) {
-        Socket socket = sendMessage(server, msg);
+        SSLSocket socket = sendMessage(server, msg);
         try {
             socket.close();
         } catch (IOException e) {
@@ -109,13 +105,13 @@ public class MessageDispatcher extends Thread {
         }
     }
 
-    private Socket sendMessage(InetSocketAddress server, Message msg) {
+    private SSLSocket sendMessage(InetSocketAddress server, Message msg) {
         if (server == null || msg == null)
             throw new IllegalArgumentException("sendMessage received NULL arguments.");
 
-        Socket socket = null;
+        SSLSocket socket = null;
         try {
-            socket = new Socket(server.getAddress(), server.getPort());
+            socket = connect(server.getAddress(), server.getPort());
             ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
             output.writeObject(msg);
         } catch (IOException e) {
@@ -124,6 +120,18 @@ public class MessageDispatcher extends Thread {
 
         return socket;
     }
+
+    public SSLSocket connect(InetAddress ip, int port) throws IOException {
+        SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+        SSLSocket sslSocket;
+
+        sslSocket = (SSLSocket) sslSocketFactory.createSocket(ip, port);
+
+        sslSocket.setEnabledCipherSuites(sslSocket.getSupportedCipherSuites());
+
+        return sslSocket;
+    }
+
 
     // Add <S extends Serializable> bound to return ?
     private Message getResponse(Socket socket) throws IOException {
@@ -243,6 +251,10 @@ public class MessageDispatcher extends Thread {
 
         Message<Integer> response = Message.makeResponse(Message.Type.TASK, result, request.getId());
         sendResponse(sender, response);
+    }
+
+    public interface ResponseHandler {
+        void handleResponse(Message msg);
     }
 
 }
