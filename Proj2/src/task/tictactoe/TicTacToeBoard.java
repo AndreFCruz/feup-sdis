@@ -4,7 +4,8 @@ import task.Board;
 
 public class TicTacToeBoard implements Board {
 
-    private enum Cell {
+    //TODO: do this in a more elegant way
+    public enum Cell {
         EMPTY {
             @Override
             public String toString() {
@@ -53,5 +54,34 @@ public class TicTacToeBoard implements Board {
         result += "/---|---|---\\\n";
 
         return result;
+    }
+
+    public boolean isFull() {
+        for(Cell[] row : matrix)
+            for(Cell col : row)
+                if(col == Cell.EMPTY)
+                    return false;
+
+        return true;
+    }
+
+    public boolean hasLine(Cell cell) {
+        // Horizontal line
+        for(Cell[] row : matrix)
+            if(row[0] == row[1] && row[1] == row[2] && row[0] == cell)
+                return true;
+
+        // Vertical line
+        for(int j = 0; j < N_COLS; j++)
+            if(matrix[j][0] == cell && matrix[j][0] == matrix[j][1] && matrix[j][1] == matrix[j][2])
+                return true;
+
+        // Diagonal lines
+        if(matrix[0][0] == cell && matrix[0][0] == matrix[1][1] && matrix[1][1] == matrix[2][2])
+            return true;
+        if(matrix[0][0] == cell && matrix[0][2] == matrix[1][1] && matrix[1][1] == matrix[2][0])
+            return true;
+
+        return false;
     }
 }

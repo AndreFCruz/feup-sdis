@@ -1,10 +1,7 @@
 package task.tictactoe;
 
-import task.AdversarialSearchProblem;
 import task.GameState;
 import task.Player;
-
-import java.util.Collection;
 
 public class TicTacToeState extends GameState {
 
@@ -19,4 +16,33 @@ public class TicTacToeState extends GameState {
         currentPlayer = crosses;
     }
 
+    public boolean currentPlayerWins() {
+        return playerWins(currentPlayer);
+    }
+
+    public boolean opponentPlayerWins() {
+        Player opponent = getOpponent();
+        return playerWins(opponent);
+    }
+
+    private boolean playerWins(Player player) {
+        TicTacToeBoard tBoard = (TicTacToeBoard) board;
+        TicTacToeBoard.Cell currentCell = getPlayerCell(currentPlayer);
+
+        return tBoard.hasLine(currentCell);
+    }
+
+    private TicTacToeBoard.Cell getPlayerCell(Player player) {
+        if(player == crosses)
+            return TicTacToeBoard.Cell.CROSS;
+
+        return TicTacToeBoard.Cell.NOUGH;
+    }
+
+    private Player getOpponent() {
+        if(currentPlayer == crosses)
+            return noughts;
+
+        return crosses;
+    }
 }
