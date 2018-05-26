@@ -2,6 +2,15 @@ package task;
 
 public class GameState {
 
-    // Should keep board state and current player
+    protected Board board;
+    protected Player currentPlayer;
+
+    public Board getBoard() {
+        return board;
+    }
+
+    public Player getCurrentPlayer() {
+        return currentPlayer;
+    }
 
 }
