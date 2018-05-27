@@ -90,8 +90,8 @@ public class MessageDispatcher extends Thread {
         return response;
     }
 
-    public <S extends Serializable> void sendRequestAsync(final InetSocketAddress server,
-                                                          final Message<S> msg, ResponseHandler callback) {
+    public void sendRequestAsync(final InetSocketAddress server,
+                                 final Message msg, ResponseHandler callback) {
         sendMessage(server, msg);
         responseHandlers.put(msg.getId(), callback);
     }

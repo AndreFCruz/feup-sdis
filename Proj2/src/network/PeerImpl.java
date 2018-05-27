@@ -7,6 +7,8 @@ import task.MinimaxSearchTask;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Future;
@@ -228,10 +230,12 @@ public class PeerImpl implements Peer {
     public void initiateTask(AdversarialSearchTask task) {
         Collection<AdversarialSearchTask> tasks = task.partition();
 
+        Map<Key, AdversarialSearchTask> taskMap = new HashMap<>();
         for(AdversarialSearchTask childTask : tasks) {
             Message<AdversarialSearchTask> message = Message.makeRequest(Message.Type.TASK, childTask, localAddress);
-            InetSocketAddress destination = findSuccessor(Key.fromObject(message));
-            dispatcher.sendRequest(destination, message);
+            taskMap.put(Key.fromObject(childTask), childTask);
+            InetSocketAddress destination = findSuccessor(Key.fromObject(childTask));
+            dispatcher.sendRequestAsync(destination, message, (Message response) -> Logger.log(response.toString()));
         }
     }
 
