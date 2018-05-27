@@ -17,8 +17,8 @@ If no contact provided, peer will create a new Chord ring.
 (_e.g._ ```sh peer.sh 4000 localhost:4001```)
 
 4. To run the ClientApp:
-  - open a terminal, navigate to the project's root folder and type "sh query.sh <peer_address:port> <action> [<oper1> <oper2>]"
-    - <action> is one of ```status```, ```get```, ```put``` or ```find_successor```.
+  - open a terminal, navigate to the project's root folder and type "sh query.sh <peer_address:port> <action> [< oper1 > < oper2 >]"
+    - < action > is one of ```status```, ```get```, ```put``` or ```find_successor```.
 	(_e.g._ ```sh query.sh localhost:4001 STATUS```)
 
 
