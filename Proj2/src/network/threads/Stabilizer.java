@@ -49,4 +49,5 @@ public class Stabilizer extends RecurrentTask {
 
         node.notify(node.getSuccessor());
     }
+
 }

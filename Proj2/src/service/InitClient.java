@@ -72,11 +72,11 @@ public class InitClient implements Runnable {
         if (! initiateRMIStub())
             return;
 
-//        try { // TODO uncomment
-//            Authentication.login(stub);
-//        } catch (RemoteException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            Authentication.login(stub);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
 
         Runnable runnable = handlers.get(action.toUpperCase());
         if (runnable != null)
