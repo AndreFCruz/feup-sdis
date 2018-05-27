@@ -26,6 +26,10 @@ public class Stabilizer extends RecurrentTask {
     @Override
     public void run() {
         InetSocketAddress successor = node.getSuccessor();
+        if (successor == null) {
+            Logger.log("Stabilizer: Successor is NULL.");
+            return;
+        }
 
         Message request = Message.makeRequest(Message.Type.PREDECESSOR, null, node.getAddress());
         InetSocketAddress candidate = dispatcher.requestAddress(successor, request);
