@@ -49,6 +49,8 @@ public class Listener extends ThreadImpl {
             throw new RuntimeException("Failed opening port " + port + ".", e);
         }
 
+        sslServerSocket.setNeedClientAuth(true);
+
         return sslServerSocket;
     }
 
@@ -58,7 +60,6 @@ public class Listener extends ThreadImpl {
 
         try { // block waiting for connections
             socket = (SSLSocket) serverSocket.accept();
-            serverSocket.setNeedClientAuth(true);
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException("Failed opening connection.", e);
