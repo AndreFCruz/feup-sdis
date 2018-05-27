@@ -1,7 +1,7 @@
 package service;
 
+import remote.Authentication;
 import remote.RemotePeer;
-
 import java.net.InetSocketAddress;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
@@ -57,6 +57,13 @@ public class InitClient implements Runnable {
     @Override
     public void run() {
         initiateRMIStub();
+
+        try {
+            Authentication.login(stub);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+
         Runnable runnable = handlers.get(action);
         if (runnable != null)
             runnable.run();
