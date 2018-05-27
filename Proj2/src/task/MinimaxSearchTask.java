@@ -16,7 +16,6 @@ public class MinimaxSearchTask extends AdversarialSearchTask {
     }
 
     @Override
-    //TODO: refactor this
     public int runTask() {
         if(problemDefinition.isStateTerminal(state)) {
             int score = problemDefinition.utilityOfState(state, maximizing);
@@ -27,15 +26,7 @@ public class MinimaxSearchTask extends AdversarialSearchTask {
         if(state.getCurrentPlayer().equals(maximizing)) {
             int bestScore = -2;
 
-            Collection<GameState> successors = problemDefinition.successors(state);
-            Collection<AdversarialSearchTask> successorTasks = new ArrayList<>();
-
-            for(GameState successor : successors) {
-                //TODO: how to divide and send them to the peers?
-                AdversarialSearchTask task = new MinimaxSearchTask(problemDefinition, successor, maximizing);
-                successorTasks.add(task);
-            }
-
+            Collection<AdversarialSearchTask> successorTasks = partition();
             for(AdversarialSearchTask task : successorTasks) {
                 int taskScore = task.runTask();
                 bestScore = max(taskScore, bestScore);
@@ -48,15 +39,7 @@ public class MinimaxSearchTask extends AdversarialSearchTask {
         else {
             int bestScore = 2;
 
-            Collection<GameState> successors = problemDefinition.successors(state);
-            Collection<AdversarialSearchTask> successorTasks = new ArrayList<>();
-
-            for(GameState successor : successors) {
-                //TODO: how to divide and send them to the peers?
-                AdversarialSearchTask task = new MinimaxSearchTask(problemDefinition, successor, maximizing);
-                successorTasks.add(task);
-            }
-
+            Collection<AdversarialSearchTask> successorTasks = partition();
             for(AdversarialSearchTask task : successorTasks) {
                 int taskScore = task.runTask();
                 bestScore = min(taskScore, bestScore);
