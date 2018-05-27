@@ -22,7 +22,7 @@ public class InitPeer {
     public static final int RMI_PORT = 1099;
 
     public static void main(String[] args) {
-        if (args.length != 1 && args.length != 3) {
+        if (args.length != 1 && args.length != 2) {
             System.out.println("Invalid command line arguments.");
             System.out.println("Usage: <port> [<contact_ip:contact_port>]");
             System.out.println("If no contact provided, peer will create a new Chord ring.");

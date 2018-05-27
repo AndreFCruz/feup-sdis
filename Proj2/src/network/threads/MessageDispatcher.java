@@ -168,10 +168,10 @@ public class MessageDispatcher extends Thread {
                 ret = handleAmYourPredecessor(request);
                 break;
             case GET:
-                // TODO
+                ret = handleGetRequest(request);
                 break;
             case PUT:
-                // TODO
+                ret = handlePutRequest(request);
                 break;
             case KEY:
                 ret = handleKeyRequest(request);
@@ -190,17 +190,31 @@ public class MessageDispatcher extends Thread {
                 break;
             case OK:
                 // This should not be received here, as it should be sent synchronously
+                Logger.log("OK response sent for request " + request.getType());
                 break;
             default:
-                System.err.println("Invalid message type received.");
+                Logger.logError("Invalid message type received.");
         }
 
         return ret;
     }
 
+    private Message handleGetRequest(Message request) {
+        Key key = (Key) request.getArg();
+        Serializable data = peer.lookup(key);
+        return Message.makeResponse(Message.Type.GET, data, request.getId());
+    }
+
+    private Message handlePutRequest(Message request) {
+        Key key = (Key) request.getArg();
+        Serializable data = request.getData();
+
+        peer.put(key, data);
+        return Message.makeResponse(Message.Type.OK, null, request.getId());
+    }
+
     private Message handleAmYourPredecessor(Message request) {
-        // TODO call peer.notified
-        peer.setPredecessor(request.getSender());
+        peer.notified(request.getSender());
         return Message.makeResponse(Message.Type.OK, null, request.getId());
     }
 
