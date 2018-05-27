@@ -9,9 +9,7 @@ import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 
 public class PeerImpl implements Peer {
@@ -32,6 +30,8 @@ public class PeerImpl implements Peer {
     private RecurrentTask checkPredecessor;
     private RecurrentTask handoffData;
 
+    private ExecutorService executorService;
+
 
     public PeerImpl(InetSocketAddress address) {
         this.localAddress = address;
@@ -42,6 +42,7 @@ public class PeerImpl implements Peer {
         this.data = new ConcurrentHashMap<>();
 
         dispatcher = new MessageDispatcher(this);
+        this.executorService = Executors.newFixedThreadPool(3);
         setUpHelperThreads();
     }
 
@@ -235,19 +236,13 @@ public class PeerImpl implements Peer {
             Message<AdversarialSearchTask> message = Message.makeRequest(Message.Type.TASK, childTask, localAddress);
             taskMap.put(Key.fromObject(childTask), childTask);
             InetSocketAddress destination = findSuccessor(Key.fromObject(childTask));
-            dispatcher.sendRequestAsync(destination, message, (Message response) -> Logger.log(response.toString()));
+            dispatcher.sendRequestAsync(destination, message, (Message response) -> Logger.logWarning(response.toString()));
         }
     }
 
     @Override
     public Future<Integer> handleTask(AdversarialSearchTask task) {
-        // TODO process adversarial search task on separate thread
-        // returns value of evaluated tree
-        int score = task.runTask();
-
-        //TODO: send response
-        //Message<Integer> response = Message.makeResponse(Message.Type.TASK, task, );
-        return null;
+        return executorService.submit(task::runTask);
     }
 
     @Override

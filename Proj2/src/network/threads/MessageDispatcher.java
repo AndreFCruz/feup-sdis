@@ -249,8 +249,7 @@ public class MessageDispatcher extends Thread {
 
     private void handleTaskRequest(Message<AdversarialSearchTask> request) {
         InetSocketAddress sender = request.getSender();
-        Future<Integer> ret = null;
-        ret = peer.handleTask(request.getArg());
+        Future<Integer> ret = peer.handleTask(request.getArg());
 
         Integer result = null;
         try {
