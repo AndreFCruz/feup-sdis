@@ -5,7 +5,6 @@ import task.AdversarialSearchTask;
 
 import java.io.Serializable;
 import java.net.InetSocketAddress;
-import java.rmi.RemoteException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Future;
@@ -51,7 +50,7 @@ public class PeerImpl implements Peer {
     private void startHelperThreads() {
         listener.start();
         stabilizer.start();
-//        fixFingers.start(); // TODO uncomment in production
+        fixFingers.start();
         checkPredecessor.start();
     }
 

@@ -2,6 +2,8 @@ package network;
 
 import java.io.Serializable;
 import java.net.InetSocketAddress;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class Key implements Serializable {
 
@@ -15,7 +17,7 @@ public class Key implements Serializable {
 
     private final long key;
 
-    public Key(final long key) {
+    private Key(final long key) {
         if (key < MINIMUM) {
             throw new IllegalArgumentException("Key cannot be smaller than " + MINIMUM);
         }
@@ -23,16 +25,32 @@ public class Key implements Serializable {
         this.key = key % MAXIMUM;
     }
 
-    public Key(final int key) {
+    private Key(final int key) {
         this(key & 0x00000000ffffffffL);
     }
 
     public static Key fromAddress(InetSocketAddress address) {
-        return address == null ? null : new Key(address.hashCode());
+        return address == null ? null : new Key(hashSocketAddress(address));
     }
 
     public static Key fromObject(Object obj) {
         return obj == null ? null : new Key(obj.hashCode());
+    }
+
+    private static int hashSocketAddress(InetSocketAddress address) {
+        MessageDigest messageDigest = null;
+        try {
+            messageDigest = MessageDigest.getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+
+        String ip = address.getAddress().getHostAddress();
+        String port = Integer.toString(address.getPort());
+        messageDigest.update((ip+port).getBytes());
+        String encryptedString = new String(messageDigest.digest());
+
+        return encryptedString.hashCode();
     }
 
     /**
