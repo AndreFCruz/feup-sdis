@@ -2,7 +2,7 @@ package task.tictactoe;
 
 import task.Board;
 
-public class TicTacToeBoard implements Board {
+public class TicTacToeBoard implements Board, Cloneable {
 
     //TODO: do this in a more elegant way
     public enum Cell {
@@ -26,8 +26,8 @@ public class TicTacToeBoard implements Board {
         }
     };
 
-    private static final int N_ROWS = 3;
-    private static final int N_COLS = 3;
+    public static final int N_ROWS = 3;
+    public static final int N_COLS = 3;
 
     private Cell[][] matrix;
 
@@ -43,6 +43,10 @@ public class TicTacToeBoard implements Board {
         matrix[row][col] = value;
     }
 
+    public boolean isFreeCell(int row, int col) {
+        return matrix[row][col] == Cell.EMPTY;
+    }
+
     @Override
     public String display() {
         String result = "/---|---|---\\\n";
@@ -54,6 +58,10 @@ public class TicTacToeBoard implements Board {
         result += "/---|---|---\\\n";
 
         return result;
+    }
+
+    public Cell[][] getMatrix() {
+        return matrix;
     }
 
     public boolean isFull() {
@@ -84,4 +92,25 @@ public class TicTacToeBoard implements Board {
 
         return false;
     }
+
+    public static Cell getOppositeCell(Cell value) {
+        if(value == Cell.CROSS)
+            return Cell.NOUGH;
+
+        return Cell.CROSS;
+    }
+
+    public TicTacToeBoard clone() throws CloneNotSupportedException {
+        TicTacToeBoard obj = (TicTacToeBoard) super.clone();
+        Cell[][] nMatrix = new Cell[N_ROWS][N_COLS];
+
+        for(int row = 0; row < N_ROWS; row++) {
+            for(int col = 0; col < N_COLS; col++)
+                nMatrix[row][col] = matrix[row][col];
+        }
+
+        obj.matrix = nMatrix;
+        return obj;
+    }
+
 }
