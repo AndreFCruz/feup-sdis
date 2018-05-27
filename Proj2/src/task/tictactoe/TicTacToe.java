@@ -59,14 +59,23 @@ public class TicTacToe implements AdversarialSearchProblem {
     }
 
     @Override
-    public int utilityOfState(GameState state) {
+    public int utilityOfState(GameState state, Player maximizer) {
         TicTacToeState tState = (TicTacToeState) state;
 
+        if(tState.playerWins(maximizer))
+            return 1;
+
+        Player opponent = tState.getOpponent(maximizer);
+        if(tState.playerWins(opponent))
+            return -1;
+
+        /*
         if(tState.currentPlayerWins())
             return 1;
 
         if(tState.opponentPlayerWins())
             return -1;
+            */
 
         return 0;
     }

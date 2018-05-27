@@ -2,12 +2,12 @@ package task;
 
 import java.io.Serializable;
 
-public class AdversarialSearchTask implements Serializable {
+public abstract class AdversarialSearchTask implements Serializable {
 
-    private static final long serialVersionUID = 101L;
+    protected static final long serialVersionUID = 101L;
 
-    private AdversarialSearchProblem problemDefinition;
-    private GameState state;
+    protected AdversarialSearchProblem problemDefinition;
+    protected GameState state;
 
     public AdversarialSearchTask(AdversarialSearchProblem problem, GameState state) {
         this.problemDefinition = problem;
@@ -21,5 +21,7 @@ public class AdversarialSearchTask implements Serializable {
     public GameState getState() {
         return state;
     }
+
+    public abstract int runTask();
 
 }

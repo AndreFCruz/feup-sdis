@@ -21,4 +21,9 @@ public class TicTacToePlayer implements Player {
         return value;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        return representation.equals(((TicTacToePlayer) o).getRepresentation());
+    }
+
 }
