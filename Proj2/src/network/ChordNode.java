@@ -38,7 +38,6 @@ public interface ChordNode extends Remote {
     /**
      * Fetches the Object with the specified key.
      * @param key the Object's key.
-     * @param <T> the type of the Object (must be serializable).
      * @return the Object with the specified key, if found.
      */
     Serializable lookup(Key key);
@@ -111,5 +110,11 @@ public interface ChordNode extends Remote {
      * @return the corresponding address.
      */
     InetSocketAddress findSuccessor(Key key);
+
+    /**
+     * Hands off locally stored data that the current peer is no longer
+     * responsible for.
+     */
+    void handoff();
 
 }

@@ -198,6 +198,17 @@ public class PeerImpl implements Peer {
         return dispatcher.requestAddress(pred, request);
     }
 
+    @Override
+    public void handoff() {
+        for (Key key : this.data.keySet()) {
+            InetSocketAddress responsible = this.findSuccessor(key);
+
+            // handoff data whose responsible is not the current peer
+            if (! getAddress().equals(responsible))
+                put(key, data.get(key));
+        }
+    }
+
 
     private InetSocketAddress closestPrecedingFinger(Key key) {
         for (int i = fingers.length() - 1; i > 0; i--) {
@@ -251,6 +262,6 @@ public class PeerImpl implements Peer {
 
     @Override
     public void leave() {
-        // TODO check chord protocol's leave
+        this.handoff();
     }
 }

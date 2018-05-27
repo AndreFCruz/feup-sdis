@@ -17,7 +17,6 @@ public class FixFingers extends RecurrentTask {
 
     public FixFingers(ChordNode node) {
         super(INTERVAL);
-
         this.node = node;
     }
 
