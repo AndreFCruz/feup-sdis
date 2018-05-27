@@ -2,9 +2,11 @@ package network;
 
 import network.threads.*;
 import task.AdversarialSearchTask;
+import task.MinimaxSearchTask;
 
 import java.io.Serializable;
 import java.net.InetSocketAddress;
+import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Future;
@@ -211,14 +213,21 @@ public class PeerImpl implements Peer {
 
     @Override
     public void initiateTask(AdversarialSearchTask task) {
-        // TODO start adversarial search task on separate thread
-        // partition and send to appropriate peers
+        Collection<AdversarialSearchTask> tasks = task.partition();
+
+        for(AdversarialSearchTask childTask : tasks) {
+            Message<AdversarialSearchTask> message = Message.makeRequest(Message.Type.TASK, childTask, localAddress);
+            dispatcher.sendRequest(getSuccessor(), message);
+        }
     }
 
     @Override
     public Future<Integer> handleTask(AdversarialSearchTask task) {
         // TODO process adversarial search task on separate thread
         // returns value of evaluated tree
+        int score = task.runTask();
+        System.out.println("SCORE IS " + score + " !!!!");
+
         return null;
     }
 
