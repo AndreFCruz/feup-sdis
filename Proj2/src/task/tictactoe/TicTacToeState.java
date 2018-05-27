@@ -39,7 +39,7 @@ public class TicTacToeState extends GameState {
 
     private boolean playerWins(Player player) {
         TicTacToeBoard tBoard = (TicTacToeBoard) board;
-        TicTacToeBoard.Cell currentCell = getPlayerCell(currentPlayer);
+        TicTacToeBoard.Cell currentCell = getPlayerCell(player);
 
         return tBoard.hasLine(currentCell);
     }
@@ -56,5 +56,9 @@ public class TicTacToeState extends GameState {
             return noughts;
 
         return crosses;
+    }
+
+    public boolean isBoardFull() {
+        return ((TicTacToeBoard) board).isFull();
     }
 }

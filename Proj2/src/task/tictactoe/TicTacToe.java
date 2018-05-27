@@ -10,8 +10,15 @@ import java.util.Collection;
 public class TicTacToe implements AdversarialSearchProblem {
     @Override
     public boolean isStateTerminal(GameState state) {
-        TicTacToeBoard board = (TicTacToeBoard) state.getBoard();
-        return board.isFull();
+        TicTacToeState tState = (TicTacToeState) state;
+
+        if(tState.currentPlayerWins())
+            return true;
+
+        if(tState.opponentPlayerWins())
+            return true;
+
+        return tState.isBoardFull();
     }
 
     @Override
@@ -61,7 +68,6 @@ public class TicTacToe implements AdversarialSearchProblem {
         if(tState.opponentPlayerWins())
             return -1;
 
-        //TODO: verify other cases
         return 0;
     }
 
