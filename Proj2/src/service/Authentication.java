@@ -1,6 +1,7 @@
-package remote;
+package service;
 
 import network.Key;
+import remote.RemotePeer;
 
 import java.rmi.RemoteException;
 import java.util.Scanner;
@@ -12,12 +13,12 @@ public class Authentication {
 
         do {
             result = getCredentials();
-        }while (!checkLogin(stub, result[0], result[1]));
+        } while (!checkLogin(stub, result[0], result[1]));
 
     }
 
 
-    private static String[] getCredentials(){
+    private static String[] getCredentials() {
         String[] result = new String[2];
 
         Scanner input1 = new Scanner(System.in);

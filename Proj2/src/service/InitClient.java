@@ -1,6 +1,5 @@
 package service;
 
-import remote.Authentication;
 import remote.RemotePeer;
 import java.net.InetSocketAddress;
 import java.rmi.RemoteException;
@@ -56,13 +55,14 @@ public class InitClient implements Runnable {
 
     @Override
     public void run() {
-        initiateRMIStub();
+        if (! initiateRMIStub())
+            return;
 
-        try {
-            Authentication.login(stub);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
+//        try { // TODO uncomment
+//            Authentication.login(stub);
+//        } catch (RemoteException e) {
+//            e.printStackTrace();
+//        }
 
         Runnable runnable = handlers.get(action);
         if (runnable != null)
@@ -71,7 +71,7 @@ public class InitClient implements Runnable {
             System.err.println("No handler installed for action \"" + action + "\".");
     }
 
-    private void initiateRMIStub() {
+    private boolean initiateRMIStub() {
         InetSocketAddress address = null;
         if (remoteAP[0].equals("localhost")) {
             address = new InetSocketAddress(Utils.getLocalIp(), Integer.parseInt(remoteAP[1]));
@@ -87,7 +87,10 @@ public class InitClient implements Runnable {
         } catch (Exception e) {
             System.err.println("Error when fetching RMI stub: " + e.getMessage());
             e.printStackTrace();
+            return false;
         }
+
+        return true;
     }
 
     void handleStatus() {
