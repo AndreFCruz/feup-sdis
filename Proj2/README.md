@@ -10,14 +10,14 @@ From the Project's root folder:
   > sh rmi.sh  
 
 3. To start a peer, use the 'peer.sh' script:
-  > sh peer.sh <port> [<contact_ip:contact_port>]
+  > sh peer.sh < port > [<contact_ip:contact_port>]
   
 If no contact provided, peer will create a new Chord ring.
 
 (_e.g._ ```sh peer.sh 4000 localhost:4001```)
 
 4. To run the ClientApp:
-  - open a terminal, navigate to the project's root folder and type "sh query.sh <peer_address:port> <action> [< oper1 > < oper2 >]"
+  - open a terminal, navigate to the project's root folder and type "sh query.sh < peer_address:port > < action > [< oper1 > < oper2 >]"
     - < action > is one of ```status```, ```get```, ```put``` or ```find_successor```.
 	(_e.g._ ```sh query.sh localhost:4001 STATUS```)
 
@@ -94,12 +94,12 @@ Eg.
 - peer.sh
   - Script to launch an instance of a peer with some parameters.
 
-    Usage: peer.sh <port> [<contact_ip:contact_port>]
+    Usage: peer.sh < port > [<contact_ip:contact_port>]
       Eg. sh peer.sh 4000
       
  - query.sh
   - Script to launch an instance of a client to interact with peers.
 
-    Usage: query.sh <peer_address:port> <action> [<oper1> <oper2>]
+    Usage: query.sh < peer_address:port > < action > [<oper1> <oper2>]
       Eg. sh query.sh localhost:4000 GET 12312412312     
       
