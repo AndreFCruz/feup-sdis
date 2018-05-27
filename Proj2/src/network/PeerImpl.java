@@ -28,6 +28,7 @@ public class PeerImpl implements Peer {
     private RecurrentTask stabilizer;
     private RecurrentTask fixFingers;
     private RecurrentTask checkPredecessor;
+    private RecurrentTask handoffData;
 
 
     public PeerImpl(InetSocketAddress address) {
@@ -47,6 +48,7 @@ public class PeerImpl implements Peer {
         stabilizer = new Stabilizer(this, dispatcher);
         fixFingers = new FixFingers(this);
         checkPredecessor = new CheckPredecessor(this, dispatcher);
+        handoffData = new HandoffData(this);
     }
 
     private void startHelperThreads() {
@@ -54,6 +56,7 @@ public class PeerImpl implements Peer {
         stabilizer.start();
         fixFingers.start();
         checkPredecessor.start();
+        handoffData.start();
     }
 
     private boolean isResponsibleForKey(Key key) {
