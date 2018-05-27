@@ -17,7 +17,7 @@ public class Key implements Serializable {
 
     private final long key;
 
-    private Key(final long key) {
+    public Key(final long key) {
         if (key < MINIMUM) {
             throw new IllegalArgumentException("Key cannot be smaller than " + MINIMUM);
         }
@@ -25,7 +25,7 @@ public class Key implements Serializable {
         this.key = key % MAXIMUM;
     }
 
-    private Key(final int key) {
+    public Key(final int key) {
         this(key & 0x00000000ffffffffL);
     }
 

@@ -81,6 +81,7 @@ public class PeerImpl implements Peer {
 
     @Override
     public <T extends Serializable> T lookup(Key key) {
+        Logger.logWarning("Searching for key " + key);
         InetSocketAddress responsible = findSuccessor(key);
         if (this.localAddress == responsible) {
             return (T) data.get(key);
@@ -93,6 +94,7 @@ public class PeerImpl implements Peer {
 
     @Override
     public void put(Key key, Serializable obj) {
+        Logger.logWarning("Storing object with key " + key);
         InetSocketAddress responsible = findSuccessor(key);
         if (this.localAddress == responsible) {
             data.put(key, obj);

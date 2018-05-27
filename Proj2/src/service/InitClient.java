@@ -56,6 +56,7 @@ public class InitClient implements Runnable {
         handlers.put("STATUS", this::handleStatus);
         handlers.put("GET", this::handleGet);
         handlers.put("PUT", this::handlePut);
+        handlers.put("FIND_SUCCESSOR", this::handleFindSuccessor);
     }
 
     @Override
@@ -128,6 +129,19 @@ public class InitClient implements Runnable {
         } catch (RemoteException e) {
             System.err.println("Remote Client exception: " + e.getMessage());
         }
+    }
+
+    private void handleFindSuccessor() {
+        Key key = new Key(Integer.parseInt(oper1));
+        System.out.println("Storing data data with key: " + key + " (" + oper1 + ")");
+        InetSocketAddress address = null;
+        try {
+            address = stub.findSuccessor(key);
+        } catch (RemoteException e) {
+            System.err.println("Remote Client exception: " + e.getMessage());
+        }
+
+        System.out.println("Successor's Address: " + address);
     }
 
 }

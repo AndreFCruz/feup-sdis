@@ -35,11 +35,11 @@ public class Authentication {
     private static boolean checkLogin(RemotePeer stub, String username, String password) throws RemoteException {
         Key pass = stub.get(Key.fromObject(username));
 
-        if(pass == null){
+        if(pass == null) {
             System.out.println("User not exists! Creating one...");
             stub.put(Key.fromObject(username), Key.fromObject(password));
             return true;
-        } else if(pass.equals(Key.fromObject(password))){
+        } else if(pass.equals(Key.fromObject(password))) {
             System.out.println("Access Granted! Welcome!");
             return true;
         } else {

@@ -4,6 +4,7 @@ import network.Key;
 import task.AdversarialSearchTask;
 
 import java.io.Serializable;
+import java.net.InetSocketAddress;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
@@ -26,6 +27,8 @@ public interface RemotePeer extends Remote {
     <T extends Serializable> T get(Key key) throws RemoteException;
 
     void put(Key key, Serializable obj) throws RemoteException;
+
+    InetSocketAddress findSuccessor(Key key) throws RemoteException;
 
     String getStatus() throws RemoteException;
 }

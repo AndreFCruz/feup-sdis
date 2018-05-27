@@ -5,6 +5,7 @@ import network.Peer;
 import task.AdversarialSearchTask;
 
 import java.io.Serializable;
+import java.net.InetSocketAddress;
 import java.rmi.RemoteException;
 
 public class RemotePeerImpl implements RemotePeer {
@@ -33,6 +34,11 @@ public class RemotePeerImpl implements RemotePeer {
     @Override
     public void put(Key key, Serializable obj) throws RemoteException {
         peer.put(key, obj);
+    }
+
+    @Override
+    public InetSocketAddress findSuccessor(Key key) throws RemoteException {
+        return peer.findSuccessor(key);
     }
 
     @Override
