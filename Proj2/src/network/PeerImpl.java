@@ -97,6 +97,7 @@ public class PeerImpl implements Peer {
         InetSocketAddress responsible = findSuccessor(key);
         if (this.localAddress == responsible) {
             data.put(key, obj);
+            return;
         }
 
         Message<Key> request = Message.makePutRequest(key, obj, localAddress);
