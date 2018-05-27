@@ -13,6 +13,7 @@ public class Authentication {
         do {
             result = getCredentials();
         }while (!checkLogin(stub, result[0], result[1]));
+
     }
 
 
@@ -23,7 +24,7 @@ public class Authentication {
         System.out.println("Enter Username : ");
         result[0] = input1.next();
 
-        Scanner input2 = new Scanner(System.in); //TODO:: not show password
+        Scanner input2 = new Scanner(System.in);
         System.out.println("Enter Password : ");
         result[1] = input2.next();
 
@@ -31,9 +32,7 @@ public class Authentication {
     }
 
     private static boolean checkLogin(RemotePeer stub, String username, String password) throws RemoteException {
-        System.out.println(stub);
-
-        String pass = stub.get(Key.fromObject(username));
+        Key pass = stub.get(Key.fromObject(username));
 
         if(pass == null){
             System.out.println("User not exists! Creating one...");
