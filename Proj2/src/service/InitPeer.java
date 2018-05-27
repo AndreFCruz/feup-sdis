@@ -22,12 +22,14 @@ public class InitPeer {
     public static final int RMI_PORT = 1099;
 
     public static void main(String[] args) {
-        if (args.length != 1 && args.length != 2) {
+        if (args.length != 1 && args.length != 3) {
             System.out.println("Invalid command line arguments.");
-            System.out.println("Usage: <port> [<contact_ip:contact_port>]");
+            System.out.println("Usage: <port> [<contact_ip> <contact_port>]");
             System.out.println("If no contact provided, peer will create a new Chord ring.");
             System.exit(1);
         }
+
+        initiateSystemConfigs();
 
         InetAddress localIP = Utils.getLocalIp();
         InetSocketAddress localAddr = new InetSocketAddress(localIP, Integer.parseInt(args[0]));
@@ -56,6 +58,13 @@ public class InitPeer {
         }
 
         System.out.println("InitPeer: SUCCESS!");
+    }
+
+    private static void initiateSystemConfigs(){
+        System.setProperty("javax.net.ssl.keyStore", "server.keys");
+        System.setProperty("javax.net.ssl.keyStorePassword", "123456");
+        System.setProperty("javax.net.ssl.trustStore", "truststore");
+        System.setProperty("javax.net.ssl.trustStorePassword", "123456");
     }
 
     private static void bindRemoteObjectStub(RemotePeer peer, String registryName) {

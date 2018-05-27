@@ -1,5 +1,6 @@
 package task.tictactoe;
 
+import task.Board;
 import task.GameState;
 import task.Player;
 
@@ -11,9 +12,20 @@ public class TicTacToeState extends GameState {
     public TicTacToeState() {
         board = new TicTacToeBoard();
 
-        crosses = new TicTacToePlayer("CROSSES");
-        noughts = new TicTacToePlayer("NOUGHTS");
+        crosses = new TicTacToePlayer("CROSSES", TicTacToeBoard.Cell.CROSS);
+        noughts = new TicTacToePlayer("NOUGHTS", TicTacToeBoard.Cell.NOUGH);
         currentPlayer = crosses;
+    }
+
+    public TicTacToeState(Board board, TicTacToeBoard.Cell currentCell) {
+        this.board = board;
+        crosses = new TicTacToePlayer("CROSSES", TicTacToeBoard.Cell.CROSS);
+        noughts = new TicTacToePlayer("NOUGHTS", TicTacToeBoard.Cell.NOUGH);
+
+        if(currentCell == TicTacToeBoard.Cell.CROSS)
+            currentPlayer = crosses;
+        else
+            currentPlayer = noughts;
     }
 
     public boolean currentPlayerWins() {
@@ -27,12 +39,12 @@ public class TicTacToeState extends GameState {
 
     private boolean playerWins(Player player) {
         TicTacToeBoard tBoard = (TicTacToeBoard) board;
-        TicTacToeBoard.Cell currentCell = getPlayerCell(currentPlayer);
+        TicTacToeBoard.Cell currentCell = getPlayerCell(player);
 
         return tBoard.hasLine(currentCell);
     }
 
-    private TicTacToeBoard.Cell getPlayerCell(Player player) {
+    public TicTacToeBoard.Cell getPlayerCell(Player player) {
         if(player == crosses)
             return TicTacToeBoard.Cell.CROSS;
 
@@ -44,5 +56,9 @@ public class TicTacToeState extends GameState {
             return noughts;
 
         return crosses;
+    }
+
+    public boolean isBoardFull() {
+        return ((TicTacToeBoard) board).isFull();
     }
 }
