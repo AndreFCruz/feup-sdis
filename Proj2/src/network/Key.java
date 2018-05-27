@@ -1,6 +1,6 @@
 package network;
 
-import java.io.Serializable;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -34,10 +34,37 @@ public class Key implements Serializable {
     }
 
     public static Key fromObject(Object obj) {
-        return obj == null ? null : new Key(obj.hashCode());
+        if (obj == null) return null;
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ObjectOutput out = null;
+        byte[] data = null;
+        try {
+            out = new ObjectOutputStream(bos);
+            out.writeObject(obj);
+            out.flush();
+            data = bos.toByteArray();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                bos.close();
+            } catch (IOException e) {
+                // ignore close exception
+            }
+        }
+
+        return new Key(hashData(data).hashCode());
     }
 
     private static int hashSocketAddress(InetSocketAddress address) {
+        String ip = address.getAddress().getHostAddress();
+        String port = Integer.toString(address.getPort());
+        byte[] data = (ip+port).getBytes();
+        return hashData(data).hashCode();
+    }
+
+    private static String hashData(byte[] data) {
         MessageDigest messageDigest = null;
         try {
             messageDigest = MessageDigest.getInstance("SHA-256");
@@ -45,12 +72,10 @@ public class Key implements Serializable {
             e.printStackTrace();
         }
 
-        String ip = address.getAddress().getHostAddress();
-        String port = Integer.toString(address.getPort());
-        messageDigest.update((ip+port).getBytes());
+        messageDigest.update(data);
         String encryptedString = new String(messageDigest.digest());
 
-        return encryptedString.hashCode();
+        return encryptedString;
     }
 
     /**

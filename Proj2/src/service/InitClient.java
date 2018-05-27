@@ -1,6 +1,9 @@
 package service;
 
+import network.Key;
 import remote.RemotePeer;
+
+import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
@@ -51,6 +54,8 @@ public class InitClient implements Runnable {
 
         handlers = new HashMap<>();
         handlers.put("STATUS", this::handleStatus);
+        handlers.put("GET", this::handleGet);
+        handlers.put("PUT", this::handlePut);
     }
 
     @Override
@@ -93,11 +98,35 @@ public class InitClient implements Runnable {
         return true;
     }
 
-    void handleStatus() {
+    private void handleStatus() {
         try {
             System.out.println(stub.getStatus());
         } catch (RemoteException e) {
-            System.err.println("Client exception: " + e.getMessage());
+            System.err.println("Remote Client exception: " + e.getMessage());
+        }
+    }
+
+    private void handleGet() {
+        Key key = Key.fromObject(oper1);
+        System.out.println("Searching for data with key: " + key + " (" + oper1 + ")");
+        Serializable data = null;
+        try {
+            data = stub.get(key);
+        } catch (RemoteException e) {
+            System.err.println("Remote Client exception: " + e.getMessage());
+        }
+
+        System.out.println("Data: " + data);
+    }
+
+    private void handlePut() {
+        Key key = Key.fromObject(oper1);
+        System.out.println("Storing data data with key: " + key + " (" + oper1 + ")");
+        Serializable data = oper2;
+        try {
+            stub.put(key, data);
+        } catch (RemoteException e) {
+            System.err.println("Remote Client exception: " + e.getMessage());
         }
     }
 
