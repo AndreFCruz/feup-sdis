@@ -20,9 +20,10 @@ public interface AdversarialSearchProblem extends Serializable {
     Collection<GameState> successors(GameState state);
 
     /**
-     * Evaluates the utility of the given state.
+     * Evaluates the utility of the given state, according to the given maximizing target player
      * @param state
+     * @param maximizer
      * @return
      */
-    int utilityOfState(GameState state);
+    int utilityOfState(GameState state, Player maximizer);
 }

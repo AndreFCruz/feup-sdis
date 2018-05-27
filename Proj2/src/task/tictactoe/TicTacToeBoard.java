@@ -81,13 +81,13 @@ public class TicTacToeBoard implements Board, Cloneable {
 
         // Vertical line
         for(int j = 0; j < N_COLS; j++)
-            if(matrix[j][0] == cell && matrix[j][0] == matrix[j][1] && matrix[j][1] == matrix[j][2])
+            if(matrix[0][j] == cell && matrix[0][j] == matrix[1][j] && matrix[1][j] == matrix[2][j])
                 return true;
 
         // Diagonal lines
         if(matrix[0][0] == cell && matrix[0][0] == matrix[1][1] && matrix[1][1] == matrix[2][2])
             return true;
-        if(matrix[0][0] == cell && matrix[0][2] == matrix[1][1] && matrix[1][1] == matrix[2][0])
+        if(matrix[0][2] == cell && matrix[0][2] == matrix[1][1] && matrix[1][1] == matrix[2][0])
             return true;
 
         return false;

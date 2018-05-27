@@ -22,7 +22,7 @@ public class TicTacToeState extends GameState {
         crosses = new TicTacToePlayer("CROSSES", TicTacToeBoard.Cell.CROSS);
         noughts = new TicTacToePlayer("NOUGHTS", TicTacToeBoard.Cell.NOUGH);
 
-        if(currentCell == TicTacToeBoard.Cell.CROSS)
+        if(currentCell.equals(TicTacToeBoard.Cell.CROSS))
             currentPlayer = crosses;
         else
             currentPlayer = noughts;
@@ -37,7 +37,7 @@ public class TicTacToeState extends GameState {
         return playerWins(opponent);
     }
 
-    private boolean playerWins(Player player) {
+    public boolean playerWins(Player player) {
         TicTacToeBoard tBoard = (TicTacToeBoard) board;
         TicTacToeBoard.Cell currentCell = getPlayerCell(player);
 
@@ -45,7 +45,7 @@ public class TicTacToeState extends GameState {
     }
 
     public TicTacToeBoard.Cell getPlayerCell(Player player) {
-        if(player == crosses)
+        if(player.getRepresentation().equals("CROSSES"))
             return TicTacToeBoard.Cell.CROSS;
 
         return TicTacToeBoard.Cell.NOUGH;
@@ -58,7 +58,15 @@ public class TicTacToeState extends GameState {
         return crosses;
     }
 
+    public Player getOpponent(Player player) {
+        if(player.equals(player))
+            return noughts;
+
+        return crosses;
+    }
+
     public boolean isBoardFull() {
         return ((TicTacToeBoard) board).isFull();
     }
+
 }
