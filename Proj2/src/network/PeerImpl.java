@@ -232,12 +232,21 @@ public class PeerImpl implements Peer {
 
     @Override
     public String getStatus() {
-        return "Local Address: " + localAddress + "\n" +
+        String ret =
+                "Local Address: " + localAddress + "\n" +
                 "Key: " + getKey() + "\n" +
                 "Successor: " + getSuccessor() + "\n" +
                 "Successor's key: " + Key.fromAddress(getSuccessor()) + "\n" +
                 "Predecessor: " + getPredecessor() + "\n" +
                 "Predecessor's key: " + Key.fromAddress(getPredecessor()) + "\n";
+
+        ret += "\n Fingers:\n";
+        for (int i = 0; i < fingers.length(); i++)
+            ret += i + " -> " +
+                    (getIthFinger(i) != null ? getIthFinger(i).toString() : "not set.")
+                    + "\n";
+
+        return ret;
     }
 
     @Override
