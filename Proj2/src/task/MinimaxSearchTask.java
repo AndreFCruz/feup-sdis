@@ -21,14 +21,11 @@ public class MinimaxSearchTask extends AdversarialSearchTask {
     public int runTask() {
         if(problemDefinition.isStateTerminal(state)) {
             int score = problemDefinition.utilityOfState(state, maximizing);
-            System.out.println("Score is " + score);
-            System.out.println(state.getBoard().display());
             return score;
         }
 
         // Maximizing player
         if(state.getCurrentPlayer().equals(maximizing)) {
-            System.out.println("Maximizing");
             int bestScore = -2;
 
             Collection<GameState> successors = problemDefinition.successors(state);
