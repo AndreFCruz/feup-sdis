@@ -72,14 +72,6 @@ public class TicTacToe implements AdversarialSearchProblem {
         if(tState.playerWins(opponent))
             return -1;
 
-        /*
-        if(tState.currentPlayerWins())
-            return 1;
-
-        if(tState.opponentPlayerWins())
-            return -1;
-            */
-
         return 0;
     }
 
