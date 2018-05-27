@@ -83,7 +83,7 @@ public class PeerImpl implements Peer {
     public Serializable lookup(Key key) {
         Logger.logWarning("Searching for key " + key);
         InetSocketAddress responsible = findSuccessor(key);
-        if (this.localAddress == responsible) {
+        if (this.localAddress.equals(responsible)) {
             return data.get(key);
         }
 
@@ -96,7 +96,7 @@ public class PeerImpl implements Peer {
     public void put(Key key, Serializable obj) {
         Logger.logWarning("Storing object with key " + key);
         InetSocketAddress responsible = findSuccessor(key);
-        if (this.localAddress == responsible) {
+        if (this.localAddress.equals(responsible)) {
             data.put(key, obj);
             return;
         }
@@ -191,10 +191,9 @@ public class PeerImpl implements Peer {
         }
 
         InetSocketAddress pred = closestPrecedingFinger(key);
-        if (pred == localAddress)
+        if (pred.equals(localAddress))
             return localAddress;
 
-        // TODO change sender address to original request's sender (and make request async) (?)
         Message<Key> request = Message.makeRequest(Message.Type.SUCCESSOR, key, getAddress());
         return dispatcher.requestAddress(pred, request);
     }

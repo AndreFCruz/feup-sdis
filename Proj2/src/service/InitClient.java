@@ -70,7 +70,7 @@ public class InitClient implements Runnable {
 //            e.printStackTrace();
 //        }
 
-        Runnable runnable = handlers.get(action);
+        Runnable runnable = handlers.get(action.toUpperCase());
         if (runnable != null)
             runnable.run();
         else
@@ -133,7 +133,7 @@ public class InitClient implements Runnable {
 
     private void handleFindSuccessor() {
         Key key = new Key(Integer.parseInt(oper1));
-        System.out.println("Storing data data with key: " + key + " (" + oper1 + ")");
+        System.out.println("Finding successor of key: " + key + " (" + oper1 + ")");
         InetSocketAddress address = null;
         try {
             address = stub.findSuccessor(key);
