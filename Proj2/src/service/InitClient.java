@@ -153,12 +153,14 @@ public class InitClient implements Runnable {
     }
 
     private void handleTask() {
-        Key key = new Key(Integer.parseInt(oper1));
-        System.out.println("Sending task to key: " + key + " (" + oper1 + ")");
-
         TicTacToeState ttt = new TicTacToeState();
         Player maximizing = ttt.getCurrentPlayer();
-        AdversarialSearchTask task = new MinimaxSearchTask(new TicTacToe(), new TicTacToeState(), new TicTacToePlayer("CROSSES", TicTacToeBoard.Cell.CROSS));
+        AdversarialSearchTask task = new MinimaxSearchTask(
+                new TicTacToe(),
+                new TicTacToeState(),
+                new TicTacToePlayer("CROSSES", TicTacToeBoard.Cell.CROSS)
+        );
+
         try {
             stub.initiateTask(task);
         } catch (RemoteException e) {

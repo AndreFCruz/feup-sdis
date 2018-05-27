@@ -36,7 +36,7 @@ public class Authentication {
         Key pass = (Key) stub.get(Key.fromObject(username));
 
         if(pass == null) {
-            System.out.println("User not exists! Creating one...");
+            System.out.println("User doesn't exist! Creating one...");
             stub.put(Key.fromObject(username), Key.fromObject(password));
             return true;
         } else if(pass.equals(Key.fromObject(password))) {
