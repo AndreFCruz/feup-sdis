@@ -4,6 +4,8 @@ import task.Board;
 import task.GameState;
 import task.Player;
 
+import java.io.Serializable;
+
 public class TicTacToeState extends GameState {
 
     private Player crosses;

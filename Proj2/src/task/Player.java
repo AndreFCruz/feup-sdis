@@ -1,9 +1,8 @@
 package task;
 
-/**
- * Created by antonioalmeida on 26/05/2018.
- */
-public interface Player {
+import java.io.Serializable;
+
+public interface Player extends Serializable {
    // Do we need something this generic?
 
     public String getRepresentation();

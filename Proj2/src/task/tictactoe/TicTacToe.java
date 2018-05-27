@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class TicTacToe implements AdversarialSearchProblem {
+
+    protected static final long serialVersionUID = 105L;
+
     @Override
     public boolean isStateTerminal(GameState state) {
         TicTacToeState tState = (TicTacToeState) state;

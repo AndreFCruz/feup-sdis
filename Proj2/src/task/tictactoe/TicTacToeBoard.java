@@ -4,6 +4,8 @@ import task.Board;
 
 public class TicTacToeBoard implements Board, Cloneable {
 
+    protected static final long serialVersionUID = 103L;
+
     //TODO: do this in a more elegant way
     public enum Cell {
         EMPTY {

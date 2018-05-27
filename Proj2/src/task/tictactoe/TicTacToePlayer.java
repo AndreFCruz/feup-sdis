@@ -4,6 +4,8 @@ import task.Player;
 
 public class TicTacToePlayer implements Player {
 
+    protected static final long serialVersionUID = 104L;
+
     private String representation;
     private TicTacToeBoard.Cell value;
 

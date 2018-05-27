@@ -227,7 +227,8 @@ public class PeerImpl implements Peer {
 
         for(AdversarialSearchTask childTask : tasks) {
             Message<AdversarialSearchTask> message = Message.makeRequest(Message.Type.TASK, childTask, localAddress);
-            dispatcher.sendRequest(getSuccessor(), message);
+            InetSocketAddress destination = findSuccessor(Key.fromObject(message));
+            dispatcher.sendRequest(destination, message);
         }
     }
 
@@ -236,8 +237,9 @@ public class PeerImpl implements Peer {
         // TODO process adversarial search task on separate thread
         // returns value of evaluated tree
         int score = task.runTask();
-        System.out.println("SCORE IS " + score + " !!!!");
 
+        //TODO: send response
+        //Message<Integer> response = Message.makeResponse(Message.Type.TASK, task, );
         return null;
     }
 

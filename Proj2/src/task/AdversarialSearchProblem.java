@@ -5,6 +5,7 @@ import java.util.Collection;
 
 public interface AdversarialSearchProblem extends Serializable {
 
+
     /**
      * Evaluates whether a given state is a terminal state.
      * @param state the given state.

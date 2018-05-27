@@ -2,6 +2,13 @@ package service;
 
 import network.Key;
 import remote.RemotePeer;
+import task.AdversarialSearchTask;
+import task.MinimaxSearchTask;
+import task.Player;
+import task.tictactoe.TicTacToe;
+import task.tictactoe.TicTacToeBoard;
+import task.tictactoe.TicTacToePlayer;
+import task.tictactoe.TicTacToeState;
 
 import java.io.Serializable;
 import java.net.InetSocketAddress;
@@ -57,6 +64,7 @@ public class InitClient implements Runnable {
         handlers.put("GET", this::handleGet);
         handlers.put("PUT", this::handlePut);
         handlers.put("FIND_SUCCESSOR", this::handleFindSuccessor);
+        handlers.put("TASK", this::handleTask);
     }
 
     @Override
@@ -142,6 +150,22 @@ public class InitClient implements Runnable {
         }
 
         System.out.println("Successor's Address: " + address);
+    }
+
+    private void handleTask() {
+        Key key = new Key(Integer.parseInt(oper1));
+        System.out.println("Sending task to key: " + key + " (" + oper1 + ")");
+
+        TicTacToeState ttt = new TicTacToeState();
+        Player maximizing = ttt.getCurrentPlayer();
+        AdversarialSearchTask task = new MinimaxSearchTask(new TicTacToe(), new TicTacToeState(), new TicTacToePlayer("CROSSES", TicTacToeBoard.Cell.CROSS));
+        try {
+            stub.initiateTask(task);
+        } catch (RemoteException e) {
+            System.err.println("Remote Client exception: " + e.getMessage());
+        }
+
+        System.out.println("Task sent");
     }
 
 }
