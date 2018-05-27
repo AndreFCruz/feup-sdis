@@ -101,7 +101,7 @@ public class PeerImpl implements Peer {
 
         Message<Key> request = Message.makePutRequest(key, obj, localAddress);
         Message response = dispatcher.sendRequest(responsible, request);
-        // TODO ensure response is OK ?
+        Logger.logWarning("Response to PUT request: " + response.getType());
     }
 
     @Override
@@ -163,7 +163,7 @@ public class PeerImpl implements Peer {
         return response.getType() == Message.Type.OK;
     }
 
-    @Override // TODO assess if notified is necessary
+    @Override
     public void notified(InetSocketAddress newPred) {
         Logger.log("Notified by " + newPred + ".");
         if (newPred == null || newPred.equals(getAddress())) {
