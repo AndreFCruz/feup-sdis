@@ -33,7 +33,7 @@ public class Authentication {
     }
 
     private static boolean checkLogin(RemotePeer stub, String username, String password) throws RemoteException {
-        Key pass = stub.get(Key.fromObject(username));
+        Key pass = (Key) stub.get(Key.fromObject(username));
 
         if(pass == null) {
             System.out.println("User not exists! Creating one...");

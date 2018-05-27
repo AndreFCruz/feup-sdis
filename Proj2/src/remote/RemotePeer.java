@@ -24,7 +24,7 @@ public interface RemotePeer extends Remote {
      */
     void terminate() throws RemoteException;
 
-    <T extends Serializable> T get(Key key) throws RemoteException;
+    Serializable get(Key key) throws RemoteException;
 
     void put(Key key, Serializable obj) throws RemoteException;
 

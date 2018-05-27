@@ -1,5 +1,5 @@
 #!/bin/sh
-rm -rf bin
+rm -rf out/production/Proj2
 rm -f *.jar
-mkdir -p bin
-javac -Xlint:unchecked -d bin -sourcepath src src/service/InitPeer.java src/service/InitClient.java
+mkdir -p out/production/Proj2
+javac -Xlint:unchecked -d out/production/Proj2 -sourcepath src src/service/InitPeer.java src/service/InitClient.java
