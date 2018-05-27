@@ -24,7 +24,7 @@ public class InitPeer {
     public static void main(String[] args) {
         if (args.length != 1 && args.length != 2) {
             System.out.println("Invalid command line arguments.");
-            System.out.println("Usage: <port> [<contact_ip> <contact_port>]");
+            System.out.println("Usage: <port> [<contact_ip:contact_port>]");
             System.out.println("If no contact provided, peer will create a new Chord ring.");
             System.exit(1);
         }
@@ -42,9 +42,10 @@ public class InitPeer {
         if (args.length == 1) {
             peer.create();
         } else {
+            String[] contact = Utils.parseSocketAddress(args[1]);
             InetAddress contactIP = null;
             try {
-                contactIP = InetAddress.getByName(args[1]);
+                contactIP = InetAddress.getByName(contact[0]);
             } catch (UnknownHostException e) {
                 e.printStackTrace();
             }
@@ -53,7 +54,7 @@ public class InitPeer {
                 System.exit(1);
             }
 
-            InetSocketAddress contactAddr = new InetSocketAddress(contactIP, Integer.parseInt(args[2]));
+            InetSocketAddress contactAddr = new InetSocketAddress(contactIP, Integer.parseInt(contact[1]));
             peer.join(contactAddr);
         }
 
