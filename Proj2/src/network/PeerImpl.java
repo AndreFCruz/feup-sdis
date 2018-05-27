@@ -80,15 +80,15 @@ public class PeerImpl implements Peer {
     }
 
     @Override
-    public <T extends Serializable> T lookup(Key key) {
+    public Serializable lookup(Key key) {
         Logger.logWarning("Searching for key " + key);
         InetSocketAddress responsible = findSuccessor(key);
         if (this.localAddress == responsible) {
-            return (T) data.get(key);
+            return data.get(key);
         }
 
         Message<Key> request = Message.makeRequest(Message.Type.GET, key, localAddress);
-        Message<T> response = dispatcher.sendRequest(responsible, request);
+        Message response = dispatcher.sendRequest(responsible, request);
         return response.getArg();
     }
 

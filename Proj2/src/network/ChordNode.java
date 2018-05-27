@@ -1,11 +1,9 @@
 package network;
 
-import task.AdversarialSearchTask;
 
 import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.rmi.Remote;
-import java.util.concurrent.Future;
 
 /**
  * A Node in a Chord - Distributed Hash Table.
@@ -43,7 +41,7 @@ public interface ChordNode extends Remote {
      * @param <T> the type of the Object (must be serializable).
      * @return the Object with the specified key, if found.
      */
-    <T extends Serializable> T lookup(Key key);
+    Serializable lookup(Key key);
 
     /**
      * Puts the given object in this node's persistent memory.

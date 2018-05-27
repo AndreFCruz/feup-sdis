@@ -27,7 +27,7 @@ public class RemotePeerImpl implements RemotePeer {
     }
 
     @Override
-    public <T extends Serializable> T get(Key key) throws RemoteException {
+    public Serializable get(Key key) throws RemoteException {
         return peer.lookup(key);
     }
 
