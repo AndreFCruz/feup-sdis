@@ -1,6 +1,7 @@
 package task;
 
 import java.io.Serializable;
+import java.util.Collection;
 
 public abstract class AdversarialSearchTask implements Serializable {
 
@@ -23,5 +24,7 @@ public abstract class AdversarialSearchTask implements Serializable {
     }
 
     public abstract int runTask();
+
+    public abstract Collection<AdversarialSearchTask> partition();
 
 }

@@ -15,7 +15,6 @@ public class MinimaxSearchTask extends AdversarialSearchTask {
         this.maximizing = maximizing;
     }
 
-
     @Override
     //TODO: refactor this
     public int runTask() {
@@ -68,5 +67,17 @@ public class MinimaxSearchTask extends AdversarialSearchTask {
 
     }
 
+    @Override
+    public Collection<AdversarialSearchTask> partition() {
+        Collection<GameState> successors = problemDefinition.successors(state);
+        Collection<AdversarialSearchTask> successorTasks = new ArrayList<>();
+
+        for(GameState successor : successors) {
+            AdversarialSearchTask task = new MinimaxSearchTask(problemDefinition, successor, maximizing);
+            successorTasks.add(task);
+        }
+
+        return successorTasks;
+    }
 
 }
