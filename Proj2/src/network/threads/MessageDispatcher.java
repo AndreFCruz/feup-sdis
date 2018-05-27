@@ -25,7 +25,7 @@ public class MessageDispatcher extends Thread {
     /**
      * Response wait time, in milliseconds.
      */
-    static final int RESPONSE_WAIT_TIME = 100;
+    static final int RESPONSE_WAIT_TIME = 50;
     private Peer peer;
     private ExecutorService executorService;
     private ConcurrentMap<Integer, ResponseHandler> responseHandlers;
@@ -132,8 +132,6 @@ public class MessageDispatcher extends Thread {
         return sslSocket;
     }
 
-
-    // Add <S extends Serializable> bound to return ?
     private Message getResponse(Socket socket) throws IOException {
         ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
         try {

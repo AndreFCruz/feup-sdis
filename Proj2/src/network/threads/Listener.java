@@ -87,9 +87,9 @@ public class Listener extends ThreadImpl {
             throw new RuntimeException("Failed creating input/output streams from socket connection.", e);
         }
 
-        Message request = null;
+        Message message = null;
         try {
-            request = (Message) input.readObject();
+            message = (Message) input.readObject();
         } catch (IOException e) {
             throw new RuntimeException("Failed reading object from socket stream.", e);
         } catch (ClassNotFoundException e) {
@@ -98,7 +98,13 @@ public class Listener extends ThreadImpl {
             throw new RuntimeException("Failed casting read Object to Message.", e);
         }
 
-        Serializable response = dispatcher.handleRequest(request);
+        Serializable response = null;
+        if (message.isRequest()) {
+            response = dispatcher.handleRequest(message);
+        } else {
+            dispatcher.handleResponse(message);
+        }
+
         try {
             // null response indicates an Async request (Task)
             if (response != null)
