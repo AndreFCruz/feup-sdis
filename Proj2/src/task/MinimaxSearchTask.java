@@ -1,5 +1,8 @@
 package task;
 
+import javafx.util.Pair;
+
+import java.security.Key;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -16,36 +19,48 @@ public class MinimaxSearchTask extends AdversarialSearchTask {
     }
 
     @Override
-    public int runTask() {
+    public Pair<Integer, GameState> runTask() {
         if(problemDefinition.isStateTerminal(state)) {
             int score = problemDefinition.utilityOfState(state, maximizing);
-            return score;
+            return new Pair<>(score, state);
         }
 
         // Maximizing player
         if(state.getCurrentPlayer().equals(maximizing)) {
             int bestScore = -2;
+            GameState bestState = null;
 
             Collection<AdversarialSearchTask> successorTasks = partition();
             for(AdversarialSearchTask task : successorTasks) {
-                int taskScore = task.runTask();
-                bestScore = max(taskScore, bestScore);
+                Pair<Integer, GameState> taskPair = task.runTask();
+                int taskScore = taskPair.getKey();
+
+                if(taskScore > bestScore) {
+                    bestScore = taskScore;
+                    bestState = task.getState();
+                }
             }
 
-            return bestScore;
+            return new Pair<Integer, GameState>(bestScore, bestState);
         }
 
         // Minimizing player
         else {
             int bestScore = 2;
+            GameState bestState = null;
 
             Collection<AdversarialSearchTask> successorTasks = partition();
             for(AdversarialSearchTask task : successorTasks) {
-                int taskScore = task.runTask();
-                bestScore = min(taskScore, bestScore);
+                Pair<Integer, GameState> taskPair = task.runTask();
+                int taskScore = taskPair.getKey();
+
+                if(taskScore < bestScore) {
+                    bestScore = taskScore;
+                    bestState = task.getState();
+                }
             }
 
-            return bestScore;
+            return new Pair<Integer, GameState>(bestScore, bestState);
         }
 
     }

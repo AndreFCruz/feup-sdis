@@ -153,8 +153,6 @@ public class InitClient implements Runnable {
     }
 
     private void handleTask() {
-        TicTacToeState ttt = new TicTacToeState();
-        Player maximizing = ttt.getCurrentPlayer();
         AdversarialSearchTask task = new MinimaxSearchTask(
                 new TicTacToe(),
                 new TicTacToeState(),
