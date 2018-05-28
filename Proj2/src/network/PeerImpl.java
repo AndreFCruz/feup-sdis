@@ -1,7 +1,9 @@
 package network;
 
+import javafx.util.Pair;
 import network.threads.*;
 import task.AdversarialSearchTask;
+import task.GameState;
 import task.MinimaxSearchTask;
 
 import java.io.Serializable;
@@ -265,7 +267,7 @@ public class PeerImpl implements Peer {
     }
 
     @Override
-    public Future<Integer> handleTask(AdversarialSearchTask task) {
+    public Future<Pair<Integer, GameState>> handleTask(AdversarialSearchTask task) {
         return executorService.submit(task::runTask);
     }
 

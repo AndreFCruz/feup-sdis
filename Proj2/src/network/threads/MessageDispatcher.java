@@ -1,10 +1,12 @@
 package network.threads;
 
+import javafx.util.Pair;
 import network.Key;
 import network.Logger;
 import network.Message;
 import network.Peer;
 import task.AdversarialSearchTask;
+import task.GameState;
 
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
@@ -249,9 +251,9 @@ public class MessageDispatcher extends Thread {
 
     private void handleTaskRequest(Message<AdversarialSearchTask> request) {
         InetSocketAddress sender = request.getSender();
-        Future<Integer> ret = peer.handleTask(request.getArg());
+        Future<Pair<Integer, GameState>> ret = peer.handleTask(request.getArg());
 
-        Integer result = null;
+        Pair<Integer, GameState> result = null;
         try {
             result = ret.get();
         } catch (InterruptedException e) {
@@ -260,7 +262,7 @@ public class MessageDispatcher extends Thread {
             e.printStackTrace();
         }
 
-        Message<Integer> response = Message.makeResponse(Message.Type.TASK, result, request.getId());
+        Message<Pair<Integer, GameState>> response = Message.makeResponse(Message.Type.TASK, result, request.getId());
         sendResponse(sender, response);
     }
 

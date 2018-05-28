@@ -1,6 +1,8 @@
 package network;
 
+import javafx.util.Pair;
 import task.AdversarialSearchTask;
+import task.GameState;
 
 import java.util.concurrent.Future;
 
@@ -22,7 +24,7 @@ public interface Peer extends ChordNode {
      * @param task the given task.
      * @return the value of the given task
      */
-    Future<Integer> handleTask(AdversarialSearchTask task);
+    Future<Pair<Integer, GameState>> handleTask(AdversarialSearchTask task);
 
     /**
      * Gracefully terminate this peer's resources.

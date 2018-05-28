@@ -1,5 +1,7 @@
 package task;
 
+import javafx.util.Pair;
+
 import java.io.Serializable;
 import java.util.Collection;
 
@@ -23,7 +25,7 @@ public abstract class AdversarialSearchTask implements Serializable {
         return state;
     }
 
-    public abstract int runTask();
+    public abstract Pair<Integer, GameState> runTask();
 
     public abstract Collection<AdversarialSearchTask> partition();
 
