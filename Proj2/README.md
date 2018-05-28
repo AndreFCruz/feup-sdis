@@ -18,7 +18,7 @@ If no contact provided, peer will create a new Chord ring.
 
 4. To run the ClientApp:
   - open a terminal, navigate to the project's root folder and type "sh query.sh < peer_address:port > < action > [< oper1 > < oper2 >]"
-    - < action > is one of ```status```, ```get```, ```put``` or ```find_successor```.
+    - < action > is one of ```status```, ```get```, ```put``` , ```find_successor```, or ```task```.
 	(_e.g._ ```sh query.sh localhost:4001 STATUS```)
 
 
@@ -57,7 +57,7 @@ To run clent app
  
  Argument description:
 		<peer_address:port> – peer access point
-		action – can be STATUS, LOOKUP, PUT, FIND_SUCCESSOR
+		action – can be STATUS, LOOKUP, PUT, FIND_SUCCESSOR or TASK
 		oper1 – 
 		oper2 – 
 Note: oper1, oper2,... depends on action
@@ -66,6 +66,7 @@ Eg.
  java -classpath out/production/Proj2 service.InitClient localhost:4000 STATUS
  java -classpath out/production/Proj2 service.InitClient localhost:4000 GET $1
  java -classpath out/production/Proj2 service.InitClient localhost:4000 PUT $1 $2
+  java -classpath out/production/Proj2 service.InitClient localhost:4000 TASK
  (where $1 represents Key and $2 represent object)
 ```
 
