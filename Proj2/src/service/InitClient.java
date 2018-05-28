@@ -17,6 +17,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 
 public class InitClient implements Runnable {
@@ -34,6 +35,8 @@ public class InitClient implements Runnable {
     // Operands useful for GET and PUT operations on the Distributed Hash Map
     private String oper1;
     private String oper2;
+
+    public static Scanner in = new Scanner(System.in); // the input Scanner
 
     public static void main(String[] args) {
         if (args.length < 2 || args.length > 4) {
@@ -66,11 +69,12 @@ public class InitClient implements Runnable {
         handlers.put("PUT", this::handlePut);
         handlers.put("FIND_SUCCESSOR", this::handleFindSuccessor);
         handlers.put("TASK", this::handleTask);
+        handlers.put("MATCH", this::handleMatch);
     }
 
     @Override
     public void run() {
-        if (! initiateRMIStub())
+        if (!initiateRMIStub())
             return;
 
         try {
@@ -171,5 +175,71 @@ public class InitClient implements Runnable {
         System.out.println("Task sent");
     }
 
+    public void handleMatch() {
+        TicTacToeBoard board = new TicTacToeBoard();
+
+        System.out.println("Welcome to Distributed Tic-Tac-Toe!");
+        System.out.println("Starting match...");
+
+        System.out.println(board.display());
+
+        boolean isOver = false;
+        while(!isOver) {
+            getInput(board);
+
+            TicTacToeState state = new TicTacToeState(board, TicTacToeBoard.Cell.NOUGH);
+            TicTacToe ttt = new TicTacToe();
+            AdversarialSearchTask task = new MinimaxSearchTask(
+                    ttt,
+                    state,
+                    new TicTacToePlayer("NOUGH", TicTacToeBoard.Cell.NOUGH)
+            );
+
+            board = makeRequest(task);
+
+            if(ttt.isStateTerminal(state))
+                isOver = true;
+        }
+
+        System.out.println("Game Over!");
+    }
+
+    private void getInput(TicTacToeBoard board) {
+        boolean validInput = false;
+
+        while (!validInput) {
+            System.out.print("Player 'X', enter your move (row[1-3] column[1-3]): ");
+
+            int row = in.nextInt() - 1;
+            int col = in.nextInt() - 1;
+
+            if (validInput(board, row, col)) {
+                validInput = true;
+                board.setCell(row, col, TicTacToeBoard.Cell.CROSS);
+            } else
+                System.out.print("Invalid move, try again...");
+        }
+
+        System.out.println(board.display());
+    }
+
+    private TicTacToeBoard makeRequest(AdversarialSearchTask task) {
+        System.out.println("AI is thinking...");
+        GameState result = null;
+        try {
+            result = stub.initiateTask(task);
+        } catch (RemoteException e) {
+            System.err.println("Remote Client exception: " + e.getMessage());
+        }
+
+        System.out.println(result.getBoard().display());
+        return (TicTacToeBoard) result.getBoard();
+    }
+
+    private boolean validInput(TicTacToeBoard board, int row, int col) {
+        return row >= 0 && row < TicTacToeBoard.N_ROWS
+                && col >= 0 && col < TicTacToeBoard.N_COLS
+                && board.isFreeCell(row, col);
+    }
 }
 
