@@ -5,6 +5,9 @@ import java.net.InetSocketAddress;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+/**
+  * Stores information about a key
+  */
 public class Key implements Serializable {
 
     private static final long serialVersionUID = 100L;
@@ -29,10 +32,16 @@ public class Key implements Serializable {
         this(key & 0x00000000ffffffffL);
     }
 
+    /**
+      * Constructs a key from a node's address
+      */
     public static Key fromAddress(InetSocketAddress address) {
         return address == null ? null : new Key(hashSocketAddress(address));
     }
 
+    /**
+      * Constructs a key from an object
+      */
     public static Key fromObject(Object obj) {
         if (obj == null) return null;
 
@@ -57,6 +66,9 @@ public class Key implements Serializable {
         return new Key(hashData(data).hashCode());
     }
 
+    /**
+      * Hashes a node's address to obtain a key
+      */
     private static int hashSocketAddress(InetSocketAddress address) {
         String ip = address.getAddress().getHostAddress();
         String port = Integer.toString(address.getPort());
@@ -94,6 +106,8 @@ public class Key implements Serializable {
     }
 
     /**
+     * Shifts the key to the left by a given amount of bits
+     * @param bits amount of bits to shift
      * @return key + 2^bits
      */
     public Key shift(final int bits) {
@@ -105,6 +119,10 @@ public class Key implements Serializable {
         return (int) this.key;
     }
 
+    /**
+      * Compares two keys
+      * @return true if same object or key values are the same
+      */
     @Override
     public boolean equals(final Object object) {
         if (! (object instanceof Key) )

@@ -20,11 +20,11 @@ public class FixFingers extends RecurrentTask {
         this.node = node;
     }
 
+    /**
+      * Periodically checks the validity of the node's finger (except the node's successor, i=0)
+      */
     @Override
     public void run() {
-        // Periodically checks the validity of the node's fingers
-        // except the node's successor (i=0)
-
         for (int i = 1; i < Key.KEY_SIZE; i++) {
             Key ithStart = node.getKey().shift(i);
             InetSocketAddress ithFinger = node.findSuccessor(ithStart);
