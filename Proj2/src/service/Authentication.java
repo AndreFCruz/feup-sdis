@@ -8,6 +8,9 @@ import java.util.Scanner;
 
 public class Authentication {
 
+  /**
+    * Logs in to the peer
+    */
     public static void login(RemotePeer stub) throws RemoteException {
         String[] result;
 
@@ -17,7 +20,9 @@ public class Authentication {
 
     }
 
-
+    /**
+      * Get login credentials from user
+      */
     private static String[] getCredentials() {
         String[] result = new String[2];
 
@@ -32,6 +37,9 @@ public class Authentication {
         return result;
     }
 
+    /**
+      * Check if credentials are correct
+      */
     private static boolean checkLogin(RemotePeer stub, String username, String password) throws RemoteException {
         Key pass = (Key) stub.get(Key.fromObject(username));
 

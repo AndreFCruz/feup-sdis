@@ -21,12 +21,21 @@ public abstract class AdversarialSearchTask implements Serializable {
         return problemDefinition;
     }
 
+    /**
+      * Gets current game state
+      */
     public GameState getState() {
         return state;
     }
 
+    /**
+      * Executes the adversarial search task (i.e. adversarial search algorithm)
+      */
     public abstract Pair<Integer, GameState> runTask();
 
+    /**
+      * Partitiosn the task into smaller, similar subtasks
+      */
     public abstract Collection<AdversarialSearchTask> partition();
 
 }

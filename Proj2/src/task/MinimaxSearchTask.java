@@ -9,6 +9,9 @@ import java.util.Collection;
 import static java.lang.Integer.max;
 import static java.lang.Integer.min;
 
+/**
+  * Specific adversarial search algorithm
+  */
 public class MinimaxSearchTask extends AdversarialSearchTask {
 
     private Player maximizing;
@@ -18,6 +21,9 @@ public class MinimaxSearchTask extends AdversarialSearchTask {
         this.maximizing = maximizing;
     }
 
+    /**
+      * Minimax task. Executes the minimax algorithm
+      */
     @Override
     public Pair<Integer, GameState> runTask() {
         if(problemDefinition.isStateTerminal(state)) {
