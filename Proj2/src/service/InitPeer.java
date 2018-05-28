@@ -61,6 +61,9 @@ public class InitPeer {
         System.out.println("InitPeer: SUCCESS!");
     }
 
+    /**
+      * Sets up system properties necessary for SSLSocket usage
+      */
     private static void initiateSystemConfigs(){
         System.setProperty("javax.net.ssl.keyStore", "server.keys");
         System.setProperty("javax.net.ssl.keyStorePassword", "123456");

@@ -50,6 +50,9 @@ public class PeerImpl implements Peer {
         setUpHelperThreads();
     }
 
+    /**
+      * Sets up the auxiliar threads for the chord protocol execution
+      */
     private void setUpHelperThreads() {
         listener = new Listener(this, dispatcher);
         stabilizer = new Stabilizer(this, dispatcher);
@@ -58,6 +61,9 @@ public class PeerImpl implements Peer {
         handoffData = new HandoffData(this);
     }
 
+    /**
+      * Starts the auxiliar threads for the chord protocol execution
+      */
     private void startHelperThreads() {
         listener.start();
         stabilizer.start();
@@ -66,6 +72,9 @@ public class PeerImpl implements Peer {
         handoffData.start();
     }
 
+    /**
+      * Checks if this node is responsible for given key
+      */
     private boolean isResponsibleForKey(Key key) {
         if (predecessor == null) return false;
         return key.isBetween(Key.fromAddress(predecessor), this.getKey());
@@ -91,6 +100,9 @@ public class PeerImpl implements Peer {
         return predecessor;
     }
 
+    /**
+      * Lookup operation. Checks what node is responsible for given key
+      */
     @Override
     public Serializable lookup(Key key) {
         Logger.logWarning("Searching for key " + key);
@@ -104,6 +116,9 @@ public class PeerImpl implements Peer {
         return response.getArg();
     }
 
+    /**
+      * Sends a store request for given object with associated key
+      */
     @Override
     public void put(Key key, Serializable obj) {
         Logger.logWarning("Storing object with key " + key);
@@ -118,11 +133,17 @@ public class PeerImpl implements Peer {
         Logger.logWarning("Response to PUT request: " + response.getType());
     }
 
+    /**
+      * Obtains the i-th node in the local finger table
+      */
     @Override
     public InetSocketAddress getIthFinger(int i) {
         return fingers.get(i);
     }
 
+    /**
+      * Sets the i-th node in the local finger table
+      */
     @Override
     public void setIthFinger(int i, InetSocketAddress address) {
         Logger.log("Setting finger at i=" + i + " -> " + address);
@@ -131,12 +152,18 @@ public class PeerImpl implements Peer {
         fingers.set(i, address);
     }
 
+    /**
+      * Sets the node's predecessor
+      */
     @Override
     public void setPredecessor(InetSocketAddress newPredecessor) {
         Logger.log("New predecessor. " + predecessor + " -> " + newPredecessor);
         this.predecessor = newPredecessor;
     }
 
+    /**
+      * Creates the chord ring (in case it's the 1st node joining)
+      */
     @Override
     public void create() {
         Logger.log("Creating Chord Ring.");
@@ -144,6 +171,9 @@ public class PeerImpl implements Peer {
         setIthFinger(0, localAddress);
     }
 
+    /**
+      * Joins a chord ring
+      */
     @Override
     public boolean join(InetSocketAddress contact) {
         Logger.log("Joining Chord at " + contact);
@@ -160,6 +190,9 @@ public class PeerImpl implements Peer {
         return true;
     }
 
+    /**
+      * Notifies the immediate successor, informing that this is its (alive) predecessor
+      */
     @Override
     public boolean notify(InetSocketAddress successor) {
         Logger.log("Notifying " + successor + ".");
@@ -176,6 +209,9 @@ public class PeerImpl implements Peer {
         return response.getType() == Message.Type.OK;
     }
 
+    /**
+      * Sets up new predecessor after being duly notified
+      */
     @Override
     public void notified(InetSocketAddress newPred) {
         Logger.log("Notified by " + newPred + ".");
@@ -192,6 +228,9 @@ public class PeerImpl implements Peer {
         }
     }
 
+    /**
+      * Finds the successor node for given key
+      */
     @Override
     public InetSocketAddress findSuccessor(Key key) {
         Logger.log("Finding Successor of key " + key);
@@ -209,6 +248,9 @@ public class PeerImpl implements Peer {
         return dispatcher.requestAddress(pred, request);
     }
 
+    /**
+      * Hands of locally stored data for which the node no longer has responsibility
+      */
     @Override
     public void handoff() {
         for (Key key : this.data.keySet()) {
@@ -220,7 +262,9 @@ public class PeerImpl implements Peer {
         }
     }
 
-
+    /**
+      * Obtains the closest preceeding node in the finger table associated to given key
+      */
     private InetSocketAddress closestPrecedingFinger(Key key) {
         for (int i = fingers.length() - 1; i > 0; i--) {
             InetSocketAddress ithFinger = getIthFinger(i);
@@ -230,6 +274,9 @@ public class PeerImpl implements Peer {
         return localAddress;
     }
 
+    /**
+      * Initiates an adversarial search task (partitions it and sends over to neighbors)
+      */
     @Override
     public AdversarialSearchTask initiateTask(AdversarialSearchTask task) {
         Collection<AdversarialSearchTask> tasks = task.partition();
@@ -266,11 +313,17 @@ public class PeerImpl implements Peer {
         return bestChoice;
     }
 
+    /**
+      * Submits an adversarial search (sub)task to be executed
+      */
     @Override
     public Future<Pair<Integer, GameState>> handleTask(AdversarialSearchTask task) {
         return executorService.submit(task::runTask);
     }
 
+    /**
+      * Leave the chord ring
+      */
     @Override
     public void terminate() {
         this.leave();

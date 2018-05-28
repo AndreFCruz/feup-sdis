@@ -35,6 +35,11 @@ public class Listener extends ThreadImpl {
         this.serverSocket = initServerSocket(port);
     }
 
+    /**
+      * Initiates the server socket
+      * @param port connection port
+      * @return the initialized socket
+      */
     public SSLServerSocket initServerSocket(int port) {
 
         SSLServerSocketFactory sslServerSocketFactory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
@@ -54,6 +59,9 @@ public class Listener extends ThreadImpl {
         return sslServerSocket;
     }
 
+    /**
+      * Accepts connections and schedules respective handlers
+      */
     @Override
     protected void act() {
         final SSLSocket socket;
@@ -68,6 +76,9 @@ public class Listener extends ThreadImpl {
         executorService.submit(() -> handleConnection(socket));
     }
 
+    /**
+      * Frees the socket's resources, terminating
+      */
     @Override
     protected void terminate() {
         try {
@@ -77,6 +88,10 @@ public class Listener extends ThreadImpl {
         }
     }
 
+    /**
+      * Dispatches a connection message
+      * @param socket connection socket
+      */
     private void handleConnection(Socket socket) {
         ObjectInputStream input;
         ObjectOutputStream output;

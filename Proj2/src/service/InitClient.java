@@ -67,6 +67,9 @@ public class InitClient implements Runnable {
         handlers.put("TASK", this::handleTask);
     }
 
+    /**
+      * Initiates the RMI stub, authenticates user and executes desired action
+      */
     @Override
     public void run() {
         if (! initiateRMIStub())
@@ -107,6 +110,9 @@ public class InitClient implements Runnable {
         return true;
     }
 
+    /**
+      * Handles a status request
+      */
     private void handleStatus() {
         try {
             System.out.println(stub.getStatus());
@@ -115,6 +121,9 @@ public class InitClient implements Runnable {
         }
     }
 
+    /**
+      * Handles a get request
+      */
     private void handleGet() {
         Key key = Key.fromObject(oper1);
         System.out.println("Searching for data with key: " + key + " (" + oper1 + ")");
@@ -128,6 +137,9 @@ public class InitClient implements Runnable {
         System.out.println("Data: " + data);
     }
 
+    /**
+      * Handles a put request
+      */
     private void handlePut() {
         Key key = Key.fromObject(oper1);
         System.out.println("Storing data data with key: " + key + " (" + oper1 + ")");
@@ -139,6 +151,9 @@ public class InitClient implements Runnable {
         }
     }
 
+    /**
+      * Handles a find successor request
+      */
     private void handleFindSuccessor() {
         Key key = new Key(Integer.parseInt(oper1));
         System.out.println("Finding successor of key: " + key + " (" + oper1 + ")");
@@ -152,6 +167,9 @@ public class InitClient implements Runnable {
         System.out.println("Successor's Address: " + address);
     }
 
+    /**
+      * Handles a task request
+      */
     private void handleTask() {
         AdversarialSearchTask task = new MinimaxSearchTask(
                 new TicTacToe(),
@@ -169,4 +187,3 @@ public class InitClient implements Runnable {
     }
 
 }
-

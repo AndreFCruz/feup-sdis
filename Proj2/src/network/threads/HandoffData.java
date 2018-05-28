@@ -13,6 +13,9 @@ public class HandoffData extends RecurrentTask {
         this.node = node;
     }
 
+    /**
+      * Hands off data stored in the node for which it is not longer responsible
+      */
     @Override
     public void run() {
         node.handoff();

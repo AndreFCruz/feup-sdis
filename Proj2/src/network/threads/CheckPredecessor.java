@@ -11,7 +11,9 @@ import java.net.InetSocketAddress;
  * Periodically checks whether node's predecessor is alive.
  */
 public class CheckPredecessor extends RecurrentTask {
-
+    /**
+      * Periodicity of check operation
+      */
     private static final int INTERVAL = 2000;
 
     private ChordNode node;
@@ -24,6 +26,9 @@ public class CheckPredecessor extends RecurrentTask {
         this.dispatcher = dispatcher;
     }
 
+    /**
+      * Checks if the node's predecessor is still alive
+      */
     @Override
     public void run() {
         InetSocketAddress predecessor = node.getPredecessor();
