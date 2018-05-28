@@ -283,6 +283,7 @@ public class PeerImpl implements Peer {
 
         ConcurrentMap<Key, Integer> results = new ConcurrentHashMap<>();
         AtomicInteger i = new AtomicInteger(0);
+
         for(AdversarialSearchTask childTask : tasks) {
             Message<AdversarialSearchTask> message = Message.makeRequest(Message.Type.TASK, childTask, localAddress);
             InetSocketAddress destination = findSuccessor(Key.fromObject(childTask));
