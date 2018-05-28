@@ -17,8 +17,8 @@ public class RemotePeerImpl implements RemotePeer {
     }
 
     @Override
-    public void initiateTask(AdversarialSearchTask task) throws RemoteException {
-        peer.initiateTask(task);
+    public AdversarialSearchTask initiateTask(AdversarialSearchTask task) throws RemoteException {
+        return peer.initiateTask(task);
     }
 
     @Override

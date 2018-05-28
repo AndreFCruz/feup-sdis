@@ -13,7 +13,7 @@ public interface Peer extends ChordNode {
      *  following the Chord implementation.
      * @param task the client's requested task.
      */
-    void initiateTask(AdversarialSearchTask task);
+    AdversarialSearchTask initiateTask(AdversarialSearchTask task);
 
     /**
      * Handles a given Task.

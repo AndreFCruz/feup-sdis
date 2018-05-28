@@ -17,7 +17,7 @@ public interface RemotePeer extends Remote {
      *  following the Chord implementation.
      * @param task the client's requested task.
      */
-    void initiateTask(AdversarialSearchTask task) throws RemoteException;
+    AdversarialSearchTask initiateTask(AdversarialSearchTask task) throws RemoteException;
 
     /**
      * Gracefully terminate this peer's resources.

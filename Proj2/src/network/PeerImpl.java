@@ -10,7 +10,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReferenceArray;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class PeerImpl implements Peer {
 
@@ -153,7 +155,6 @@ public class PeerImpl implements Peer {
         InetSocketAddress successorOfKey = dispatcher.requestAddress(contact, request);
 
         setIthFinger(0, successorOfKey);
-
         return true;
     }
 
@@ -228,16 +229,39 @@ public class PeerImpl implements Peer {
     }
 
     @Override
-    public void initiateTask(AdversarialSearchTask task) {
+    public AdversarialSearchTask initiateTask(AdversarialSearchTask task) {
         Collection<AdversarialSearchTask> tasks = task.partition();
 
-        Map<Key, AdversarialSearchTask> taskMap = new HashMap<>();
+        ConcurrentMap<Key, Integer> results = new ConcurrentHashMap<>();
+        AtomicInteger i = new AtomicInteger(0);
         for(AdversarialSearchTask childTask : tasks) {
             Message<AdversarialSearchTask> message = Message.makeRequest(Message.Type.TASK, childTask, localAddress);
-            taskMap.put(Key.fromObject(childTask), childTask);
             InetSocketAddress destination = findSuccessor(Key.fromObject(childTask));
-            dispatcher.sendRequestAsync(destination, message, (Message response) -> Logger.logWarning(response.toString()));
+            dispatcher.sendRequestAsync(destination, message, (Message response) -> {
+                results.put(Key.fromObject(childTask), (Integer) response.getArg());
+                i.addAndGet(1);
+            });
         }
+
+        while (i.get() < results.size()) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        AdversarialSearchTask bestChoice = null;
+        Integer max = null;
+        for (AdversarialSearchTask childTask : tasks) {
+            Key taskKey = Key.fromObject(childTask);
+            if (max == null || results.get(taskKey) > max) {
+                max = results.get(taskKey);
+                bestChoice = childTask;
+            }
+        }
+
+        return bestChoice;
     }
 
     @Override
