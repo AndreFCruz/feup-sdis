@@ -308,7 +308,7 @@ public class PeerImpl implements Peer {
             Key taskKey = Key.fromObject(childTask);
             if (max == null || results.get(taskKey) > max) {
                 max = results.get(taskKey);
-                bestChoice = childTask;t 
+                bestChoice = childTask;
             }
         }
 

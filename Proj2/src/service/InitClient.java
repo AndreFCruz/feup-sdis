@@ -202,21 +202,24 @@ public class InitClient implements Runnable {
         System.out.println(board.display());
 
         while(true) {
+            getInput(board);
 
-            TicTacToeState state = new TicTacToeState(board, TicTacToeBoard.Cell.CROSS);
+            TicTacToeState state = new TicTacToeState(board, TicTacToeBoard.Cell.NOUGH);
             TicTacToe ttt = new TicTacToe();
             AdversarialSearchTask task = new MinimaxSearchTask(
                     ttt,
                     state,
-                    new TicTacToePlayer("CROSSES", TicTacToeBoard.Cell.CROSS)
+                    new TicTacToePlayer("NOUGHTS", TicTacToeBoard.Cell.NOUGH)
             );
-
-            board = makeRequest(task);
 
             if(ttt.isStateTerminal(state))
                 break;
 
-            getInput(board);
+            board = makeRequest(task);
+
+            TicTacToeState nState = new TicTacToeState(board, TicTacToeBoard.Cell.CROSS);
+            if(ttt.isStateTerminal(nState))
+                break;
         }
 
         System.out.println("Game Over!");
@@ -226,14 +229,14 @@ public class InitClient implements Runnable {
         boolean validInput = false;
 
         while (!validInput) {
-            System.out.print("Player 'O', enter your move (row[1-3] column[1-3]): ");
+            System.out.print("Player 'X', enter your move (row[1-3] column[1-3]): ");
 
             int row = in.nextInt() - 1;
             int col = in.nextInt() - 1;
 
             if (validInput(board, row, col)) {
                 validInput = true;
-                board.setCell(row, col, TicTacToeBoard.Cell.NOUGH);
+                board.setCell(row, col, TicTacToeBoard.Cell.CROSS);
             } else
                 System.out.print("Invalid move, try again...");
         }
