@@ -57,7 +57,6 @@ public class TicTacToeBoard implements Board, Cloneable {
             result += "| " + row[0] + " | " + row[1] + " | " + row[2] + " |\n";
             result += "|-----------|\n";
         }
-        result += "/---|---|---\\\n";
 
         return result;
     }

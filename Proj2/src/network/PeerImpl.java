@@ -280,6 +280,7 @@ public class PeerImpl implements Peer {
     @Override
     public GameState initiateTask(AdversarialSearchTask task) {
         Collection<AdversarialSearchTask> tasks = task.partition();
+        int nResponses = tasks.size();
 
         ConcurrentMap<Key, Integer> results = new ConcurrentHashMap<>();
         AtomicInteger i = new AtomicInteger(0);
@@ -293,7 +294,7 @@ public class PeerImpl implements Peer {
             });
         }
 
-        while (i.get() < results.size()) {
+        while (i.get() != nResponses) {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
@@ -307,7 +308,7 @@ public class PeerImpl implements Peer {
             Key taskKey = Key.fromObject(childTask);
             if (max == null || results.get(taskKey) > max) {
                 max = results.get(taskKey);
-                bestChoice = childTask;
+                bestChoice = childTask;t 
             }
         }
 

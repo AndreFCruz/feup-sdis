@@ -262,7 +262,7 @@ public class MessageDispatcher extends Thread {
             e.printStackTrace();
         }
 
-        Message<Pair<Integer, GameState>> response = Message.makeResponse(Message.Type.TASK, result, request.getId());
+        Message<Integer> response = Message.makeResponse(Message.Type.TASK, result.getKey(), request.getId());
         sendResponse(sender, response);
     }
 
