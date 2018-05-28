@@ -3,6 +3,7 @@ package remote;
 import network.Key;
 import network.Peer;
 import task.AdversarialSearchTask;
+import task.GameState;
 
 import java.io.Serializable;
 import java.net.InetSocketAddress;
@@ -17,7 +18,7 @@ public class RemotePeerImpl implements RemotePeer {
     }
 
     @Override
-    public AdversarialSearchTask initiateTask(AdversarialSearchTask task) throws RemoteException {
+    public GameState initiateTask(AdversarialSearchTask task) throws RemoteException {
         return peer.initiateTask(task);
     }
 

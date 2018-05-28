@@ -3,6 +3,7 @@ package service;
 import network.Key;
 import remote.RemotePeer;
 import task.AdversarialSearchTask;
+import task.GameState;
 import task.MinimaxSearchTask;
 import task.Player;
 import task.tictactoe.TicTacToe;
@@ -159,12 +160,14 @@ public class InitClient implements Runnable {
                 new TicTacToePlayer("CROSSES", TicTacToeBoard.Cell.CROSS)
         );
 
+        GameState result = null;
         try {
-            stub.initiateTask(task);
+            result = stub.initiateTask(task);
         } catch (RemoteException e) {
             System.err.println("Remote Client exception: " + e.getMessage());
         }
 
+        System.out.println(result.getBoard().display());
         System.out.println("Task sent");
     }
 

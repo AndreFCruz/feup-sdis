@@ -231,7 +231,7 @@ public class PeerImpl implements Peer {
     }
 
     @Override
-    public AdversarialSearchTask initiateTask(AdversarialSearchTask task) {
+    public GameState initiateTask(AdversarialSearchTask task) {
         Collection<AdversarialSearchTask> tasks = task.partition();
 
         ConcurrentMap<Key, Integer> results = new ConcurrentHashMap<>();
@@ -263,7 +263,7 @@ public class PeerImpl implements Peer {
             }
         }
 
-        return bestChoice;
+        return bestChoice.getState();
     }
 
     @Override
