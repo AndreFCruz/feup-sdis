@@ -3,3 +3,8 @@ languages:
 - java
 
 component_depth: 4
+
+exclude:
+- /TP1/.*
+- /TP2/.*
+- /Proj1/.*
